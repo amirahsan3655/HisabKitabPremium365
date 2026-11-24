@@ -1,7 +1,8 @@
 {
-  "version": "1.8-beta",
-  "display": "HK 1.8 Beta",
-  "channel": "beta",
+  "version": "2.0",
+  "display": "HK 2.0",
+  "channel": "stable",
   "name": "Hisab Kitab Premium",
-  "next_major": "HK 2"
+  "next_major": "HK 2.1",
+  "build": "20a"
 }

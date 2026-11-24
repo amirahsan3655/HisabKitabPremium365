@@ -1,4 +1,4 @@
-const CACHE = "hisab-kitab-1.8-beta-s2";
+const CACHE = "hisab-kitab-2.0";
 const ASSETS = ["./", "./index.html", "./style.css", "./script.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {

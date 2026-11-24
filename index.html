@@ -9,12 +9,12 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-  <link rel="manifest" href="manifest.webmanifest?v=18e" />
-  <title>Hisab Kitab Premium | Personal Finance</title>
+  <link rel="manifest" href="manifest.webmanifest?v=20a" />
+  <title>Hisab Kitab HK 2.0 | Personal Finance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600;700&family=Instrument+Serif&family=Bricolage+Grotesque:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Bebas+Neue&family=DM+Serif+Display&family=Space+Mono:wght@400;700&family=Pacifico&family=Caveat:wght@400;500;600;700&family=Archivo+Black&family=Libre+Baskerville:wght@400;700&family=Rajdhani:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&family=Yeseva+One&family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Sora:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=18e" />
+  <link rel="stylesheet" href="style.css?v=20a" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Google Identity optional: loaded only when Client ID is configured -->
   <script>
@@ -1196,6 +1196,26 @@
                       <option value="mocha">Mocha</option>
                       <option value="electric">Electric</option>
                       <option value="blossom">Blossom</option>
+                      <option value="obsidian">Obsidian</option>
+                      <option value="pearl">Pearl</option>
+                      <option value="magma">Magma</option>
+                      <option value="glacier">Glacier</option>
+                      <option value="twilight">Twilight</option>
+                      <option value="safari">Safari</option>
+                      <option value="cosmos">Cosmos</option>
+                      <option value="matcha">Matcha</option>
+                      <option value="burgundy">Burgundy</option>
+                      <option value="titanium">Titanium</option>
+                      <option value="nordic">Nordic</option>
+                      <option value="cacao">Cacao</option>
+                      <option value="rosegold">Rose Gold</option>
+                      <option value="deepsea">Deep Sea</option>
+                      <option value="volcano">Volcano</option>
+                      <option value="mist">Mist</option>
+                      <option value="carbon">Carbon</option>
+                      <option value="champagne">Champagne</option>
+                      <option value="onyx">Onyx</option>
+                      <option value="coralreef">Coral Reef</option>
                       <option value="iosliquid">iOS Liquid Glass</option>
                       <option value="macspace">Mac Space Gray</option>
                       <option value="sequoia">macOS Sequoia</option>
@@ -2269,7 +2289,7 @@
   <div class="modal-backdrop" id="whatsNewBackdrop" hidden>
     <div class="modal-card app-update-card whats-new-card" role="dialog" aria-modal="true">
       <div class="app-update-icon"><i data-lucide="sparkles"></i></div>
-      <div class="app-update-badge" id="whatsNewBadge">HK 1.8 Beta</div>
+      <div class="app-update-badge" id="whatsNewBadge">HK 2.0</div>
       <h2>What's new</h2>
       <ul class="whats-new-list" id="whatsNewList">
         <!-- filled by JS from APP_CHANGELOG -->
@@ -2357,10 +2377,10 @@
     </div>
   </div>
 
-        <script src="script.js?v=18e"></script>
+        <script src="script.js?v=20a"></script>
   <script>
     (function () {
-      const APP_VER = "1.8-beta";
+      const APP_VER = "2.0";
       const VER_KEY = "hisabKitabAppVer";
       const SKIP_KEY = "hisabKitabUpdateSkip";
       let popupOpen = false;
@@ -2377,8 +2397,8 @@
         const badge = el("navSettingsUpdateBadge");
         const card = el("appUpdateCard");
         const btn = el("settingsCheckUpdateBtn");
-        if (curEl) curEl.textContent = "Installed HK 1.8 Beta";
-        if (latEl) latEl.textContent = "Latest HK 1.8 Beta";
+        if (curEl) curEl.textContent = "Installed HK 2.0";
+        if (latEl) latEl.textContent = "Latest HK 2.0";
         if (state === "available") {
           if (status) status.textContent = "New update available — install when ready";
           if (dot) { dot.hidden = false; dot.style.display = ""; }
@@ -2433,7 +2453,7 @@
         bd.classList.remove("is-latest", "is-available");
         bd.classList.add("is-checking");
         setIcon("loader");
-        if (el("appUpdateBadge")) el("appUpdateBadge").textContent = "HK 1.8 Beta";
+        if (el("appUpdateBadge")) el("appUpdateBadge").textContent = "HK 2.0";
         if (el("appUpdateTitle")) el("appUpdateTitle").textContent = "Checking for updates";
         if (el("appUpdateText")) el("appUpdateText").textContent = "Looking for a newer version of Hisab Kitab…";
         if (el("appUpdateConfirm")) { el("appUpdateConfirm").hidden = true; el("appUpdateConfirm").style.display = "none"; }
@@ -2457,7 +2477,7 @@
         bd.classList.remove("is-latest", "is-checking");
         bd.classList.add("is-available");
         setIcon("download");
-        if (el("appUpdateBadge")) el("appUpdateBadge").textContent = "HK 1.8 Beta";
+        if (el("appUpdateBadge")) el("appUpdateBadge").textContent = "HK 2.0";
         if (el("appUpdateTitle")) el("appUpdateTitle").textContent = "Update available";
         if (el("appUpdateText")) el("appUpdateText").textContent =
           "HK " + ver + " is ready. Update now for the latest features and fixes.";
@@ -2501,7 +2521,7 @@
         bd.classList.remove("is-available", "is-checking");
         bd.classList.add("is-latest");
         setIcon("check-circle-2");
-        if (el("appUpdateBadge")) el("appUpdateBadge").textContent = "HK 1.8 Beta";
+        if (el("appUpdateBadge")) el("appUpdateBadge").textContent = "HK 2.0";
         if (el("appUpdateTitle")) el("appUpdateTitle").textContent = "You're up to date";
         if (el("appUpdateText")) el("appUpdateText").textContent =
           "No update available. You are on the latest Hisab Kitab.";
@@ -2622,6 +2642,19 @@
         }
         // Changelog for this build — only real new items
         const APP_CHANGELOG = [
+          { ver: "2.0", items: [
+            "Multiple wallets & account balances",
+            "Subscriptions tracker with renewals",
+            "Debt payoff planner (snowball / avalanche)",
+            "Category budget alerts",
+            "Bill due notifications",
+            "Spending heatmap calendar",
+            "Savings challenges",
+            "Custom categories",
+            "Bank CSV import templates",
+            "Family share code (export / import)",
+            "Improved weekly share card"
+          ]},
           { ver: "1.8-beta", items: [
             "Monthly digest — income, spend, savings rate, top categories",
             "CSV import from bank-style files",
@@ -2688,7 +2721,7 @@
         function fillWhatsNew(ver) {
           const list = el("whatsNewList");
           const badge = el("whatsNewBadge");
-          if (badge) badge.textContent = "HK 1.8 Beta";
+          if (badge) badge.textContent = "HK 2.0";
           if (!list) return;
           // Show entries for current version; if none, show latest block + note
           let block = APP_CHANGELOG.find(b => String(b.ver) === String(ver));
