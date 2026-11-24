@@ -6,14 +6,29 @@
   <meta name="theme-color" content="#0c0d10" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <link rel="manifest" href="manifest.webmanifest?v=10" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest?v=18e" />
   <title>Hisab Kitab Premium | Personal Finance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=225" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600;700&family=Instrument+Serif&family=Bricolage+Grotesque:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Bebas+Neue&family=DM+Serif+Display&family=Space+Mono:wght@400;700&family=Pacifico&family=Caveat:wght@400;500;600;700&family=Archivo+Black&family=Libre+Baskerville:wght@400;700&family=Rajdhani:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&family=Yeseva+One&family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Sora:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&family=Nunito:wght@400;600;700&family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=18e" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Google Identity optional: loaded only when Client ID is configured -->
+  <script>
+    (function(){
+      try {
+        var id = localStorage.getItem("hisabKitabGoogleClientIdV1");
+        if (!id) return;
+        var s = document.createElement("script");
+        s.src = "https://accounts.google.com/gsi/client";
+        s.async = true; s.defer = true;
+        document.head.appendChild(s);
+      } catch (e) {}
+    })();
+  </script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -47,9 +62,9 @@
         <button class="nav-link" data-page="goals"><i data-lucide="flag"></i><span data-i18n="nav_goals">Goals</span></button>
         <button class="nav-link" data-page="debts"><i data-lucide="hand-coins"></i><span data-i18n="nav_debts">Debts</span></button>
         <button class="nav-link" data-page="bills"><i data-lucide="calendar-clock"></i><span data-i18n="nav_bills">Bills</span></button>
-        <button class="nav-link" data-page="insights"><i data-lucide="sparkles"></i><span>Insights</span></button>
-        <button class="nav-link nav-link-end" data-page="settings"><i data-lucide="settings"></i><span data-i18n="label_settings">Settings</span></button>
-        <button class="nav-link nav-link-end" data-page="profile"><i data-lucide="user"></i><span>Profile</span></button>
+        <button class="nav-link" data-page="insights"><i data-lucide="sparkles"></i><span data-i18n="nav_insights">Insights</span></button>
+        <button class="nav-link nav-link-end" data-page="settings"><i data-lucide="settings"></i><span data-i18n="label_settings">Settings</span><span class="nav-update-badge" id="navSettingsUpdateBadge" hidden>1</span></button>
+        <button class="nav-link nav-link-end" data-page="profile"><i data-lucide="user"></i><span data-i18n="nav_profile">Profile</span></button>
       </nav>
 
       <div class="sidebar-bottom" id="sidebarBottom">
@@ -165,6 +180,14 @@
         <div class="topbar-actions">
           <div class="today-pill"><i data-lucide="calendar-days"></i><span id="todayLabel">Today</span></div>
           <button type="button" class="icon-btn" id="privacyToggleBtn" title="Privacy mode" aria-label="Toggle privacy mode"><i data-lucide="eye"></i></button>
+          <button type="button" class="theme-switch" id="themeModeToggle" title="Dark / Light" aria-label="Toggle dark and light mode" aria-pressed="false">
+            <span class="theme-switch-track">
+              <span class="theme-switch-thumb" aria-hidden="true">
+                <i data-lucide="moon" class="theme-ico theme-ico-moon"></i>
+                <i data-lucide="sun" class="theme-ico theme-ico-sun"></i>
+              </span>
+            </span>
+          </button>
           <button class="primary-btn" id="addTopBtn"><i data-lucide="plus"></i><span data-i18n="add_tx">Add transaction</span></button>
         </div>
       </header>
@@ -191,6 +214,29 @@
           </div>
         </div>
 <p class="exec-summary" id="execSummary" hidden>Executive summary will appear after you add transactions.</p>
+        <div class="dash-edit-bar" id="dashEditBar">
+          <div class="dash-search-box">
+            <i data-lucide="search"></i>
+            <input type="search" id="dashSearchInput" placeholder="Search dashboard… balance, goals, bills, widgets" autocomplete="off">
+            <button type="button" class="dash-search-clear" id="dashSearchClear" hidden title="Clear">×</button>
+          </div>
+          <button type="button" class="dash-edit-btn" id="dashWidgetsBtn" title="Show or hide widgets">
+            <i data-lucide="layout-grid"></i>
+            <span>Widgets</span>
+          </button>
+          <button type="button" class="dash-edit-btn" id="dashEditBtn" title="Edit layout" aria-pressed="false">
+            <i data-lucide="pencil" id="dashEditIcon"></i>
+            <span id="dashEditLabel">Edit</span>
+          </button>
+          <button type="button" class="dash-edit-btn dash-edit-done" id="dashEditDoneBtn" hidden title="Done">
+            <i data-lucide="check"></i>
+            <span>Done</span>
+          </button>
+        </div>
+        <div id="dashSearchHits" class="dash-search-hits" hidden></div>
+        <div id="dashWidgets" class="dash-widgets">
+        <div class="dash-widget" data-dash-widget="health" draggable="false">
+          <div class="dash-widget-handle" title="Drag to move"><i data-lucide="grip-vertical"></i></div>
         <div class="premium-strip">
           <article class="health-card panel">
             <div class="health-top">
@@ -209,7 +255,36 @@
             <div class="mini-spark" id="miniSpark" aria-hidden="true"></div>
           </article>
         </div>
+        </div>
 
+        <!-- Android-style widget board -->
+        <div class="dash-widget" data-dash-widget="premium" draggable="false">
+          <div class="dash-widget-handle" title="Drag to move"><i data-lucide="grip-vertical"></i></div>
+          <div class="widget-board-wrap">
+            <div class="widget-board-head">
+              <div>
+                <span class="eyebrow">YOUR WIDGETS</span>
+                <p class="muted" style="margin:4px 0 0;font-size:11px">Like Android — search, add, remove anytime</p>
+              </div>
+              <button type="button" class="primary-btn" id="openWidgetGalleryBtn" style="height:34px;padding:0 12px;font-size:12px">
+                <i data-lucide="plus"></i> Add widget
+              </button>
+              <button type="button" class="outline-btn" id="uwBoardSettingsBtn" title="Board layout">
+                <i data-lucide="layout-grid"></i> Layout
+              </button>
+            </div>
+            <div id="userWidgetBoard" class="user-widget-board"></div>
+            <div id="userWidgetEmpty" class="user-widget-empty" hidden>
+              <i data-lucide="layout-grid"></i>
+              <strong>No widgets yet</strong>
+              <span>Tap Add widget / Widgets to search and pin cards here.</span>
+              <button type="button" class="primary-btn" id="emptyAddWidgetBtn">Browse widgets</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-widget" data-dash-widget="stats" draggable="false">
+          <div class="dash-widget-handle" title="Drag to move"><i data-lucide="grip-vertical"></i></div>
         <div class="stats-grid">
           <article class="stat-card balance-card">
             <div class="stat-top">
@@ -245,8 +320,10 @@
             <div class="stat-foot"><span>All recorded entries</span></div>
           </article>
         </div>
+        </div>
 
-
+        <div class="dash-widget" data-dash-widget="kpi" draggable="false">
+          <div class="dash-widget-handle" title="Drag to move"><i data-lucide="grip-vertical"></i></div>
         <div class="kpi-extra-grid">
           <article class="panel kpi-mini">
             <div class="eyebrow">SAVINGS RATE</div>
@@ -269,6 +346,9 @@
             <div class="muted" id="forecastSub">Projected balance</div>
           </article>
         </div>
+        </div>
+        <div class="dash-widget" data-dash-widget="alerts" draggable="false">
+          <div class="dash-widget-handle" title="Drag to move"><i data-lucide="grip-vertical"></i></div>
         <div class="pro-split">
           <article class="panel">
             <div class="panel-head-row">
@@ -300,8 +380,11 @@
             </div>
           </article>
         </div>
+        </div>
 
         <!-- Budget Progress Card -->
+        <div class="dash-widget" data-dash-widget="budget" draggable="false">
+          <div class="dash-widget-handle" title="Drag to move"><i data-lucide="grip-vertical"></i></div>
         <article class="panel budget-overview-card" id="budgetOverviewCard">
           <div class="budget-header">
             <div>
@@ -330,7 +413,10 @@
             </div>
           </div>
         </article>
+        </div>
 
+        <div class="dash-widget" data-dash-widget="charts" draggable="false">
+          <div class="dash-widget-handle" title="Drag to move"><i data-lucide="grip-vertical"></i></div>
         <div class="dashboard-grid">
           <article class="panel chart-panel">
             <div class="panel-heading">
@@ -362,7 +448,10 @@
             </div>
           </article>
         </div>
+        </div>
 
+        <div class="dash-widget" data-dash-widget="recent" draggable="false">
+          <div class="dash-widget-handle" title="Drag to move"><i data-lucide="grip-vertical"></i></div>
         <article class="panel transactions-panel">
           <div class="panel-heading">
             <div>
@@ -391,6 +480,8 @@
             <button class="outline-btn" id="emptyAddBtn">Add first transaction</button>
           </div>
         </article>
+        </div>
+        </div><!-- /dashWidgets -->
       </section>
 
       <!-- TRANSACTIONS -->
@@ -792,21 +883,33 @@
                 <header class="prem-panel-head">
                   <div class="prem-icon"><i data-lucide="shield-check"></i></div>
                   <div>
-                    <h3>Password</h3>
-                    <p>Leave blank to keep current password</p>
+                    <h3 data-i18n="label_password">Password</h3>
+                    <p id="profPassSub" data-i18n="pass_hint">Leave blank to keep current password</p>
                   </div>
                 </header>
                 <div class="prem-fields">
                   <label class="prem-field" id="profCurrentPassWrap">
-                    <span>Current password</span>
+                    <span data-i18n="pass_current">Current password</span>
                     <input id="profCurrentPass" type="password" minlength="4" placeholder="••••••••" autocomplete="off" data-lpignore="true">
                   </label>
+                  <button type="button" class="text-btn" id="profForgotPassBtn" style="align-self:flex-start;margin:-2px 0 4px;font-size:12px;padding:0" data-i18n="pass_forgot">
+                    Forgot password?
+                  </button>
+                  <div id="profForgotPassBox" hidden style="margin:0 0 10px;padding:12px;border-radius:12px;border:1px solid var(--line);background:color-mix(in srgb,var(--panel2) 80%,transparent)">
+                    <p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.5" data-i18n="pass_forgot_help">
+                      Password is only on this device — no email recovery. Confirm to set a new password without the old one.
+                    </p>
+                    <label class="settings-check" style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer">
+                      <input type="checkbox" id="profForgotPassConfirm" style="margin-top:2px">
+                      <span data-i18n="pass_forgot_confirm">I forgot my password and want to set a new one</span>
+                    </label>
+                  </div>
                   <label class="prem-field">
-                    <span>New password</span>
+                    <span data-i18n="pass_new">New password</span>
                     <input id="profNewPass" type="password" minlength="4" placeholder="Min. 4 characters" autocomplete="new-password" data-lpignore="true">
                   </label>
                   <label class="prem-field">
-                    <span>Confirm password</span>
+                    <span data-i18n="pass_confirm">Confirm password</span>
                     <input id="profNewPass2" type="password" minlength="4" placeholder="Repeat password" autocomplete="new-password" data-lpignore="true">
                   </label>
                 </div>
@@ -879,6 +982,7 @@
           </div>
           <div class="insights-head-actions">
             <button type="button" class="outline-btn" id="yearReviewBtn"><i data-lucide="book-open"></i> Year in review</button>
+            <button type="button" class="outline-btn" id="downloadReportBtn"><i data-lucide="download"></i> Download report</button>
             <button type="button" class="primary-btn" id="printReportBtn"><i data-lucide="printer"></i> Print / PDF</button>
           </div>
         </div>
@@ -1013,7 +1117,7 @@
         <div class="section-intro">
           <div>
             <h2>Settings</h2>
-            <p>Appearance, security, backup and tools</p>
+            <p>Appearance, security, data and advanced tools</p>
           </div>
         </div>
         <button type="button" id="settingsAccountBtn" hidden tabindex="-1" aria-hidden="true"></button>
@@ -1024,12 +1128,12 @@
           <section class="settings-section" aria-labelledby="settingsPrefTitle">
             <header class="settings-section-head">
               <div>
-                <h3 class="settings-group-title" id="settingsPrefTitle">Preferences</h3>
-                <p class="settings-group-sub">Theme, currency, navigation and language</p>
+                <h3 class="settings-group-title" id="settingsPrefTitle">Appearance</h3>
+                <p class="settings-group-sub">Theme, layout, font and language</p>
               </div>
             </header>
             <div class="settings-cards-grid" id="settingsCardsGrid">
-              <article class="panel settings-card-main" data-settings-card="theme">
+              <article class="panel settings-card-main" data-settings-card="theme" draggable="true">
                 <div class="settings-card-icon"><i data-lucide="palette"></i></div>
                 <div class="settings-card-body">
                   <h3 data-i18n="label_theme">Theme</h3>
@@ -1092,6 +1196,21 @@
                       <option value="mocha">Mocha</option>
                       <option value="electric">Electric</option>
                       <option value="blossom">Blossom</option>
+                      <option value="iosliquid">iOS Liquid Glass</option>
+                      <option value="macspace">Mac Space Gray</option>
+                      <option value="sequoia">macOS Sequoia</option>
+                      <option value="sonoma">macOS Sonoma</option>
+                      <option value="visionos">visionOS Glass</option>
+                      <option value="sierra">Sierra Blue</option>
+                      <option value="lilacblur">Lilac Glass</option>
+                      <option value="oceanblur">Ocean Mist</option>
+                      <option value="aurorablur">Aurora Glass</option>
+                      <option value="graphiteblur">Graphite Glass</option>
+                      <option value="peachblur">Peach Glass</option>
+                      <option value="mintblur">Mint Glass</option>
+                      <option value="midnightblur">Midnight Glass</option>
+                      <option value="sandblur">Sand Glass</option>
+                      <option value="violetblur">Violet Glass</option>
                     </select>
                     <i data-lucide="chevron-down" class="sb-select-chevron"></i>
                   </div>
@@ -1137,19 +1256,68 @@
                 <div class="settings-card-foot">
                   <div class="sb-select-wrap settings-card-control">
                     <select id="motionSelect" class="sb-select" aria-label="Motion">
-                      <option value="off">Off — no animation</option>
-                      <option value="subtle">Subtle — soft &amp; light</option>
-                      <option value="premium" selected>Premium — polished</option>
-                      <option value="bold">Bold — strong motion</option>
-                      <option value="cinematic">Cinematic — smooth film</option>
-                      <option value="playful">Playful — bouncy</option>
-                      <option value="neon">Neon — glow heavy</option>
-                      <option value="minimal">Minimal — micro only</option>
+                      <option value="off">Off</option>
+                      <option value="silk">Silk — soft glide</option>
+                      <option value="glass">Glass — crystal float</option>
+                      <option value="pulse">Pulse — heartbeat lift</option>
+                      <option value="aurora">Aurora — smooth glow</option>
+                      <option value="snap">Snap — crisp & quick</option>
+                      <option value="float">Float — airy cards</option>
+                      <option value="magnetic">Magnetic — strong pull</option>
+                      <option value="ripple">Ripple — wave feel</option>
+                      <option value="velvet">Velvet — rich depth</option>
+                      <option value="spark">Spark — energetic</option>
+                      <option value="bounce">Bounce — playful spring</option>
+                      <option value="glide">Glide — smooth slide</option>
+                      <option value="zoom">Zoom — scale focus</option>
+                      <option value="tilt">Tilt — 3D lean</option>
+                      <option value="shimmer">Shimmer — light flicker</option>
+                      <option value="elastic">Elastic — stretch back</option>
+                      <option value="soft">Soft — gentle ease</option>
+                      <option value="rigid">Rigid — solid stop</option>
+                      <option value="wave">Wave — flowing motion</option>
+                      <option value="glow">Glow — radiant aura</option>
+                      <option value="lift">Lift — high rise</option>
+                      <option value="press">Press — depth press</option>
+                      <option value="swell">Swell — expand out</option>
+                      <option value="drift">Drift — slow float</option>
+                      <option value="pop">Pop — quick punch</option>
+                      <option value="fade">Fade — soft opacity</option>
+                      <option value="spring">Spring — bouncy return</option>
+                      <option value="crystal">Crystal — sharp glass</option>
+                      <option value="smoke">Smoke — soft haze</option>
+                      <option value="jelly">Jelly — wobbly</option>
+                      <option value="orbit">Orbit — circular feel</option>
+                      <option value="thunder">Thunder — heavy impact</option>
+                      <option value="breeze">Breeze — light air</option>
+                      <option value="marble">Marble — polished slide</option>
+                      <option value="hologram">Hologram — futuristic</option>
                     </select>
                     <i data-lucide="chevron-down" class="sb-select-chevron"></i>
                   </div>
                 </div>
               </article>
+              <article class="panel settings-card-main" data-settings-card="motion-speed">
+                <div class="settings-card-icon"><i data-lucide="gauge"></i></div>
+                <div class="settings-card-body">
+                  <h3>Motion speed</h3>
+                  <p class="muted">Slow down or speed up all animations</p>
+                </div>
+                <div class="settings-card-foot">
+                  <div class="sb-select-wrap settings-card-control">
+                    <select id="motionSpeedSelect" class="sb-select" aria-label="Motion speed">
+                      <option value="0.5">Very slow</option>
+                      <option value="0.75">Slow</option>
+                      <option value="1" selected>Normal</option>
+                      <option value="1.25">Fast</option>
+                      <option value="1.6">Very fast</option>
+                      <option value="2">Nearly instant</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+                  </div>
+                </div>
+              </article>
+
 
               <article class="panel settings-card-main" data-settings-card="currency">
                 <div class="settings-card-icon"><i data-lucide="coins"></i></div>
@@ -1190,6 +1358,120 @@
                 </div>
               </article>
 
+              <article class="panel settings-card-main" data-settings-card="nav-style">
+                <div class="settings-card-icon"><i data-lucide="layout-list"></i></div>
+                <div class="settings-card-body">
+                  <h3>Nav card layout</h3>
+                  <p class="muted">25 templates · each has its own hover feel</p>
+                </div>
+                <div class="settings-card-foot">
+                  <div class="sb-select-wrap settings-card-control" id="navStyleSelectWrap">
+                    <select id="navStyleSelect" class="sb-select" aria-label="Nav card layout">
+                      <option value="glass">Glass — frosted cards</option>
+                      <option value="minimal">Minimal — clean flat</option>
+                      <option value="pill">Pill — soft capsules</option>
+                      <option value="solid">Solid — filled blocks</option>
+                      <option value="outline">Outline — border only</option>
+                      <option value="neon">Neon — glowing edges</option>
+                      <option value="soft">Soft — pastel cards</option>
+                      <option value="bar">Bar — accent strip</option>
+                      <option value="chip">Chip — compact chips</option>
+                      <option value="elegant">Elegant — thin refined</option>
+                      <option value="aurora">Aurora — gradient wash</option>
+                      <option value="luxury">Luxury — gold frame</option>
+                      <option value="cyber">Cyber — tech grid</option>
+                      <option value="frost">Frost — icy glass</option>
+                      <option value="ink">Ink — deep fill</option>
+                      <option value="duo">Duo — split tone</option>
+                      <option value="mesh">Mesh — layered depth</option>
+                      <option value="ribbon">Ribbon — top accent</option>
+                      <option value="halo">Halo — soft glow ring</option>
+                      <option value="slate">Slate — matte panels</option>
+                      <option value="orbit">Orbit — circular icons</option>
+                      <option value="prism">Prism — angled shine</option>
+                      <option value="velvet">Velvet — rich surface</option>
+                      <option value="pulse">Pulse — active heartbeat</option>
+                      <option value="luxe">Luxe — premium badge</option>
+                      <option value="royal">Royal — crown gold rail</option>
+                      <option value="carbon">Carbon — dark fiber</option>
+                      <option value="capsule">Capsule — icon bubbles</option>
+                      <option value="dock">Dock — floating island</option>
+                      <option value="terminal">Terminal — console edge</option>
+                      <option value="emboss">Emboss — raised 3D</option>
+                      <option value="crystal">Crystal — multi shine</option>
+                      <option value="magazine">Magazine — editorial</option>
+                      <option value="sunset">Sunset — warm gradient</option>
+                      <option value="nova">Nova — star glow</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+                  </div>
+                </div>
+              </article>
+
+              <article class="panel settings-card-main" data-settings-card="sidebar-anim">
+                <div class="settings-card-icon"><i data-lucide="sparkles"></i></div>
+                <div class="settings-card-body">
+                  <h3>Sidebar animation</h3>
+                  <p class="muted">Premium motion library for nav links</p>
+                </div>
+                <div class="settings-card-foot">
+                  <div class="sb-select-wrap settings-card-control" id="sidebarAnimSelectWrap">
+                    <select id="sidebarAnimSelect" class="sb-select" aria-label="Sidebar animation">
+                      <option value="none">None — static</option>
+                      <option value="stagger">Stagger — one by one</option>
+                      <option value="cascade">Cascade — soft wave</option>
+                      <option value="slide">Slide — from left</option>
+                      <option value="rise">Rise — from below</option>
+                      <option value="fade">Fade — soft appear</option>
+                      <option value="scale">Scale — pop in</option>
+                      <option value="blur">Blur — focus in</option>
+                      <option value="elastic">Elastic — spring</option>
+                      <option value="sweep">Sweep — light pass</option>
+                      <option value="premium">Premium — staged luxury</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+                  </div>
+                </div>
+              </article>
+
+              <article class="panel settings-card-main" data-settings-card="settings-skin">
+                <div class="settings-card-icon"><i data-lucide="layout-template"></i></div>
+                <div class="settings-card-body">
+                  <h3>Settings card design</h3>
+                  <p class="muted">20 skins · equal card size</p>
+                </div>
+                <div class="settings-card-foot">
+                  <div class="sb-select-wrap settings-card-control">
+                    <select id="settingsSkinSelect" class="sb-select" aria-label="Settings card design">
+                      <option value="mixed">Mixed — each card different (20)</option>
+                      <option value="classic">1 Classic</option>
+                      <option value="glass">2 Glass</option>
+                      <option value="soft">3 Soft</option>
+                      <option value="outline">4 Outline</option>
+                      <option value="solid">5 Solid</option>
+                      <option value="neon">6 Neon</option>
+                      <option value="luxury">7 Luxury</option>
+                      <option value="minimal">8 Minimal</option>
+                      <option value="tile">9 Tile</option>
+                      <option value="ribbon">10 Ribbon</option>
+                      <option value="duo">11 Duo</option>
+                      <option value="elevate">12 Elevate</option>
+                      <option value="frost">13 Frost</option>
+                      <option value="ink">14 Ink</option>
+                      <option value="pill">15 Pill</option>
+                      <option value="mesh">16 Mesh</option>
+                      <option value="aurora">17 Aurora</option>
+                      <option value="slate">18 Slate</option>
+                      <option value="luxe">19 Luxe</option>
+                      <option value="studio">20 Studio</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+                  </div>
+                </div>
+              </article>
+
+
+
               <article class="panel settings-card-main" data-settings-card="lang">
                 <div class="settings-card-icon"><i data-lucide="languages"></i></div>
                 <div class="settings-card-body">
@@ -1200,12 +1482,43 @@
                   <div class="sb-select-wrap settings-card-control">
                     <select id="langSelect" class="sb-select" aria-label="Language">
                       <option value="en">English</option>
-                      <option value="ar">العربية (Arabic)</option>
-                      <option value="ur">اردو (Urdu)</option>
-                      <option value="hi">हिन्दी (Hindi)</option>
-                      <option value="tr">Türkçe (Turkish)</option>
-                      <option value="fr">Français (French)</option>
-                      <option value="id">Bahasa Indonesia</option>
+                      <option value="ar">العربية — Arabic</option>
+                      <option value="ur">اردو — Urdu</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+                  </div>
+                </div>
+              </article>
+
+              <article class="panel settings-card-main" data-settings-card="font">
+                <div class="settings-card-icon"><i data-lucide="type"></i></div>
+                <div class="settings-card-body">
+                  <h3>Font</h3>
+                  <p class="muted">Typography for the whole dashboard</p>
+                </div>
+                <div class="settings-card-foot">
+                  <div class="sb-select-wrap settings-card-control">
+                    <select id="fontSelect" class="sb-select" aria-label="Font">
+                      <option value="fraunces">Fraunces</option>
+                      <option value="syne">Syne</option>
+                      <option value="cormorant">Cormorant Garamond</option>
+                      <option value="instrument-serif">Instrument Serif</option>
+                      <option value="bricolage">Bricolage Grotesque</option>
+                      <option value="playfair">Playfair Display</option>
+                      <option value="jetbrains">JetBrains Mono</option>
+                      <option value="orbitron">Orbitron</option>
+                      <option value="cinzel">Cinzel</option>
+                      <option value="bebas">Bebas Neue</option>
+                      <option value="dm-serif">DM Serif Display</option>
+                      <option value="space-mono">Space Mono</option>
+                      <option value="pacifico">Pacifico</option>
+                      <option value="caveat">Caveat</option>
+                      <option value="archivo-black">Archivo Black</option>
+                      <option value="libre-baskerville">Libre Baskerville</option>
+                      <option value="rajdhani">Rajdhani</option>
+                      <option value="fredoka">Fredoka</option>
+                      <option value="yeseva">Yeseva One</option>
+                      <option value="system">System UI</option>
                     </select>
                     <i data-lucide="chevron-down" class="sb-select-chevron"></i>
                   </div>
@@ -1239,8 +1552,8 @@
               <article class="panel settings-card-main settings-card-action" data-settings-card="lock">
                 <div class="settings-card-icon"><i data-lucide="shield"></i></div>
                 <div class="settings-card-body">
-                  <h3>App lock &amp; PIN</h3>
-                  <p class="muted">Protect this device with a PIN</p>
+                  <h3>App lock</h3>
+                  <p class="muted">PIN protect this device</p>
                 </div>
                 <div class="settings-card-foot">
                   <button type="button" class="outline-btn settings-card-btn" id="settingsLockBtn">
@@ -1252,12 +1565,32 @@
               <article class="panel settings-card-main settings-card-action" data-settings-card="backup">
                 <div class="settings-card-icon"><i data-lucide="cloud-upload"></i></div>
                 <div class="settings-card-body">
-                  <h3>Backup &amp; restore</h3>
-                  <p class="muted">Export or import your data</p>
+                  <h3>Backup</h3>
+                  <p class="muted">Export or restore your data</p>
                 </div>
                 <div class="settings-card-foot">
                   <button type="button" class="outline-btn settings-card-btn" id="settingsBackupOpenBtn">
                     <i data-lucide="download"></i> Backup / Restore
+                  </button>
+                </div>
+              </article>
+
+              <article class="panel settings-card-main settings-card-action" data-settings-card="app-update" id="appUpdateCard">
+                <div class="settings-card-icon"><i data-lucide="refresh-cw"></i></div>
+                <div class="settings-card-body">
+                  <h3>
+                    App update
+                    <span class="update-dot" id="settingsUpdateDot" hidden aria-label="Update available"></span>
+                  </h3>
+                  <p class="muted" id="settingsUpdateStatus">Checking version…</p>
+                  <p class="update-ver-line"><span id="settingsCurrentVer">v—</span> <span class="update-ver-sep">·</span> <span id="settingsLatestVer">Latest —</span></p>
+                </div>
+                <div class="settings-card-foot update-card-actions">
+                  <button type="button" class="outline-btn settings-card-btn" id="settingsWhatsNewBtn">
+                    <i data-lucide="sparkles"></i> What's new
+                  </button>
+                  <button type="button" class="primary-btn settings-card-btn" id="settingsCheckUpdateBtn">
+                    <i data-lucide="download"></i> Check update
                   </button>
                 </div>
               </article>
@@ -1268,7 +1601,7 @@
             <header class="settings-section-head">
               <div>
                 <h3 class="settings-group-title" id="settingsToolsTitle" data-i18n="tools_title">Tools</h3>
-                <p class="settings-group-sub">Zakat, install app, reports and privacy</p>
+                <p class="settings-group-sub">Zakat, reports, install app</p>
               </div>
             </header>
             <div class="settings-cards-grid settings-tools-grid">
@@ -1303,7 +1636,7 @@
                   <button type="button" class="primary-btn settings-card-btn" id="installPwaBtn" style="margin-bottom:8px">
                     <i data-lucide="download"></i> Install / Add to Home
                   </button>
-                  <button type="button" class="outline-btn settings-card-btn" id="replayOnboardBtn">
+                  <button type="button" class="outline-btn settings-card-btn" id="replayOnboardBtn" hidden aria-hidden="true" tabindex="-1">
                     <i data-lucide="sparkles"></i> Replay welcome
                   </button>
                 </div>
@@ -1316,8 +1649,11 @@
                   <p class="muted">Print monthly report or export CSV</p>
                 </div>
                 <div class="settings-card-foot">
-                  <button type="button" class="primary-btn settings-card-btn" id="printReportBtn" style="margin-bottom:8px">
+                  <button type="button" class="primary-btn settings-card-btn" id="printReportBtnSettings" style="margin-bottom:8px">
                     <i data-lucide="printer"></i> Print / PDF report
+                  </button>
+                  <button type="button" class="outline-btn settings-card-btn" id="downloadReportBtn2" style="margin-bottom:8px">
+                    <i data-lucide="file-down"></i> Download full report
                   </button>
                   <button type="button" class="outline-btn settings-card-btn" id="exportCsvToolsBtn">
                     <i data-lucide="download"></i> Export CSV
@@ -1458,10 +1794,6 @@
               <option value="weekly">Week</option>
               <option value="yearly">Year</option>
             </select>
-          </label>
-          <label class="tx-field">
-            <span>Receipt (optional)</span>
-            <input id="txReceipt" type="file" accept="image/*">
           </label>
           <input type="hidden" id="txReceiptData" value="">
         </div>
@@ -1931,6 +2263,40 @@
     </div>
   </div>
 
+  
+  
+  <!-- WHAT'S NEW -->
+  <div class="modal-backdrop" id="whatsNewBackdrop" hidden>
+    <div class="modal-card app-update-card whats-new-card" role="dialog" aria-modal="true">
+      <div class="app-update-icon"><i data-lucide="sparkles"></i></div>
+      <div class="app-update-badge" id="whatsNewBadge">HK 1.8 Beta</div>
+      <h2>What's new</h2>
+      <ul class="whats-new-list" id="whatsNewList">
+        <!-- filled by JS from APP_CHANGELOG -->
+      </ul>
+      <div class="modal-actions app-update-actions">
+        <button type="button" class="primary-btn" id="whatsNewOk" style="flex:1;justify-content:center">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP UPDATE POPUP -->
+  <div class="modal-backdrop" id="appUpdateBackdrop" hidden>
+    <div class="modal-card app-update-card" role="dialog" aria-modal="true" aria-labelledby="appUpdateTitle">
+      <div class="app-update-icon" id="appUpdateIconWrap"><i data-lucide="refresh-cw" id="appUpdateIcon"></i></div>
+      <div class="app-update-badge" id="appUpdateBadge">v—</div>
+      <h2 id="appUpdateTitle">Checking…</h2>
+      <p class="muted" id="appUpdateText">Please wait while we check for updates.</p>
+      <div class="modal-actions app-update-actions" id="appUpdateActions">
+        <button type="button" class="outline-btn" id="appUpdateCancel">Later</button>
+        <button type="button" class="primary-btn" id="appUpdateConfirm">
+          <i data-lucide="download"></i> Update now
+        </button>
+        <button type="button" class="primary-btn" id="appUpdateOk" hidden>OK</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast">
     <i data-lucide="check-circle-2"></i>
     <span id="toastMsg">Saved successfully</span>
@@ -1950,16 +2316,462 @@
     <i data-lucide="plus"></i>
   </button>
 
-  <script src="script.js?v=225"></script>
+  <!-- WIDGET GALLERY (Android-style) -->
+  <div class="modal-backdrop" id="widgetGalleryBackdrop">
+    <div class="modal-card widget-gallery-modal" role="dialog" aria-modal="true">
+      <div class="modal-heading">
+        <div>
+          <span class="eyebrow">WIDGETS</span>
+          <h2>Add widgets</h2>
+        </div>
+        <button type="button" class="icon-btn" id="closeWidgetGallery" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+      <div class="widget-gallery-search">
+        <i data-lucide="search"></i>
+        <input type="search" id="widgetSearchInput" placeholder="Search widgets… clock, goals, bills" autocomplete="off">
+      </div>
+      <div class="widget-gallery-cats" id="widgetGalleryCats"></div>
+      <div class="widget-gallery-list" id="widgetGalleryList"></div>
+      <div class="modal-actions" style="display:flex;gap:8px;margin-top:12px">
+        <button type="button" class="outline-btn" id="widgetGalleryReset">Reset defaults</button>
+        <button type="button" class="primary-btn" id="widgetGalleryDone" style="flex:1;justify-content:center">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section layout modal (Edit mode sections) -->
+  <div class="modal-backdrop" id="dashLayoutModalBackdrop">
+    <div class="modal-card" role="dialog" aria-modal="true" style="max-width:440px">
+      <div class="modal-heading">
+        <div>
+          <span class="eyebrow">SECTIONS</span>
+          <h2>Show / hide sections</h2>
+        </div>
+        <button type="button" class="icon-btn" id="closeDashLayoutModal" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+      <div id="dashLayoutList" class="dash-layout-list"></div>
+      <div class="modal-actions" style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button type="button" class="outline-btn" id="dashLayoutReset">Reset</button>
+        <button type="button" class="primary-btn" id="dashLayoutDone" style="flex:1;justify-content:center">Done</button>
+      </div>
+    </div>
+  </div>
+
+        <script src="script.js?v=18e"></script>
   <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.getRegistrations().then((regs) => {
-          regs.forEach((r) => r.update());
+    (function () {
+      const APP_VER = "1.8-beta";
+      const VER_KEY = "hisabKitabAppVer";
+      const SKIP_KEY = "hisabKitabUpdateSkip";
+      let popupOpen = false;
+      let activeReg = null;
+      let promptedForVer = "";
+
+      function el(id) { return document.getElementById(id); }
+
+      function setUpdateUI(state, current, latest) {
+        const status = el("settingsUpdateStatus");
+        const curEl = el("settingsCurrentVer");
+        const latEl = el("settingsLatestVer");
+        const dot = el("settingsUpdateDot");
+        const badge = el("navSettingsUpdateBadge");
+        const card = el("appUpdateCard");
+        const btn = el("settingsCheckUpdateBtn");
+        if (curEl) curEl.textContent = "Installed HK 1.8 Beta";
+        if (latEl) latEl.textContent = "Latest HK 1.8 Beta";
+        if (state === "available") {
+          if (status) status.textContent = "New update available — install when ready";
+          if (dot) { dot.hidden = false; dot.style.display = ""; }
+          if (badge) { badge.hidden = false; badge.style.display = ""; badge.textContent = "1"; }
+          if (card) card.classList.add("has-update");
+          if (btn) btn.innerHTML = '<i data-lucide="download"></i> Update now';
+        } else if (state === "latest") {
+          if (status) status.textContent = "You are on the latest version";
+          if (dot) { dot.hidden = true; dot.style.display = "none"; }
+          if (badge) { badge.hidden = true; badge.style.display = "none"; }
+          if (card) card.classList.remove("has-update");
+          if (btn) btn.innerHTML = '<i data-lucide="refresh-cw"></i> Check update';
+        } else if (status) {
+          status.textContent = "Checking version…";
+        }
+        try {
+          const nodes = [btn, card].filter(Boolean);
+          if (window.lucide && nodes.length) lucide.createIcons({ nodes: nodes });
+        } catch (_) {}
+      }
+
+
+      function openBackdrop() {
+        const bd = el("appUpdateBackdrop");
+        if (!bd) return null;
+        popupOpen = true;
+        bd.hidden = false;
+        bd.classList.add("open");
+        bd.style.display = "flex";
+        return bd;
+      }
+
+      function closeBackdrop() {
+        const bd = el("appUpdateBackdrop");
+        if (!bd) return;
+        popupOpen = false;
+        bd.classList.remove("open");
+        bd.style.display = "";
+        bd.hidden = true;
+        bd.classList.remove("is-latest", "is-available", "is-checking");
+      }
+
+      function setIcon(name) {
+        const wrap = el("appUpdateIconWrap");
+        if (!wrap) return;
+        wrap.innerHTML = '<i data-lucide="' + name + '"></i>';
+      }
+
+      function showChecking() {
+        const bd = openBackdrop();
+        if (!bd) return;
+        bd.classList.remove("is-latest", "is-available");
+        bd.classList.add("is-checking");
+        setIcon("loader");
+        if (el("appUpdateBadge")) el("appUpdateBadge").textContent = "HK 1.8 Beta";
+        if (el("appUpdateTitle")) el("appUpdateTitle").textContent = "Checking for updates";
+        if (el("appUpdateText")) el("appUpdateText").textContent = "Looking for a newer version of Hisab Kitab…";
+        if (el("appUpdateConfirm")) { el("appUpdateConfirm").hidden = true; el("appUpdateConfirm").style.display = "none"; }
+        if (el("appUpdateCancel")) { el("appUpdateCancel").hidden = true; el("appUpdateCancel").style.display = "none"; }
+        if (el("appUpdateOk")) { el("appUpdateOk").hidden = true; el("appUpdateOk").style.display = "none"; }
+        try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
+      }
+
+      function showAvailable(ver, onUpdate, force) {
+        ver = String(ver || APP_VER);
+        // Once per version per browser session (and per page load)
+        try {
+          if (!force && sessionStorage.getItem("hkUpdateShown_" + ver) === "1") return;
+        } catch (_) {}
+        if (!force && promptedForVer === ver) return;
+        if (popupOpen && !force) return;
+        promptedForVer = ver;
+        try { sessionStorage.setItem("hkUpdateShown_" + ver, "1"); } catch (_) {}
+        const bd = openBackdrop();
+        if (!bd) { if (onUpdate) onUpdate(); return; }
+        bd.classList.remove("is-latest", "is-checking");
+        bd.classList.add("is-available");
+        setIcon("download");
+        if (el("appUpdateBadge")) el("appUpdateBadge").textContent = "HK 1.8 Beta";
+        if (el("appUpdateTitle")) el("appUpdateTitle").textContent = "Update available";
+        if (el("appUpdateText")) el("appUpdateText").textContent =
+          "HK " + ver + " is ready. Update now for the latest features and fixes.";
+        const ok = el("appUpdateConfirm");
+        const cancel = el("appUpdateCancel");
+        const onlyOk = el("appUpdateOk");
+        if (ok) { ok.hidden = false; ok.style.display = ""; ok.innerHTML = '<i data-lucide="download"></i> Update now'; }
+        if (cancel) { cancel.hidden = false; cancel.style.display = ""; cancel.textContent = "Later"; }
+        if (onlyOk) { onlyOk.hidden = true; onlyOk.style.display = "none"; }
+        try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
+
+        if (ok) {
+          ok.onclick = async () => {
+            closeBackdrop();
+            try { localStorage.setItem(VER_KEY, ver); } catch (_) {}
+            try { localStorage.removeItem(SKIP_KEY); } catch (_) {}
+            promptedForVer = String(ver);
+            try {
+              if (window.caches) {
+                const keys = await caches.keys();
+                await Promise.all(keys.map((k) => caches.delete(k)));
+              }
+            } catch (_) {}
+            if (onUpdate) onUpdate();
+            else window.location.reload();
+          };
+        }
+        if (cancel) {
+          cancel.onclick = () => {
+            try { localStorage.setItem(SKIP_KEY, ver); } catch (_) {}
+            promptedForVer = String(ver);
+            closeBackdrop();
+          };
+        }
+        bd.onclick = (e) => { if (e.target === bd) closeBackdrop(); };
+      }
+
+      function showLatest(ver) {
+        const bd = openBackdrop();
+        if (!bd) return;
+        bd.classList.remove("is-available", "is-checking");
+        bd.classList.add("is-latest");
+        setIcon("check-circle-2");
+        if (el("appUpdateBadge")) el("appUpdateBadge").textContent = "HK 1.8 Beta";
+        if (el("appUpdateTitle")) el("appUpdateTitle").textContent = "You're up to date";
+        if (el("appUpdateText")) el("appUpdateText").textContent =
+          "No update available. You are on the latest Hisab Kitab.";
+        if (el("appUpdateConfirm")) { el("appUpdateConfirm").hidden = true; el("appUpdateConfirm").style.display = "none"; }
+        if (el("appUpdateCancel")) { el("appUpdateCancel").hidden = true; el("appUpdateCancel").style.display = "none"; }
+        const onlyOk = el("appUpdateOk");
+        if (onlyOk) {
+          onlyOk.hidden = false;
+          onlyOk.style.display = "";
+          onlyOk.textContent = "OK";
+          onlyOk.onclick = () => closeBackdrop();
+        }
+        try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
+        bd.onclick = (e) => { if (e.target === bd) closeBackdrop(); };
+      }
+
+      function showUpdatePopup(onUpdate, remoteVer) {
+        showAvailable(remoteVer || APP_VER, onUpdate, false);
+      }
+
+      async function checkVersionFile() {
+        try {
+          const res = await fetch("./version.json?t=" + Date.now(), { cache: "no-store" });
+          if (!res.ok) return null;
+          const data = await res.json();
+          return data && data.version ? String(data.version) : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      async function runUpdateCheck(reg) {
+        const remote = await checkVersionFile();
+        const target = remote || APP_VER;
+        let cur = "";
+        let skip = "";
+        try { cur = localStorage.getItem(VER_KEY) || ""; } catch (_) {}
+        try { skip = localStorage.getItem(SKIP_KEY) || ""; } catch (_) {}
+        if (!cur) {
+          try { localStorage.setItem(VER_KEY, target); } catch (_) {}
+          setUpdateUI("latest", target, target);
+          return;
+        }
+        if (cur === target) {
+          setUpdateUI("latest", cur, target);
+          return;
+        }
+        if (skip === target) {
+          setUpdateUI("available", cur, target);
+          return;
+        }
+        setUpdateUI("available", cur, target);
+        showAvailable(target, () => {
+          try { localStorage.setItem(VER_KEY, target); } catch (_) {}
+          if (reg && reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+          else window.location.reload();
         });
-        navigator.serviceWorker.register("./sw.js?v=125").catch(() => {});
+      }
+
+      window.hisabCheckForUpdate = async function () {
+        try { localStorage.removeItem(SKIP_KEY); } catch (_) {}
+        showChecking();
+        // small delay so "Checking…" is visible
+        await new Promise((r) => setTimeout(r, 450));
+        let reg = null;
+        try {
+          if (navigator.serviceWorker) {
+            reg = await navigator.serviceWorker.getRegistration();
+            if (reg) try { await reg.update(); } catch (_) {}
+          }
+        } catch (_) {}
+        activeReg = reg;
+        const remote = await checkVersionFile();
+        const target = remote || APP_VER;
+        let cur = "";
+        try { cur = localStorage.getItem(VER_KEY) || ""; } catch (_) {}
+        // Treat first run / same version as up to date when manual check
+        if (cur && cur !== target) {
+          popupOpen = false;
+          setUpdateUI("available", cur || APP_VER, target);
+          showAvailable(target, () => {
+            try { localStorage.setItem(VER_KEY, target); } catch (_) {}
+            if (reg && reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+            else window.location.reload();
+          }, true);
+          return true;
+        }
+        if (reg && reg.waiting && navigator.serviceWorker.controller) {
+          popupOpen = false;
+          setUpdateUI("available", cur || APP_VER, target);
+          showAvailable(target, () => {
+            try { localStorage.setItem(VER_KEY, target); } catch (_) {}
+            reg.waiting.postMessage({ type: "SKIP_WAITING" });
+          }, true);
+          return true;
+        }
+        try { localStorage.setItem(VER_KEY, target); } catch (_) {}
+        popupOpen = false;
+        setUpdateUI("latest", target, target);
+        showLatest(target);
+        return false;
+      };
+
+      window.addEventListener("load", () => {
+        const btn = el("settingsCheckUpdateBtn");
+        if (btn && !btn.dataset.bound) {
+          btn.dataset.bound = "1";
+          btn.addEventListener("click", () => {
+            btn.disabled = true;
+            const prev = btn.innerHTML;
+            btn.innerHTML = "Checking…";
+            Promise.resolve(window.hisabCheckForUpdate())
+              .finally(() => {
+                btn.disabled = false;
+                try { if (window.lucide) lucide.createIcons({ nodes: [btn] }); } catch (_) {}
+              });
+          });
+        }
+        // Changelog for this build — only real new items
+        const APP_CHANGELOG = [
+          { ver: "1.8-beta", items: [
+            "Monthly digest — income, spend, savings rate, top categories",
+            "CSV import from bank-style files",
+            "Encrypted backup (password + AES)",
+            "Net position snapshot (cash − debts)",
+            "Undo last delete (Ctrl+Z)"
+          ]},
+          { ver: "1.7", items: [
+            "Hisab Kitab HK 1.7 — product version line locked",
+            "Beta builds will use HK 1.x Beta; final major = HK 2",
+            "Dark / Light topbar switch",
+            "Update once per release + What's new notes"
+          ]},
+          { ver: "26.2", items: [
+            "Hisab Kitab HK 26.2 (Mint) — new product version line",
+            "Topbar Dark / Light icon switch",
+            "Update dialog once per release",
+            "Power tools + settings designs",
+            "Stability polish for balance & navigation"
+          ]},
+          { ver: "9.0", items: [
+            "Hisab Kitab 27.1 — One UI / iOS-style product versioning",
+            "Single icon Dark / Light switch in the topbar",
+            "Update popup once per version",
+            "What's new shows this release notes",
+            "Power tools, settings skins, premium stability"
+          ]},
+          { ver: "361", items: [
+            "Version numbers aligned (app, cache, What's new, assets)",
+            "Single icon Dark / Light switch in topbar",
+            "Update popup once per version (no 2–3 spam)",
+            "What's new shows this build's real notes",
+            "Balance paint safe on refresh",
+            "Power tools + settings card designs polished"
+          ]},
+          { ver: "359", items: [
+            "What's new upgraded — shows real features of this build",
+            "Single icon Dark / Light switch in the topbar",
+            "Update dialog no longer repeats 2–3 times",
+            "Power tools dropdown: recurring, split, share, CSV, tags",
+            "20 settings card designs with equal card height"
+          ]},
+          { ver: "358", items: [
+            "Single Dark / Light switch in topbar (icon only)",
+            "Update popup shows at most once per version",
+            "What's new shows live changelog for current build"
+          ]},
+          { ver: "356", items: [
+            "Topbar theme switch (Dark ↔ Light only)",
+            "Quieter update checks — less popup spam"
+          ]},
+          { ver: "355", items: [
+            "Professional Dark / Light control next to Add transaction"
+          ]},
+          { ver: "354", items: [
+            "Power tools: recurring, split bill, share card, CSV",
+            "Settings card designs (20 skins) + equal card size",
+            "Sidebar animation library + nav layout preview",
+            "Receipts gallery, tags analytics, setup checklist",
+            "Keyboard shortcuts (? · N · G then O/T/S)"
+          ]}
+        ];
+
+        function fillWhatsNew(ver) {
+          const list = el("whatsNewList");
+          const badge = el("whatsNewBadge");
+          if (badge) badge.textContent = "HK 1.8 Beta";
+          if (!list) return;
+          // Show entries for current version; if none, show latest block + note
+          let block = APP_CHANGELOG.find(b => String(b.ver) === String(ver));
+          if (!block) block = APP_CHANGELOG[0];
+          const items = (block && block.items) ? block.items.slice() : [];
+          // Also surface any newer-than-previous highlights from same major train
+          if (String(block.ver) === String(ver) && APP_CHANGELOG[0] && APP_CHANGELOG[0].ver !== block.ver) {
+            // keep only this version
+          }
+          if (!items.length) {
+            items.push("Maintenance and stability improvements");
+          }
+          list.innerHTML = items.map(t => "<li>" + String(t).replace(/</g, "&lt;") + "</li>").join("");
+        }
+
+        window.hisabOpenWhatsNew = function () {
+          const bd = el("whatsNewBackdrop");
+          if (!bd) return;
+          fillWhatsNew(APP_VER);
+          bd.hidden = false;
+          bd.classList.add("open");
+          bd.style.display = "flex";
+          try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
+          const ok = el("whatsNewOk");
+          const close = () => { bd.classList.remove("open"); bd.style.display = ""; bd.hidden = true; };
+          if (ok) ok.onclick = close;
+          bd.onclick = (e) => { if (e.target === bd) close(); };
+        };
+
+        const wn = el("settingsWhatsNewBtn");
+        if (wn && !wn.dataset.bound) {
+          wn.dataset.bound = "1";
+          wn.addEventListener("click", () => window.hisabOpenWhatsNew());
+        }
+        // Keep badge in sync on load
+        try { fillWhatsNew(APP_VER); } catch (_) {}
+        setUpdateUI("latest", APP_VER, APP_VER);
+        // Single boot check only (no spam)
+        let bootChecked = false;
+        setTimeout(() => {
+          if (bootChecked) return;
+          bootChecked = true;
+          runUpdateCheck(null);
+        }, 900);
+
+        if (!("serviceWorker" in navigator)) {
+          return;
+        }
+
+        navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then((reg) => {
+          activeReg = reg;
+          try { reg.update(); } catch (_) {}
+          // Do not auto-popup from waiting on every load — runUpdateCheck handles once
+          reg.addEventListener("updatefound", () => {
+            const nw = reg.installing;
+            if (!nw) return;
+            nw.addEventListener("statechange", () => {
+              if (nw.state === "installed" && navigator.serviceWorker.controller) {
+                // UI badge only; popup at most once via showAvailable guard
+                setUpdateUI("available", APP_VER, APP_VER);
+                showAvailable(APP_VER, () => (reg.waiting || nw).postMessage({ type: "SKIP_WAITING" }));
+              }
+            });
+          });
+          // Quiet background checks — badge only, popup suppressed if already shown
+          setInterval(() => { try { reg.update(); } catch (_) {} }, 5 * 60 * 1000);
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+              try { reg.update(); } catch (_) {}
+            }
+          });
+        }).catch(() => {});
+
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (refreshing) return;
+          refreshing = true;
+          try { localStorage.setItem(VER_KEY, APP_VER); } catch (_) {}
+          window.location.reload();
+        });
       });
-    }
+    })();
   </script>
+
 </body>
 </html>

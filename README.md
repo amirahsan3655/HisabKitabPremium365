@@ -1,84 +1,93 @@
-# 💰 Hisab Kitab Premium
+# Hisab Kitab Premium
 
-A modern, offline-first, privacy-focused personal finance and ledgerProgressive Web App (PWA) designed to track income, expenses, budgets, savings goals, debts, and bills—all stored securely on your local device with zero cloud dependency.
+Personal finance tracker (PWA) — income, expenses, budget, goals, debts, bills, multi-currency, PIN lock, themes, reports.
 
----
+## Files
+- `index.html` — main app
+- `style.css` — styles + themes
+- `script.js` — full application logic
+- `sw.js` — service worker (offline / PWA)
+- `manifest.webmanifest` — installable app manifest
 
-## ✨ Key Features
+## How to publish (public)
 
-### 📊 Dashboard & Analytics
-- **Executive Overview:** Track Total Balance, Income, Expenses, Savings Rate, Burn Rate, and Month-End Balance Forecasts across custom periods (`Day`, `Week`, `Month`, `Year`, `All`).
-- **Interactive Charts:** Visual cash-flow comparisons (6-month bar & line trends) and category expense breakdowns (doughnut charts powered by Chart.js).
-- **Financial Health Score & Streaks:** Automated scoring based on spending habits, budget adherence, and daily logging streaks.
-- **Smart Insights & Anomaly Watch:** Automatic detection of unusual spending spikes compared to previous months, plus a **What-If Simulator** to project monthly balance changes.
+### Option 1 — Netlify (easiest)
+1. Go to https://app.netlify.com/drop
+2. Drag this whole folder
+3. Done → you get a public HTTPS link
 
-### 💳 Comprehensive Transaction Management
-- **Multi-Type Entries:** Record **Income**, **Expenses**, **Remittances**, and **Account Transfers** (e.g., Cash, Bank, Card, JazzCash, EasyPaisa, SadaPay, NayaPay).
-- **Multi-Currency Support:** Log transactions in **SAR**, **AED**, **PKR**, **INR**, and **GBP** with automatic conversion to your selected base currency.
-- **Smart Rules & Automation:** Auto-categorize transactions using custom keyword rules, schedule recurring entries (Weekly, Monthly, Yearly), attach receipt images, use voice notes, or log quickly via one-click templates.
-- **Privacy & Compact Modes:** Blur sensitive balances on screen with a single click (`Eye` toggle) or format large figures cleanly (e.g., `1.2k`).
+### Option 2 — GitHub Pages
+1. Create a new repo
+2. Upload these 5 files to the root (or `/docs`)
+3. Settings → Pages → Deploy from main branch
+4. Site will be live on `https://username.github.io/repo-name/`
 
-### 🎯 Planning, Debts & Tools
-- **Monthly & Category Budgets:** Set an overall monthly spending cap with daily safe-to-spend calculations, alongside individual category limits.
-- **Savings Goals & Challenges:** Track progress toward targets (e.g., emergency fund, travel) and participate in 30-day no-spend or savings streaks.
-- **Debts & Loans Ledger:** Keep track of money lent (`To receive`) and borrowed (`To pay`) with due dates and one-click settlement.
-- **Bills & Reminders:** Monitor upcoming and overdue recurring bills; marking a bill as paid automatically logs it as an expense.
-- **Net Worth & Subscriptions:** Track assets vs. liabilities and calculate total monthly recurring subscription costs.
-- **Zakat Calculator:** Built-in `2.5%` Zakat estimator based on eligible wealth.
+### Option 3 — Vercel / Cloudflare Pages
+- Same: drag & drop the folder or connect Git
 
-### 🔒 Security, Privacy & Data Portability
-- **100% Local & Offline-Ready:** Built as an installable PWA (`manifest.webmanifest` + Service Worker) using `localStorage`—your financial data never leaves your device unless you export it.
-- **Vault PIN Lock:** Protect your workspace with a customizable **4-digit or 6-digit PIN**, auto-lock inactivity timers, tab-switch locking, and failed-attempt cooldowns.
-- **Multi-Account & Guest Mode:** Supports multiple isolated local user profiles on one device, optional Google Sign-In linking, and instant Guest access.
-- **Backup, Restore & Export:** Export/import full workspace backups as `.json` (with one-click Gmail compose integration), import/export `.csv` spreadsheets, and generate printable/PDF monthly reports.
+## Important notes
+- Works fully offline after first load (service worker)
+- Data stays in browser localStorage (private by design)
+- Use **Backup** from Profile menu to download JSON
+- HTTPS is required for install prompt + service worker
+- Clear old cache if you updated files (or change version in `sw.js`)
 
-### 🎨 Customization & Accessibility
-- **50+ Built-in Themes:** Includes Dark, Light, OLED Black, Ramadan Gold, Aurora, Midnight, Emerald, Sunset, and dozens more.
-- **Adaptive Layout:** Switch navigation bar placement (**Left**, **Right**, **Top**, **Bottom**), adjust UI **Density** (15 spacing presets), and customize **Motion & Effects** (8 animation modes).
-- **Multi-Language & RTL Support:** Available in **English**, **العربية (Arabic)**, **اردو (Urdu)**, **हिन्दी (Hindi)**, **Türkçe (Turkish)**, **Français (French)**, and **Bahasa Indonesia** with full RTL layout mirroring.
-- **Keyboard Shortcuts & Command Palette:** Press `Ctrl + K` (or `Cmd + K`) to open the quick Command Palette, `Alt + N` to add a transaction, `Alt + 1–8` to switch pages, or `?` to view all shortcuts.
+## Version
+Cache: `hisab-kitab-1.7`
 
----
+Enjoy tracking your money ✨
 
-## 🛠️ Tech Stack
 
-- **Core:** HTML5, CSS3 (Custom Properties, CSS Grid/Flexbox, Responsive Media Queries), Vanilla JavaScript (ES6+)
-- **PWA & Offline Caching:** Web App Manifest (`manifest.webmanifest`) & Service Worker (`sw.js`) with Network-First code caching
-- **Libraries:** [Chart.js](https://chartjs.org) (data visualizations) & [Lucide Icons](https://lucide.dev)
-- **Storage:** Browser `localStorage` & `sessionStorage` with user-scoped data isolation
+## New in this build
+- **Print / PDF report** — full statement (balance, categories, goals, transactions)
+- **Download report** — HTML report file (open → Print → Save as PDF)
+- **10 new Pro features** in Settings → Pro features dropdown:
+  - Duplicate transaction
+  - Quick date ranges (7d / 30d / month)
+  - Merchant memory (autocomplete)
+  - Compact list
+  - Multi-select mode flag
+  - Low savings-rate alert
+  - Backup reminder badge
+  - Strict privacy blur
+  - Goal link flag
+  - Heatmap hints flag
 
----
 
-## 🚀 Getting Started
+## Release notes (v337)
+- Fixed quick templates (type tabs / entryType)
+- Google Sign-In script only loads when Client ID is set
+- Legacy optional buttons remain safe-guarded (no crash)
+- Insights page render on nav
+- Cache bust v337
 
-Because **Hisab Kitab Premium** is built with pure client-side web technologies, no build step or backend server is required:
 
-1. **Clone or Download** the repository files (`index.html`, `style.css`, `script.js`, `sw.js`, `manifest.webmanifest`).
-2. **Run Locally:**
-   - Open `index.html` directly in any modern browser, **or**
-   - Serve via a local static server (recommended for Service Worker & PWA installation):
-     ```bash
-     npx serve .
-     # or using Python
-     python -m http.server 8080
-     ```
-3. **Install as an App:** Open in Chrome/Edge/Safari and select **"Install App"** or **"Add to Home Screen"** for a standalone desktop/mobile experience.
+## Power tools (Settings)
+- Recurring transactions (auto apply by day)
+- Split bill
+- Weekly digest (Smart Insight)
+- Share story card (PNG)
+- Receipts gallery
+- Tags analytics
+- CSV export
+- Setup checklist
+- Keyboard shortcuts (`?`)
+- Biometric availability check
 
----
 
-## 📁 Project Structure
+## Product version
+**Hisab Kitab One UI 9** (Android 17 / One UI style)
+Internal: 9.0
 
-```text
-├── index.html             # Main application markup, pages, and modals
-├── style.css              # Core styling, 50+ themes, density & motion systems, RTL rules
-├── script.js              # App logic, state management, charts, PIN vault, i18n, and calculators
-├── sw.js                  # Service Worker for offline support and cache management
-├── manifest.webmanifest   # PWA configuration and app icons
-└── README.md              # Project documentation
-```
 
----
+## Version line
+**HK 26.2 · Mint** — own product numbering (not One UI / iOS clone). Next: 26.3 or 27.0 · new codename.
 
-## 🔐 Privacy Notice
 
-All transactions, budgets, PIN hashes, and profile settings are stored locally in your browser's `localStorage`. Clearing your browser site data will erase your local records—use **Settings → Backup / Restore** regularly to save a `.json` copy of your ledger.
+## Version scheme
+- **Current:** HK 1.7
+- **While testing changes:** HK 1.8 Beta, HK 1.9 Beta, …
+- **Final next major:** **HK 2**
+
+
+Version **HK 1.7** shows only in Settings (update card) and What’s new / update popup — not in the app name or home brand.

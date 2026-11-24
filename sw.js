@@ -1,26 +1,29 @@
-const CACHE = "hisab-kitab-v125";
-const ASSETS = ["./", "./index.html", "./style.css", "./script.js", "./manifest.webmanifest"];
+const CACHE = "hisab-kitab-1.8-beta-s2";
+const ASSETS = ["./", "./index.html", "./style.css", "./script.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
-  self.skipWaiting();
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).catch(() => {}));
 });
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim())
   );
 });
 
-// Network-first for CSS/JS so updates show without hard refresh
+self.addEventListener("message", (e) => {
+  if (e.data && e.data.type === "SKIP_WAITING") self.skipWaiting();
+});
+
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
+  if (url.pathname.endsWith("version.json")) {
+    e.respondWith(fetch(e.request, { cache: "no-store" }).catch(() => caches.match(e.request)));
+    return;
+  }
   const path = url.pathname;
-  const isCode = /\.(js|css|webmanifest)$/.test(path) || path.endsWith("/") || path.endsWith("index.html");
-
+  const isCode = /\.(js|css|webmanifest|html)$/.test(path) || path.endsWith("/") || path.endsWith("index.html");
   if (isCode) {
     e.respondWith(
       fetch(e.request)
@@ -33,8 +36,5 @@ self.addEventListener("fetch", (e) => {
     );
     return;
   }
-
-  e.respondWith(
-    caches.match(e.request).then((cached) => cached || fetch(e.request))
-  );
+  e.respondWith(caches.match(e.request).then((cached) => cached || fetch(e.request)));
 });

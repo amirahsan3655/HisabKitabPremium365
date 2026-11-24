@@ -23,8 +23,8 @@ function STORAGE_KEY() { return userScope(STORAGE_KEY_BASE); }
 function THEME_KEY() { return userScope(THEME_KEY_BASE); }
 function BUDGET_KEY() { return userScope(BUDGET_KEY_BASE); }
 function LOCK_KEY() { return userScope(LOCK_KEY_BASE); }
-const THEMES = ["dark", "light", "aurora", "sunset", "ocean", "neon", "blush", "graphite", "orchid", "citrus", "midnight", "sakura", "oled", "ramadan", "emerald", "slate", "coral", "forest", "royal", "desert", "arctic", "rose", "amethyst", "coffee", "crimson", "indigo", "mint", "lavender", "honey", "steel", "berry", "moss", "sky", "peach", "plum", "jade", "bronze", "ice", "wine", "lime", "navy", "sand", "violet", "charcoal", "flamingo", "teal", "amber", "grape", "olive", "ruby", "aqua", "mocha", "electric", "blossom"];
-const THEME_NAMES = {dark:"Dark", light:"Light", aurora:"Aurora", sunset:"Sunset", ocean:"Ocean", neon:"Neon", blush:"Blush", graphite:"Graphite", orchid:"Orchid", citrus:"Citrus", midnight:"Midnight", sakura:"Sakura", oled:"OLED Black", ramadan:"Ramadan Gold", emerald:"Emerald", slate:"Slate", coral:"Coral", forest:"Forest", royal:"Royal", desert:"Desert", arctic:"Arctic", rose:"Rose", amethyst:"Amethyst", coffee:"Coffee", crimson:"Crimson", indigo:"Indigo", mint:"Mint", lavender:"Lavender", honey:"Honey", steel:"Steel", berry:"Berry", moss:"Moss", sky:"Sky", peach:"Peach", plum:"Plum", jade:"Jade", bronze:"Bronze", ice:"Ice", wine:"Wine", lime:"Lime", navy:"Navy", sand:"Sand", violet:"Violet", charcoal:"Charcoal", flamingo:"Flamingo", teal:"Teal", amber:"Amber", grape:"Grape", olive:"Olive", ruby:"Ruby", aqua:"Aqua", mocha:"Mocha", electric:"Electric", blossom:"Blossom"};
+const THEMES = ["dark", "light", "aurora", "sunset", "ocean", "neon", "blush", "graphite", "orchid", "citrus", "midnight", "sakura", "oled", "ramadan", "emerald", "slate", "coral", "forest", "royal", "desert", "arctic", "rose", "amethyst", "coffee", "crimson", "indigo", "mint", "lavender", "honey", "steel", "berry", "moss", "sky", "peach", "plum", "jade", "bronze", "ice", "wine", "lime", "navy", "sand", "violet", "charcoal", "flamingo", "teal", "amber", "grape", "olive", "ruby", "aqua", "mocha", "electric", "blossom", "obsidian", "pearl", "magma", "glacier", "twilight", "safari", "cosmos", "matcha", "burgundy", "titanium", "nordic", "cacao", "rosegold", "deepsea", "volcano", "mist", "carbon", "champagne", "onyx", "coralreef", "iosliquid", "macspace", "sequoia", "sonoma", "visionos", "sierra", "lilacblur", "oceanblur", "aurorablur", "graphiteblur", "peachblur", "mintblur", "midnightblur", "sandblur", "violetblur"];
+const THEME_NAMES = {dark:"Dark", light:"Light", aurora:"Aurora", sunset:"Sunset", ocean:"Ocean", neon:"Neon", blush:"Blush", graphite:"Graphite", orchid:"Orchid", citrus:"Citrus", midnight:"Midnight", sakura:"Sakura", oled:"OLED Black", ramadan:"Ramadan Gold", emerald:"Emerald", slate:"Slate", coral:"Coral", forest:"Forest", royal:"Royal", desert:"Desert", arctic:"Arctic", rose:"Rose", amethyst:"Amethyst", coffee:"Coffee", crimson:"Crimson", indigo:"Indigo", mint:"Mint", lavender:"Lavender", honey:"Honey", steel:"Steel", berry:"Berry", moss:"Moss", sky:"Sky", peach:"Peach", plum:"Plum", jade:"Jade", bronze:"Bronze", ice:"Ice", wine:"Wine", lime:"Lime", navy:"Navy", sand:"Sand", violet:"Violet", charcoal:"Charcoal", flamingo:"Flamingo", teal:"Teal", amber:"Amber", grape:"Grape", olive:"Olive", ruby:"Ruby", aqua:"Aqua", mocha:"Mocha", electric:"Electric", blossom:"Blossom", obsidian:"Obsidian", pearl:"Pearl", magma:"Magma", glacier:"Glacier", twilight:"Twilight", safari:"Safari", cosmos:"Cosmos", matcha:"Matcha", burgundy:"Burgundy", titanium:"Titanium", nordic:"Nordic", cacao:"Cacao", rosegold:"Rose Gold", deepsea:"Deep Sea", volcano:"Volcano", mist:"Mist", carbon:"Carbon", champagne:"Champagne", onyx:"Onyx", coralreef:"Coral Reef", iosliquid:"iOS Liquid Glass", macspace:"Mac Space Gray", sequoia:"macOS Sequoia", sonoma:"macOS Sonoma", visionos:"visionOS Glass", sierra:"Sierra Blue", lilacblur:"Lilac Glass", oceanblur:"Ocean Mist", aurorablur:"Aurora Glass", graphiteblur:"Graphite Glass", peachblur:"Peach Glass", mintblur:"Mint Glass", midnightblur:"Midnight Glass", sandblur:"Sand Glass", violetblur:"Violet Glass"};
 const THEME_MIGRATE = { blue:"ocean", emerald:"neon", rose:"sakura", violet:"orchid", amber:"sunset", cyan:"aurora", indigo:"midnight", slate:"graphite", coral:"blush", mint:"citrus" };
 const DEFAULT_CATEGORIES = ["Salary", "Food", "Transport", "Shopping", "Bills", "Health", "Entertainment", "Other"];
 const DESC_OPTIONS = {
@@ -186,7 +186,12 @@ function applyTheme(theme) {
       aqua:"#061418",
       mocha:"#12100e",
       electric:"#060a14",
-      blossom:"#140c12"
+      blossom:"#140c12",
+      obsidian:"#0a0a0c", pearl:"#f2f0ea", magma:"#1a0c0a", glacier:"#0a1218",
+      twilight:"#100e18", safari:"#12140c", cosmos:"#080810", matcha:"#0c140e",
+      burgundy:"#14080c", titanium:"#101214", nordic:"#0c1014", cacao:"#120e0a",
+      rosegold:"#16100e", deepsea:"#060e14", volcano:"#160a08", mist:"#0e1216",
+      carbon:"#0a0a0c", champagne:"#14120e", onyx:"#080808", coralreef:"#0e1214"
     };
     meta.setAttribute("content", colors[theme] || "#0c0d10");
   }
@@ -229,6 +234,7 @@ function setTheme(theme) {
   applyTheme(theme);
   if (typeof renderCharts === "function") renderCharts();
   showToast((THEME_NAMES[theme] || theme) + " theme on");
+  try { if (typeof window.syncThemeModeToggle === "function") window.syncThemeModeToggle(theme); } catch (_) {}
 }
 function cycleTheme() {
   const cur = getTheme();
@@ -685,6 +691,7 @@ function refresh() {
   try { if (typeof renderReminders === "function") renderReminders(); } catch (e) { console.warn(e); }
   try { if (typeof applyI18n === "function") applyI18n(); } catch (e) { console.warn(e); }
   try { if (typeof renderProDashboard === "function") renderProDashboard(); } catch (e) { console.warn(e); }
+  try { if (typeof renderPremiumWidgets === "function") renderPremiumWidgets(); } catch (e) { console.warn(e); }
   try { if (typeof updateGreeting === "function") updateGreeting(); } catch (e) { console.warn(e); }
   try { if (typeof renderForecastCard === "function") renderForecastCard(); } catch (e) {}
   try { if (typeof applyPrivacyMode === "function") applyPrivacyMode(getPrivacyMode()); } catch (e) {}
@@ -901,6 +908,7 @@ function setDescriptionValue(text) {
   }
 }
 function setEntryType(type) {
+  // exposed for templates / external hooks
   if (!["income", "expense", "remittance", "transfer"].includes(type)) type = "expense";
   if ($("entryType")) $("entryType").value = type;
   document.querySelectorAll(".type-choice, .tx-type-tab").forEach(b => {
@@ -1084,6 +1092,10 @@ function switchPage(name) {
     if (name === "bills" && typeof renderBills === "function") renderBills();
     if (name === "insights" && typeof renderInsightsPage === "function") renderInsightsPage();
     if (name === "settings" && typeof renderToolsPage === "function") renderToolsPage();
+    if (name === "settings") {
+      try { if (typeof applyMotion === "function") applyMotion(typeof getMotion === "function" ? getMotion() : "aurora"); } catch (_) {}
+      try { if (typeof applyMotionSpeed === "function") applyMotionSpeed(typeof getMotionSpeed === "function" ? getMotionSpeed() : "1"); } catch (_) {}
+    }
     if (name === "profile") {
       if (typeof updateProfileUI === "function") updateProfileUI();
       if (typeof setProfileEditMode === "function") setProfileEditMode(false);
@@ -1095,10 +1107,13 @@ function switchPage(name) {
 
   inPage.classList.add("page-visible");
   try {
-    inPage.querySelectorAll(".panel, .stat-card, article, .section-intro, .prem-stat, .kpi-mini").forEach((el) => {
+    inPage.querySelectorAll(".panel, .stat-card, article, .section-intro, .prem-stat, .kpi-mini, .settings-card-main, .tool-card, .prem-panel").forEach((el) => {
       el.style.opacity = "1";
       el.style.visibility = "visible";
       el.style.animation = "none";
+      // Keep CSS transitions for motion hover (do not inline-lock transform)
+      el.style.transform = "";
+      el.style.transition = "";
     });
   } catch (_) {}
 
@@ -1663,10 +1678,13 @@ function updateCurrentUser(patch) {
   saveUsers(users);
   return users[idx];
 }
-function changePassword(currentPass, newPass) {
+function changePassword(currentPass, newPass, opts) {
   const u = getCurrentUser();
   if (!u) throw new Error("No account logged in");
-  if (u.provider === "google" && !u.pass) {
+  const force = opts && opts.force === true;
+  if (force) {
+    // Local forgot-password (no email server)
+  } else if (u.provider === "google" && !u.pass) {
     // allow setting first local password for Google accounts
   } else if (u.pass !== hashPass(currentPass)) {
     throw new Error("Current password is incorrect");
@@ -3540,15 +3558,16 @@ function renderReminders() {
 }
 
 /* i18n */
-const SUPPORTED_LANGS = ["en", "ar", "ur", "hi", "tr", "fr", "id"];
+const SUPPORTED_LANGS = ["en", "ar", "ur"];
 const RTL_LANGS = ["ar", "ur"];
 const LANG_NAMES = {
-  en: "English", ar: "العربية", ur: "اردو", hi: "हिन्दी", tr: "Türkçe", fr: "Français", id: "Indonesia"
+  en: "English", ar: "العربية", ur: "اردو"
 };
 const I18N = {
   en: {
     nav_overview: "Overview", nav_transactions: "Transactions", nav_reports: "Reports", nav_budget: "Budget",
     nav_goals: "Goals", nav_debts: "Debts", nav_bills: "Bills", nav_tools: "Tools",
+    nav_insights: "Insights", nav_profile: "Profile",
     goals_title: "Saving Goals", goals_sub: "Track targets like phone, travel, emergency fund.", add_goal: "Add goal",
     no_goals: "No goals yet", no_goals_sub: "Create a saving goal to stay motivated.",
     debts_title: "Debts & Loans", debts_sub: "Money you lent or borrowed.", add_debt: "Add debt",
@@ -3566,11 +3585,19 @@ const I18N = {
     stat_balance: "Total Balance", stat_balance_sub: "Income − Expenses",
     stat_income: "Income", stat_expense: "Expenses", stat_tx: "Transactions",
     page_overview: "Overview", page_transactions: "Transactions", page_reports: "Reports",
-    page_budget: "Budget", page_goals: "Goals", page_debts: "Debts", page_bills: "Bills", page_tools: "Tools"
+    page_budget: "Budget", page_goals: "Goals", page_debts: "Debts", page_bills: "Bills", page_tools: "Tools",
+    page_insights: "Insights Lab", page_profile: "Profile", page_settings: "Settings",
+    label_password: "Password", pass_hint: "Leave blank to keep current password",
+    pass_current: "Current password", pass_new: "New password", pass_confirm: "Confirm password",
+    pass_forgot: "Forgot password?", pass_remember: "I remember my password",
+    pass_forgot_help: "Password is only on this device — no email recovery. Confirm to set a new password without the old one.",
+    pass_forgot_confirm: "I forgot my password and want to set a new one",
+    pass_reset_hint: "Set a new password without the old one"
   },
   ar: {
     nav_overview: "نظرة عامة", nav_transactions: "المعاملات", nav_reports: "التقارير", nav_budget: "الميزانية",
     nav_goals: "الأهداف", nav_debts: "الديون", nav_bills: "الفواتير", nav_tools: "أدوات",
+    nav_insights: "تحليلات", nav_profile: "الملف",
     goals_title: "أهداف الادخار", goals_sub: "تتبع أهداف مثل الهاتف والسفر وصندوق الطوارئ.", add_goal: "إضافة هدف",
     no_goals: "لا توجد أهداف بعد", no_goals_sub: "أنشئ هدف ادخار للبقاء متحفزاً.",
     debts_title: "الديون والقروض", debts_sub: "أموال أقرضتها أو اقترضتها.", add_debt: "إضافة دين",
@@ -3588,11 +3615,19 @@ const I18N = {
     stat_balance: "الرصيد الإجمالي", stat_balance_sub: "الدخل − المصروفات",
     stat_income: "الدخل", stat_expense: "المصروفات", stat_tx: "المعاملات",
     page_overview: "نظرة عامة", page_transactions: "المعاملات", page_reports: "التقارير",
-    page_budget: "الميزانية", page_goals: "الأهداف", page_debts: "الديون", page_bills: "الفواتير", page_tools: "أدوات"
+    page_budget: "الميزانية", page_goals: "الأهداف", page_debts: "الديون", page_bills: "الفواتير", page_tools: "أدوات",
+    page_insights: "مختبر التحليلات", page_profile: "الملف الشخصي", page_settings: "الإعدادات",
+    label_password: "كلمة المرور", pass_hint: "اتركه فارغاً للإبقاء على كلمة المرور الحالية",
+    pass_current: "كلمة المرور الحالية", pass_new: "كلمة مرور جديدة", pass_confirm: "تأكيد كلمة المرور",
+    pass_forgot: "نسيت كلمة المرور؟", pass_remember: "أتذكر كلمة المرور",
+    pass_forgot_help: "كلمة المرور محفوظة على هذا الجهاز فقط — لا استعادة بالبريد. أكّد لتعيين كلمة جديدة دون القديمة.",
+    pass_forgot_confirm: "نسيت كلمة المرور وأريد تعيين واحدة جديدة",
+    pass_reset_hint: "عيّن كلمة مرور جديدة دون الحاجة للقديمة"
   },
   ur: {
     nav_overview: "جائزہ", nav_transactions: "لین دین", nav_reports: "رپورٹس", nav_budget: "بجٹ",
     nav_goals: "اہداف", nav_debts: "قرضے", nav_bills: "بلز", nav_tools: "ٹولز",
+    nav_insights: "بصیرت", nav_profile: "پروفائل",
     goals_title: "بچت کے اہداف", goals_sub: "فون، سفر، ایمرجنسی فنڈ جیسے اہداف ٹریک کریں۔", add_goal: "ہدف شامل کریں",
     no_goals: "ابھی کوئی ہدف نہیں", no_goals_sub: "تحریک کے لیے ہدف بنائیں۔",
     debts_title: "قرضے", debts_sub: "جو رقم دی یا لی۔", add_debt: "قرض شامل کریں",
@@ -3610,7 +3645,14 @@ const I18N = {
     stat_balance: "کل بیلنس", stat_balance_sub: "آمدنی − اخراجات",
     stat_income: "آمدنی", stat_expense: "اخراجات", stat_tx: "لین دین",
     page_overview: "جائزہ", page_transactions: "لین دین", page_reports: "رپورٹس",
-    page_budget: "بجٹ", page_goals: "اہداف", page_debts: "قرضے", page_bills: "بلز", page_tools: "ٹولز"
+    page_budget: "بجٹ", page_goals: "اہداف", page_debts: "قرضے", page_bills: "بلز", page_tools: "ٹولز",
+    page_insights: "بصیرت لیب", page_profile: "پروفائل", page_settings: "ترتیبات",
+    label_password: "پاس ورڈ", pass_hint: "موجودہ پاس ورڈ رکھنے کے لیے خالی چھوڑیں",
+    pass_current: "موجودہ پاس ورڈ", pass_new: "نیا پاس ورڈ", pass_confirm: "پاس ورڈ تصدیق",
+    pass_forgot: "پاس ورڈ بھول گئے؟", pass_remember: "مجھے پاس ورڈ یاد ہے",
+    pass_forgot_help: "پاس ورڈ صرف اس ڈیوائس پر ہے — ای میل سے ریکوری نہیں۔ پرانا پاس ورڈ کے بغیر نیا سیٹ کرنے کی تصدیق کریں۔",
+    pass_forgot_confirm: "میں پاس ورڈ بھول گیا ہوں اور نیا سیٹ کرنا چاہتا ہوں",
+    pass_reset_hint: "پرانا پاس ورڈ کے بغیر نیا پاس ورڈ سیٹ کریں"
   },
   hi: {
     nav_overview: "अवलोकन", nav_transactions: "लेन-देन", nav_reports: "रिपोर्ट्स", nav_budget: "बजट",
@@ -3703,7 +3745,7 @@ const I18N = {
 };
 function getLang() {
   const l = localStorage.getItem(LANG_KEY);
-  return SUPPORTED_LANGS.includes(l) ? l : "en";
+  if (SUPPORTED_LANGS.includes(l)) return l; if (l === "hi" || l === "tr" || l === "fr" || l === "id") return "en"; return "en";
 }
 function setLang(l) {
   if (!SUPPORTED_LANGS.includes(l)) l = "en";
@@ -3713,12 +3755,12 @@ function setLang(l) {
   const sel = $("langSelect");
   if (sel && sel.value !== l) sel.value = l;
   applyI18n();
-  // refresh page title for current page
   try {
     const map = {
       overview: "page_overview", transactions: "page_transactions", reports: "page_reports",
       budget: "page_budget", goals: "page_goals", debts: "page_debts",
-      bills: "page_bills", tools: "page_tools", settings: "page_tools"
+      bills: "page_bills", tools: "page_tools", settings: "page_settings",
+      insights: "page_insights", profile: "page_profile"
     };
     const key = map[typeof currentPage !== "undefined" ? currentPage : "overview"];
     const dict = I18N[l] || I18N.en;
@@ -3810,10 +3852,39 @@ function finishOnboard() {
 }
 
 let deferredPwaPrompt = null;
+function updateInstallBtnUI() {
+  const btn = document.getElementById("installPwaBtn");
+  if (!btn) return;
+  const standalone = window.matchMedia("(display-mode: standalone)").matches
+    || window.navigator.standalone === true;
+  if (standalone) {
+    btn.innerHTML = `<i data-lucide="check"></i> Installed`;
+    btn.disabled = true;
+    btn.title = "App is already installed";
+  } else if (deferredPwaPrompt) {
+    btn.innerHTML = `<i data-lucide="download"></i> Install in Chrome`;
+    btn.disabled = false;
+    btn.title = "Install Hisab Kitab as an app";
+  } else {
+    btn.innerHTML = `<i data-lucide="download"></i> Install / Add to Home`;
+    btn.disabled = false;
+    btn.title = "Install when Chrome is ready (or use menu → Install app)";
+  }
+  try { if (window.lucide) lucide.createIcons({ nodes: [btn] }); } catch (_) {}
+}
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPwaPrompt = e;
+  updateInstallBtnUI();
+  try { if (typeof showToast === "function") showToast("Ready to install — open Settings → Install"); } catch (_) {}
 });
+window.addEventListener("appinstalled", () => {
+  deferredPwaPrompt = null;
+  updateInstallBtnUI();
+  try { if (typeof showToast === "function") showToast("Hisab Kitab installed"); } catch (_) {}
+});
+setTimeout(updateInstallBtnUI, 600);
+setTimeout(updateInstallBtnUI, 2000);
 
 /* Wire extra UI */
 if ($("addGoalBtn")) $("addGoalBtn").addEventListener("click", openGoalModal);
@@ -3939,8 +4010,14 @@ if ($("saveCatBudgetsBtn")) $("saveCatBudgetsBtn").addEventListener("click", () 
 });
 if ($("exportCsvToolsBtn")) $("exportCsvToolsBtn").addEventListener("click", exportCSV);
 if ($("printReportBtn")) $("printReportBtn").addEventListener("click", () => {
-  switchPage("reports");
-  setTimeout(() => window.print(), 400);
+  if (typeof printReport === "function") printReport();
+  else { switchPage("reports"); setTimeout(() => window.print(), 400); }
+});
+if ($("downloadReportBtn")) $("downloadReportBtn").addEventListener("click", () => {
+  if (typeof downloadReport === "function") downloadReport();
+});
+if ($("downloadReportBtn2")) $("downloadReportBtn2").addEventListener("click", () => {
+  if (typeof downloadReport === "function") downloadReport();
 });
 if ($("replayOnboardBtn")) $("replayOnboardBtn").addEventListener("click", () => {
   localStorage.removeItem(userScope(ONBOARD_KEY));
@@ -3948,12 +4025,35 @@ if ($("replayOnboardBtn")) $("replayOnboardBtn").addEventListener("click", () =>
 });
 if ($("onboardNextBtn")) $("onboardNextBtn").addEventListener("click", finishOnboard);
 if ($("installPwaBtn")) $("installPwaBtn").addEventListener("click", async () => {
-  if (deferredPwaPrompt) {
-    deferredPwaPrompt.prompt();
-    deferredPwaPrompt = null;
-  } else {
-    alert("Install: Browser menu → Add to Home Screen / Install App.\nChrome mobile: ⋮ → Install app / Add to Home screen.");
+  const standalone = window.matchMedia("(display-mode: standalone)").matches
+    || window.navigator.standalone === true;
+  if (standalone) {
+    if (typeof showToast === "function") showToast("Already installed");
+    return;
   }
+  if (deferredPwaPrompt) {
+    try {
+      deferredPwaPrompt.prompt();
+      const choice = await deferredPwaPrompt.userChoice;
+      if (choice && choice.outcome === "accepted") {
+        if (typeof showToast === "function") showToast("Installing…");
+      } else if (typeof showToast === "function") {
+        showToast("Install cancelled");
+      }
+    } catch (err) {
+      if (typeof showToast === "function") showToast("Install prompt failed — try Chrome menu");
+    }
+    deferredPwaPrompt = null;
+    updateInstallBtnUI();
+    return;
+  }
+  // Chrome desktop: guide user to install icon / menu
+  const isChrome = /Chrome\//.test(navigator.userAgent) && !/Edg\//.test(navigator.userAgent);
+  const msg = isChrome
+    ? "Chrome: address bar ke right side pe ⊕ Install icon dabao, ya ⋮ menu → Install Hisab Kitab / Save and share → Install page as app"
+    : "Browser menu → Install app / Add to Home Screen";
+  if (typeof showToast === "function") showToast(msg);
+  else alert(msg);
 });
 
 // Receipt compress
@@ -5106,6 +5206,34 @@ function refreshProfileCountryUI() {
   }
 }
 
+let profileForgotMode = false;
+
+function setProfileForgotUI(on) {
+  profileForgotMode = !!on;
+  const wrap = $("profCurrentPassWrap");
+  const box = $("profForgotPassBox");
+  const btn = $("profForgotPassBtn");
+  const confirm = $("profForgotPassConfirm");
+  const sub = $("profPassSub");
+  if (wrap) wrap.style.display = on ? "none" : "";
+  if (box) box.hidden = !on;
+  if (btn) {
+    const dict = (typeof I18N !== "undefined" && I18N[typeof getLang === "function" ? getLang() : "en"]) || {};
+    btn.textContent = on
+      ? (dict.pass_remember || "I remember my password")
+      : (dict.pass_forgot || "Forgot password?");
+  }
+  if (confirm && !on) confirm.checked = false;
+  if (sub) {
+    const dict = (typeof I18N !== "undefined" && I18N[typeof getLang === "function" ? getLang() : "en"]) || {};
+    sub.textContent = on
+      ? (dict.pass_reset_hint || "Set a new password without the old one")
+      : (dict.pass_hint || "Leave blank to keep current password");
+  }
+  if (on && $("profCurrentPass")) $("profCurrentPass").value = "";
+  setProfileStudioError("");
+}
+
 function saveProfileStudio(e) {
   if (e) e.preventDefault();
   try {
@@ -5126,31 +5254,40 @@ function saveProfileStudio(e) {
     const cur = ($("profCurrentPass") && $("profCurrentPass").value) || "";
     const n1 = ($("profNewPass") && $("profNewPass").value) || "";
     const n2 = ($("profNewPass2") && $("profNewPass2").value) || "";
+    const force = profileForgotMode === true;
+    const confirmEl = $("profForgotPassConfirm");
 
     if (!name) { setProfileStudioError("Name is required"); return; }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setProfileStudioError("Enter a valid email (e.g. name@gmail.com)");
       return;
     }
-    // Unique email on this device
     const users = loadUsers();
     const clash = users.find(x => x && x.id !== currentUserId && String(x.email || "").toLowerCase() === email);
     if (clash) {
       setProfileStudioError("This email is already used on this device");
       return;
     }
-    // Only touch password when user actually typed a new one
     if (n1 || n2) {
       if (n1 !== n2) { setProfileStudioError("New passwords do not match"); return; }
       if (n1.length < 4) { setProfileStudioError("New password min 4 characters"); return; }
-      const needsCurrent = !(u.provider === "google" && !u.pass);
-      if (needsCurrent && !cur) {
-        setProfileStudioError("Enter current password to change it");
-        return;
+      if (force) {
+        if (!confirmEl || !confirmEl.checked) {
+          setProfileStudioError("Confirm the checkbox to reset without current password");
+          return;
+        }
+        changePassword("", n1, { force: true });
+      } else {
+        const needsCurrent = !(u.provider === "google" && !u.pass);
+        if (needsCurrent && !cur) {
+          setProfileStudioError("Enter current password to change it");
+          return;
+        }
+        changePassword(cur, n1);
       }
-      changePassword(cur, n1);
-    } else if (cur && !n1 && !n2) {
-      // current filled by mistake with no new password — ignore, just save profile
+    } else if (force && !n1 && !n2) {
+      setProfileStudioError("Enter a new password to reset");
+      return;
     }
     updateCurrentUser({
       name: name.slice(0, 40),
@@ -5158,9 +5295,10 @@ function saveProfileStudio(e) {
       mobile: String(mobile || "").slice(0, 24)
     });
     ["profCurrentPass","profNewPass","profNewPass2"].forEach(id => { const el = $(id); if (el) el.value = ""; });
+    setProfileForgotUI(false);
     setProfileStudioError("");
     updateProfileUI();
-    showToast(n1 ? "Password & profile saved" : "Profile saved");
+    showToast(n1 ? (force ? "Password reset & profile saved" : "Password & profile saved") : "Profile saved");
   } catch (err) {
     setProfileStudioError(err.message || "Could not save");
   }
@@ -6125,7 +6263,10 @@ document.addEventListener("click", (e) => {
         b.dataset.value = opt.value;
         b.textContent = String(opt.textContent || "").trim();
         if (opt.value === select.value) b.setAttribute("aria-selected", "true");
-        b.style.animationDelay = (0.02 + idx * 0.022) + "s";
+        // Cap stagger so long lists (fonts 100+) open instantly
+        const delay = Math.min(0.25, 0.01 + idx * 0.008);
+        b.style.animationDelay = delay + "s";
+        if (select.options.length > 40) b.style.animation = "none";
         b.addEventListener("mousedown", (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -6733,32 +6874,97 @@ function yearInReview() {
   alert(lines.join("\n"));
 }
 
-function printReport() {
+function buildReportHTML(autoPrint) {
   const t = totals();
-  const subs = loadSubs();
-  const subMo = subs.reduce((s, x) => s + monthlySubCost(x), 0);
-  const assets = loadAssets();
+  let subs = [], assets = [], goals = [], debts = [];
+  try { subs = typeof loadSubs === "function" ? loadSubs() : []; } catch (_) {}
+  try { assets = typeof loadAssets === "function" ? loadAssets() : []; } catch (_) {}
+  try { goals = typeof loadGoals === "function" ? loadGoals() : []; } catch (_) {}
+  try { debts = typeof loadDebts === "function" ? loadDebts() : []; } catch (_) {}
+  const subMo = subs.reduce((s, x) => s + (typeof monthlySubCost === "function" ? monthlySubCost(x) : (Number(x.amount)||0)), 0);
   const assetSum = assets.reduce((s, a) => s + (Number(a.amount) || 0), 0);
-  const html = `<!DOCTYPE html><html><head><title>Hisab Kitab Report</title>
-    <style>body{font-family:system-ui,sans-serif;padding:32px;color:#111}h1{margin:0 0 8px}table{border-collapse:collapse;width:100%;margin-top:16px}td,th{border-bottom:1px solid #ddd;padding:8px;text-align:left}.muted{color:#666}</style>
-    </head><body>
-    <h1>Hisab Kitab — Report</h1>
-    <p class="muted">${new Date().toLocaleString()}</p>
-    <p><strong>Balance:</strong> ${money(t.balance)} · <strong>Income:</strong> ${money(t.income)} · <strong>Expenses:</strong> ${money(t.expense)}</p>
-    <p><strong>Assets:</strong> ${money(assetSum)} · <strong>Subscriptions / mo:</strong> ${money(subMo)}</p>
-    <h3>Recent transactions</h3>
-    <table><thead><tr><th>Date</th><th>Detail</th><th>Category</th><th>Amount</th></tr></thead><tbody>
-    ${(transactions || []).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,40).map(x =>
-      `<tr><td>${safe(x.date)}</td><td>${safe(x.description)}</td><td>${safe(x.category)}</td><td>${moneyTx(x)}</td></tr>`
-    ).join("")}
-    </tbody></table>
-    <script>window.onload=()=>window.print()<\/script>
-    </body></html>`;
+  const debtSum = debts.filter(d => d && d.type === "borrow").reduce((s, d) => s + (Number(d.amount) || 0), 0);
+  const netWorth = assetSum - debtSum;
+  const cur = monthTotals(monthKey());
+  const list = (transactions || []).slice().sort((a,b) => String(b.date).localeCompare(String(a.date)));
+  const byCat = {};
+  list.filter(x => x.type === "expense").forEach(x => {
+    const c = x.category || "Other";
+    byCat[c] = (byCat[c] || 0) + amountInBase(x);
+  });
+  const catRows = Object.entries(byCat).sort((a,b) => b[1]-a[1]).slice(0,12)
+    .map(([c,v]) => `<tr><td>${safe(c)}</td><td style="text-align:right">${money(v)}</td></tr>`).join("") || `<tr><td colspan="2">No expenses</td></tr>`;
+  const txRows = list.slice(0, 60).map(x =>
+    `<tr><td>${safe(x.date)}</td><td>${safe(x.description || "")}</td><td>${safe(x.category || "")}</td><td>${safe(x.type)}</td><td style="text-align:right">${moneyTx(x)}</td></tr>`
+  ).join("") || `<tr><td colspan="5">No transactions</td></tr>`;
+  const goalRows = (goals || []).map(g => {
+    const tgt = Number(g.target) || 0, sav = Number(g.saved) || 0;
+    const pct = tgt > 0 ? Math.min(100, Math.round(sav / tgt * 100)) : 0;
+    return `<tr><td>${safe(g.name)}</td><td style="text-align:right">${money(sav)}</td><td style="text-align:right">${money(tgt)}</td><td style="text-align:right">${pct}%</td></tr>`;
+  }).join("") || `<tr><td colspan="4">No goals</td></tr>`;
+  const printScript = autoPrint ? `<script>window.onload=function(){setTimeout(function(){window.print()},200)}<\/script>` : "";
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Hisab Kitab Report</title>
+<style>
+  *{box-sizing:border-box} body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:28px 36px;color:#111;max-width:900px;margin:0 auto;line-height:1.45}
+  h1{margin:0 0 4px;font-size:22px} h2{font-size:15px;margin:22px 0 8px;border-bottom:2px solid #d8b46a;padding-bottom:4px;color:#19150e}
+  .muted{color:#666;font-size:12px} .hero{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0}
+  .kpi{flex:1;min-width:120px;background:#f7f4ee;border:1px solid #e8e0d0;border-radius:10px;padding:12px 14px}
+  .kpi span{display:block;font-size:11px;color:#666;margin-bottom:4px} .kpi strong{font-size:16px}
+  table{border-collapse:collapse;width:100%;margin-top:8px;font-size:12px}
+  th,td{border-bottom:1px solid #e5e5e5;padding:7px 8px;text-align:left} th{background:#faf8f4;font-size:10px;letter-spacing:.4px;color:#555}
+  .foot{margin-top:28px;font-size:11px;color:#888;border-top:1px solid #eee;padding-top:10px}
+  @media print{body{padding:12px} .no-print{display:none!important}}
+</style></head><body>
+  <h1>Hisab Kitab — Financial Report</h1>
+  <p class="muted">Generated ${new Date().toLocaleString()} · Base currency: ${getBaseCurrency()}</p>
+  <div class="hero">
+    <div class="kpi"><span>Total Balance</span><strong>${money(t.balance)}</strong></div>
+    <div class="kpi"><span>Income</span><strong>${money(t.income)}</strong></div>
+    <div class="kpi"><span>Expenses</span><strong>${money(t.expense)}</strong></div>
+    <div class="kpi"><span>This month net</span><strong>${money(cur.income - cur.expense)}</strong></div>
+  </div>
+  <div class="hero">
+    <div class="kpi"><span>Assets</span><strong>${money(assetSum)}</strong></div>
+    <div class="kpi"><span>Debts owed</span><strong>${money(debtSum)}</strong></div>
+    <div class="kpi"><span>Net worth</span><strong>${money(netWorth)}</strong></div>
+    <div class="kpi"><span>Subscriptions / mo</span><strong>${money(subMo)}</strong></div>
+  </div>
+  <h2>Expense by category</h2>
+  <table><thead><tr><th>Category</th><th style="text-align:right">Amount</th></tr></thead><tbody>${catRows}</tbody></table>
+  <h2>Goals</h2>
+  <table><thead><tr><th>Goal</th><th style="text-align:right">Saved</th><th style="text-align:right">Target</th><th style="text-align:right">Progress</th></tr></thead><tbody>${goalRows}</tbody></table>
+  <h2>Transactions (latest 60)</h2>
+  <table><thead><tr><th>Date</th><th>Detail</th><th>Category</th><th>Type</th><th style="text-align:right">Amount</th></tr></thead><tbody>${txRows}</tbody></table>
+  <p class="foot">Hisab Kitab Premium · Private local report · Not financial advice</p>
+  ${printScript}
+</body></html>`;
+}
+
+function printReport() {
+  const html = buildReportHTML(true);
   const w = window.open("", "_blank");
-  if (!w) { showToast("Allow pop-ups to print"); return; }
+  if (!w) { showToast("Allow pop-ups to print / save as PDF"); return; }
   w.document.write(html);
   w.document.close();
+  showToast("Print dialog → choose “Save as PDF” to download");
 }
+
+function downloadReport() {
+  const html = buildReportHTML(false);
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "hisab-kitab-report-" + new Date().toISOString().slice(0, 10) + ".html";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+  showToast("Report downloaded — open & Print → Save as PDF");
+}
+
+window.printReport = printReport;
+window.downloadReport = downloadReport;
+window.buildReportHTML = buildReportHTML;
+
 
 (function wireInsightsLab() {
   function bind() {
@@ -6855,6 +7061,10 @@ function printReport() {
       $("printReportBtn").dataset.bound = "1";
       $("printReportBtn").addEventListener("click", printReport);
     }
+    if ($("printReportBtnSettings") && !$("printReportBtnSettings").dataset.bound) {
+      $("printReportBtnSettings").dataset.bound = "1";
+      $("printReportBtnSettings").addEventListener("click", printReport);
+    }
     document.addEventListener("click", (e) => {
       const a = e.target.closest && e.target.closest("[data-del-asset]");
       const s = e.target.closest && e.target.closest("[data-del-sub]");
@@ -6928,9 +7138,11 @@ function setProfileEditMode(on) {
     ["profCurrentPass", "profNewPass", "profNewPass2"].forEach(id => {
       const el = $(id); if (el) el.value = "";
     });
+    try { setProfileForgotUI(false); } catch (_) {}
     const err = $("profileStudioError");
     if (err) { err.hidden = true; err.textContent = ""; }
   } else {
+    try { setProfileForgotUI(false); } catch (_) {}
     try { fillProfileViewMode(); } catch (_) {}
   }
   try { refreshIcons(); } catch (_) {}
@@ -6985,15 +7197,26 @@ function fillProfileViewMode() {
         el.addEventListener("click", () => setProfileEditMode(false));
       }
     });
+    const forgotBtn = $("profForgotPassBtn");
+    if (forgotBtn && !forgotBtn.dataset.bound) {
+      forgotBtn.dataset.bound = "1";
+      forgotBtn.addEventListener("click", () => {
+        setProfileForgotUI(!profileForgotMode);
+        if (profileForgotMode && $("profNewPass")) {
+          try { $("profNewPass").focus(); } catch (_) {}
+        } else if ($("profCurrentPass")) {
+          try { $("profCurrentPass").focus(); } catch (_) {}
+        }
+      });
+    }
     // After successful save, return to view mode
     const form = $("profileStudioForm");
     if (form && !form.dataset.viewHook) {
       form.dataset.viewHook = "1";
       form.addEventListener("submit", () => {
-        // saveProfileStudio handles save; delay switch to view
         setTimeout(() => {
           const err = $("profileStudioError");
-          if (err && !err.hidden && err.textContent) return; // stay in edit if error
+          if (err && !err.hidden && err.textContent) return;
           setProfileEditMode(false);
           fillProfileViewMode();
           if (typeof fillProfileStatus === "function") fillProfileStatus();
@@ -7119,13 +7342,29 @@ function fillProfileViewMode() {
     try {
       if (typeof openModal === "function") openModal(null);
       setTimeout(() => {
-        const typeEl = document.getElementById("type");
-        if (typeEl) { typeEl.value = tpl.type; typeEl.dispatchEvent(new Event("change", { bubbles: true })); }
+        // HTML uses type tabs + #entryType (no #type select)
+        if (typeof setEntryType === "function") setEntryType(tpl.type || "expense");
+        else {
+          const et = document.getElementById("entryType");
+          if (et) et.value = tpl.type || "expense";
+          document.querySelectorAll(".tx-type-tab").forEach(b => {
+            b.classList.toggle("selected", b.dataset.type === (tpl.type || "expense"));
+          });
+        }
         const cat = document.getElementById("category");
-        if (cat) cat.value = tpl.category;
-        const desc = document.getElementById("description") || document.getElementById("txDesc");
-        if (desc) desc.value = tpl.description;
-        showToast("Template: " + tpl.label);
+        if (cat) {
+          cat.value = tpl.category || "";
+          cat.dispatchEvent(new Event("change", { bubbles: true }));
+          const lab = document.getElementById("categoryTriggerLabel");
+          if (lab) lab.textContent = tpl.category || "Select category…";
+        }
+        const desc = document.getElementById("description");
+        if (desc) desc.value = tpl.description || tpl.label || "";
+        const note = document.getElementById("txNote");
+        if (note) note.value = tpl.description || tpl.label || "";
+        const amount = document.getElementById("amount");
+        if (amount) { try { amount.focus(); } catch (_) {} }
+        if (typeof showToast === "function") showToast("Template: " + tpl.label);
       }, 80);
     } catch (e) { console.warn(e); }
   }
@@ -7230,25 +7469,75 @@ function fillProfileViewMode() {
 /* ===== Motion pack XL — 8 modes + rich effects ===== */
 (function motionPackXL() {
   const MOTION_KEY = "hisabKitabMotionV1";
-  const MODES = ["off","subtle","premium","bold","cinematic","playful","neon","minimal"];
+  const MODES = [
+    "off","silk","glass","pulse","aurora","snap","float","magnetic","ripple","velvet","spark",
+    "bounce","glide","zoom","tilt","shimmer","elastic","soft","rigid","wave","glow",
+    "lift","press","swell","drift","pop","fade","spring","crystal","smoke","jelly",
+    "orbit","thunder","breeze","marble","hologram"
+  ];
   const LABELS = {
-    off:"Off", subtle:"Subtle", premium:"Premium", bold:"Bold",
-    cinematic:"Cinematic", playful:"Playful", neon:"Neon", minimal:"Minimal"
+    off:"Off", silk:"Silk", glass:"Glass", pulse:"Pulse", aurora:"Aurora", snap:"Snap",
+    float:"Float", magnetic:"Magnetic", ripple:"Ripple", velvet:"Velvet", spark:"Spark",
+    bounce:"Bounce", glide:"Glide", zoom:"Zoom", tilt:"Tilt", shimmer:"Shimmer",
+    elastic:"Elastic", soft:"Soft", rigid:"Rigid", wave:"Wave", glow:"Glow",
+    lift:"Lift", press:"Press", swell:"Swell", drift:"Drift", pop:"Pop",
+    fade:"Fade", spring:"Spring", crystal:"Crystal", smoke:"Smoke", jelly:"Jelly",
+    orbit:"Orbit", thunder:"Thunder", breeze:"Breeze", marble:"Marble", hologram:"Hologram"
+  };
+  const LEGACY_MOTION = {
+    subtle:"silk", premium:"aurora", bold:"magnetic", cinematic:"velvet",
+    playful:"spark", neon:"ripple", minimal:"snap"
   };
 
   function getMotion() {
     try {
-      const v = localStorage.getItem(MOTION_KEY);
-      return MODES.includes(v) ? v : "premium";
-    } catch { return "premium"; }
+      let v = localStorage.getItem(MOTION_KEY);
+      if (v && LEGACY_MOTION[v]) v = LEGACY_MOTION[v];
+      return MODES.includes(v) ? v : "aurora";
+    } catch { return "aurora"; }
+  }
+
+
+  function ensureMotionOptions() {
+    const sel = document.getElementById("motionSelect");
+    if (!sel) return;
+    const have = new Set([...sel.options].map(o => o.value));
+    const descriptions = {
+      off:"Off", silk:"Silk — soft glide", glass:"Glass — crystal float", pulse:"Pulse — heartbeat lift",
+      aurora:"Aurora — smooth glow", snap:"Snap — crisp & quick", float:"Float — airy cards",
+      magnetic:"Magnetic — strong pull", ripple:"Ripple — wave feel", velvet:"Velvet — rich depth",
+      spark:"Spark — energetic", bounce:"Bounce — playful spring", glide:"Glide — smooth slide",
+      zoom:"Zoom — scale focus", tilt:"Tilt — 3D lean", shimmer:"Shimmer — light flicker",
+      elastic:"Elastic — stretch back", soft:"Soft — gentle ease", rigid:"Rigid — solid stop",
+      wave:"Wave — flowing motion", glow:"Glow — radiant aura", lift:"Lift — high rise",
+      press:"Press — depth press", swell:"Swell — expand out", drift:"Drift — slow float",
+      pop:"Pop — quick punch", fade:"Fade — soft opacity", spring:"Spring — bouncy return",
+      crystal:"Crystal — sharp glass", smoke:"Smoke — soft haze", jelly:"Jelly — wobbly",
+      orbit:"Orbit — circular feel", thunder:"Thunder — heavy impact", breeze:"Breeze — light air",
+      marble:"Marble — polished slide", hologram:"Hologram — futuristic"
+    };
+    MODES.forEach(m => {
+      if (have.has(m)) return;
+      const o = document.createElement("option");
+      o.value = m; o.textContent = descriptions[m] || LABELS[m] || m;
+      sel.appendChild(o);
+    });
   }
 
   function applyMotion(mode) {
-    if (!MODES.includes(mode)) mode = "premium";
+    if (LEGACY_MOTION[mode]) mode = LEGACY_MOTION[mode];
+    if (!MODES.includes(mode)) mode = "aurora";
     document.documentElement.setAttribute("data-motion", mode);
     try { localStorage.setItem(MOTION_KEY, mode); } catch (_) {}
+    try { ensureMotionOptions(); } catch (_) {}
     const sel = document.getElementById("motionSelect");
-    if (sel && sel.value !== mode) sel.value = mode;
+    if (sel && sel.value !== mode) {
+      sel.value = mode;
+      try {
+        const wrap = sel.closest(".select-anim-wrap");
+        if (wrap && wrap._selectAnim && wrap._selectAnim.syncLabel) wrap._selectAnim.syncLabel();
+      } catch (_) {}
+    }
   }
   window.applyMotion = applyMotion;
   window.getMotion = getMotion;
@@ -7324,6 +7613,7 @@ function fillProfileViewMode() {
         setTimeout(() => pulseCards(true), 40);
       });
     }
+    try { ensureMotionOptions(); } catch (_) {}
     applyMotion(getMotion());
     attachRipple(document);
     // NO enter animation on load/refresh — was causing cards to jump 3–4 times
@@ -7331,4 +7621,4456 @@ function fillProfileViewMode() {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wire);
   else wire();
+})();
+
+/* ===== Global font preference (20 distinct premium) ===== */
+(function fontPack() {
+  const FONT_KEY = "hisabKitabFontV1";
+  const FONTS = {
+    "fraunces": { label: 'Fraunces', family: '"Fraunces", system-ui, sans-serif' },
+    "syne": { label: 'Syne', family: '"Syne", system-ui, sans-serif' },
+    "cormorant": { label: 'Cormorant Garamond', family: '"Cormorant Garamond", system-ui, sans-serif' },
+    "instrument-serif": { label: 'Instrument Serif', family: '"Instrument Serif", system-ui, sans-serif' },
+    "bricolage": { label: 'Bricolage Grotesque', family: '"Bricolage Grotesque", system-ui, sans-serif' },
+    "playfair": { label: 'Playfair Display', family: '"Playfair Display", system-ui, sans-serif' },
+    "jetbrains": { label: 'JetBrains Mono', family: '"JetBrains Mono", system-ui, sans-serif' },
+    "orbitron": { label: 'Orbitron', family: '"Orbitron", system-ui, sans-serif' },
+    "cinzel": { label: 'Cinzel', family: '"Cinzel", system-ui, sans-serif' },
+    "bebas": { label: 'Bebas Neue', family: '"Bebas Neue", system-ui, sans-serif' },
+    "dm-serif": { label: 'DM Serif Display', family: '"DM Serif Display", system-ui, sans-serif' },
+    "space-mono": { label: 'Space Mono', family: '"Space Mono", system-ui, sans-serif' },
+    "pacifico": { label: 'Pacifico', family: '"Pacifico", system-ui, sans-serif' },
+    "caveat": { label: 'Caveat', family: '"Caveat", system-ui, sans-serif' },
+    "archivo-black": { label: 'Archivo Black', family: '"Archivo Black", system-ui, sans-serif' },
+    "libre-baskerville": { label: 'Libre Baskerville', family: '"Libre Baskerville", system-ui, sans-serif' },
+    "rajdhani": { label: 'Rajdhani', family: '"Rajdhani", system-ui, sans-serif' },
+    "fredoka": { label: 'Fredoka', family: '"Fredoka", system-ui, sans-serif' },
+    "yeseva": { label: 'Yeseva One', family: '"Yeseva One", system-ui, sans-serif' },
+    "system": { label: 'System UI', family: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif' },
+    "inter": { label: 'Inter', family: 'Inter, system-ui, sans-serif' },
+    "manrope": { label: 'Manrope', family: 'Manrope, system-ui, sans-serif' },
+    "sora": { label: 'Sora', family: 'Sora, system-ui, sans-serif' },
+    "outfit": { label: 'Outfit', family: 'Outfit, system-ui, sans-serif' },
+    "plus-jakarta": { label: 'Plus Jakarta Sans', family: '"Plus Jakarta Sans", system-ui, sans-serif' },
+    "dm-sans": { label: 'DM Sans', family: '"DM Sans", system-ui, sans-serif' },
+    "rubik": { label: 'Rubik', family: 'Rubik, system-ui, sans-serif' },
+    "nunito": { label: 'Nunito', family: 'Nunito, system-ui, sans-serif' },
+    "poppins": { label: 'Poppins', family: 'Poppins, system-ui, sans-serif' },
+    "space-grotesk": { label: 'Space Grotesk', family: '"Space Grotesk", system-ui, sans-serif' },
+  };
+
+  function getFont() {
+    try {
+      const v = localStorage.getItem(FONT_KEY);
+      return FONTS[v] ? v : "syne";
+    } catch { return "syne"; }
+  }
+
+  function applyFont(id) {
+    if (!FONTS[id]) id = "syne";
+    const f = FONTS[id];
+    const root = document.documentElement;
+    root.style.setProperty("--font-body", f.family);
+    root.style.setProperty("--font-display", f.family);
+    root.setAttribute("data-font", id);
+
+    let tag = document.getElementById("hk-font-style");
+    if (!tag) {
+      tag = document.createElement("style");
+      tag.id = "hk-font-style";
+      document.head.appendChild(tag);
+    }
+    tag.textContent = `
+      html, body, button, input, select, textarea, label, p, span, a, li, td, th, div,
+      .nav-link, .sb-select, .select-anim-btn, .select-anim-option, .select-anim-label,
+      .primary-btn, .outline-btn, .text-btn, .icon-btn, table {
+        font-family: ${f.family} !important;
+      }
+      h1, h2, h3, h4, h5, strong, .brand strong, .stat-value, .kpi-mini-value,
+      .topbar h1, .welcome-row h2, .section-intro h2, .panel-heading h3,
+      .settings-card-body h3, .profile-copy strong, .health-score, .wallet-total-value,
+      .prem-hero-copy h2, .tip-card strong, .budget-big-value, .ring-center strong,
+      .target-ring-label strong, .auth-brand strong, .vault-title, .goal-card h4,
+      .tool-card h3, .panel-head-row h3, .budget-header h3, .budget-amounts strong {
+        font-family: ${f.family} !important;
+      }
+    `;
+
+    try { localStorage.setItem(FONT_KEY, id); } catch (_) {}
+    // Clear old similar font preference if invalid key already handled
+
+    const sel = document.getElementById("fontSelect");
+    if (sel) {
+      if (sel.value !== id) sel.value = id;
+      try {
+        const wrap = sel.closest(".select-anim-wrap");
+        if (wrap && wrap._selectAnim && typeof wrap._selectAnim.syncLabel === "function") {
+          wrap._selectAnim.syncLabel();
+        }
+      } catch (_) {}
+    }
+  }
+
+  window.applyFont = applyFont;
+  window.getFont = getFont;
+
+  function wire() {
+    // migrate away from removed font ids
+    try {
+      const cur = localStorage.getItem(FONT_KEY);
+      if (cur && !FONTS[cur]) localStorage.setItem(FONT_KEY, "syne");
+    } catch (_) {}
+    applyFont(getFont());
+    const sel = document.getElementById("fontSelect");
+    if (sel && !sel.dataset.fontBound) {
+      sel.dataset.fontBound = "1";
+      sel.addEventListener("change", () => {
+        applyFont(sel.value);
+        if (typeof showToast === "function") showToast(FONTS[sel.value] ? FONTS[sel.value].label : sel.value);
+      });
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wire);
+  else wire();
+  setTimeout(wire, 200);
+  setTimeout(wire, 800);
+})();
+
+
+/* ===== Motion speed control ===== */
+(function motionSpeedPack() {
+  const KEY = "hisabKitabMotionSpeedV1";
+  const SPEEDS = {
+    "0.5": { label: "Very slow", mult: 0.45 },
+    "0.75": { label: "Slow", mult: 0.7 },
+    "1": { label: "Normal", mult: 1 },
+    "1.25": { label: "Fast", mult: 1.25 },
+    "1.6": { label: "Very fast", mult: 1.65 },
+    "2": { label: "Instant-ish", mult: 2.2 }
+  };
+
+  function getSpeed() {
+    try {
+      const v = localStorage.getItem(KEY);
+      return SPEEDS[v] ? v : "1";
+    } catch { return "1"; }
+  }
+
+  function applyMotionSpeed(id) {
+    if (!SPEEDS[id]) id = "1";
+    const mult = SPEEDS[id].mult;
+    // Base durations from current motion mode, scaled
+    const base = {
+      off: 0,
+      silk: 0.42, glass: 0.48, pulse: 0.36, aurora: 0.5, snap: 0.2,
+      float: 0.55, magnetic: 0.4, ripple: 0.45, velvet: 0.52, spark: 0.32,
+      bounce: 0.45, glide: 0.5, zoom: 0.38, tilt: 0.42, shimmer: 0.48,
+      elastic: 0.55, soft: 0.5, rigid: 0.18, wave: 0.52, glow: 0.44,
+      lift: 0.48, press: 0.36, swell: 0.5, drift: 0.6, pop: 0.28,
+      fade: 0.45, spring: 0.5, crystal: 0.4, smoke: 0.55, jelly: 0.52,
+      orbit: 0.48, thunder: 0.34, breeze: 0.5, marble: 0.46, hologram: 0.5
+    };
+    let mode = "aurora";
+    try {
+      if (typeof getMotion === "function") mode = getMotion();
+      else mode = document.documentElement.getAttribute("data-motion") || "aurora";
+    } catch (_) {}
+    const sec = mode === "off" ? 0 : Math.max(0.08, (base[mode] || 0.4) / mult);
+    const root = document.documentElement;
+    root.style.setProperty("--motion-speed", sec + "s");
+    root.setAttribute("data-motion-speed", id);
+    try { localStorage.setItem(KEY, id); } catch (_) {}
+    const sel = document.getElementById("motionSpeedSelect");
+    if (sel && sel.value !== id) {
+      sel.value = id;
+      try {
+        const wrap = sel.closest(".select-anim-wrap");
+        if (wrap && wrap._selectAnim && wrap._selectAnim.syncLabel) wrap._selectAnim.syncLabel();
+      } catch (_) {}
+    }
+  }
+
+  window.applyMotionSpeed = applyMotionSpeed;
+  window.getMotionSpeed = getSpeed;
+
+  // Re-apply when motion mode changes
+  const _applyMotion = window.applyMotion;
+  if (typeof _applyMotion === "function" && !window.__hkSpeedWrapped) {
+    window.__hkSpeedWrapped = true;
+    window.applyMotion = function(mode) {
+      const r = _applyMotion.apply(this, arguments);
+      try { applyMotionSpeed(getSpeed()); } catch (_) {}
+      return r;
+    };
+  }
+
+  function wire() {
+    applyMotionSpeed(getSpeed());
+    const sel = document.getElementById("motionSpeedSelect");
+    if (sel && !sel.dataset.bound) {
+      sel.dataset.bound = "1";
+      sel.addEventListener("change", () => {
+        applyMotionSpeed(sel.value);
+        if (typeof showToast === "function") {
+          const lab = (SPEEDS[sel.value] && SPEEDS[sel.value].label) || sel.value;
+          showToast("Motion speed: " + lab);
+        }
+        try { if (typeof pulseCards === "function") pulseCards(true); } catch (_) {}
+      });
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wire);
+  else wire();
+  setTimeout(wire, 500);
+})();
+
+
+/* ===== Feature Pack XL — dropdown style (same card size) ===== */
+(function featurePackXL() {
+  const FEAT_KEY = "hisabKitabFeaturesV1";
+  const FEAT_META = [
+    ["confetti", "Confetti on save"],
+    ["compactMoney", "Compact amounts (1.2k)"],
+    ["quickAdd", "Quick-add templates"],
+    ["focusMode", "Focus mode (dim chrome)"],
+    ["sound", "Soft UI sounds"],
+    ["autoBackupHint", "Backup reminders"],
+    ["smartTips", "Smart tips"],
+    ["weekStartsMon", "Week starts Monday"],
+    ["hideZeroWallets", "Hide empty wallets"],
+    ["animateCharts", "Animate charts"],
+    ["stickyFilters", "Sticky filters"],
+    ["largeTap", "Large tap targets"],
+    ["reduceData", "Reduce motion data"],
+    ["showCents", "Show cents"],
+    ["emojiCats", "Emoji categories"],
+    ["dualAmount", "Dual currency line"],
+    ["toastUndo", "Undo on toast"],
+    ["nightDim", "Night dim overlay"],
+    ["pinFavorites", "Pin favorites"],
+    ["liveClock", "Live clock in topbar"],
+    /* —— 10 new premium features —— */
+    ["duplicateTx", "Duplicate transaction button"],
+    ["quickRanges", "Quick date range presets"],
+    ["merchantMemory", "Remember merchants / payees"],
+    ["compactList", "Compact transaction list"],
+    ["multiSelect", "Multi-select delete mode"],
+    ["savingsAlert", "Low savings-rate alert"],
+    ["backupBadge", "Backup reminder badge"],
+    ["privacyStrict", "Strict privacy blur amounts"],
+    ["goalLink", "Link expense to a goal"],
+    ["heatmapHints", "Spending heatmap hints"]
+  ];
+  const DEFAULTS = Object.fromEntries(FEAT_META.map(([k]) => [k, ["confetti","compactMoney","quickAdd","autoBackupHint","smartTips","weekStartsMon","animateCharts","stickyFilters","showCents","emojiCats","toastUndo","pinFavorites","liveClock","duplicateTx","quickRanges","merchantMemory","savingsAlert","backupBadge"].includes(k)]));
+
+  function loadFeats() {
+    try {
+      const raw = localStorage.getItem(FEAT_KEY);
+      if (!raw) return { ...DEFAULTS };
+      return { ...DEFAULTS, ...JSON.parse(raw) };
+    } catch { return { ...DEFAULTS }; }
+  }
+  function saveFeats(f) { try { localStorage.setItem(FEAT_KEY, JSON.stringify(f)); } catch (_) {} }
+  let feats = loadFeats();
+
+  function applyFeats() {
+    const root = document.documentElement;
+    root.setAttribute("data-feat-compact", feats.compactMoney ? "1" : "0");
+    root.setAttribute("data-feat-focus", feats.focusMode ? "1" : "0");
+    root.setAttribute("data-feat-large-tap", feats.largeTap ? "1" : "0");
+    root.setAttribute("data-feat-cents", feats.showCents ? "1" : "0");
+    root.setAttribute("data-feat-night", feats.nightDim ? "1" : "0");
+    root.setAttribute("data-feat-compact-list", feats.compactList ? "1" : "0");
+    root.setAttribute("data-feat-privacy-strict", feats.privacyStrict ? "1" : "0");
+    root.setAttribute("data-feat-duplicate", feats.duplicateTx ? "1" : "0");
+    root.setAttribute("data-feat-quick-ranges", feats.quickRanges ? "1" : "0");
+    root.setAttribute("data-feat-multi", feats.multiSelect ? "1" : "0");
+    window.getCompactMoney = () => !!feats.compactMoney;
+    window.__hkFeats = feats;
+    try { if (typeof window.__hkApplyExtraFeats === "function") window.__hkApplyExtraFeats(feats); } catch (_) {}
+  }
+
+  function confettiBurst() {
+    if (!feats.confetti) return;
+    const layer = document.querySelector(".particle-layer") || document.body;
+    for (let i = 0; i < 16; i++) {
+      const p = document.createElement("i");
+      p.className = "hk-confetti";
+      p.style.left = (42 + Math.random() * 16) + "vw";
+      p.style.setProperty("--dx", (Math.random() * 120 - 60) + "px");
+      p.style.setProperty("--dy", (80 + Math.random() * 120) + "px");
+      p.style.setProperty("--rot", (Math.random() * 360) + "deg");
+      p.style.background = ["var(--accent)","var(--accent2)","var(--green)","#fff6"][i % 4];
+      layer.appendChild(p);
+      setTimeout(() => p.remove(), 900);
+    }
+  }
+  window.hkConfetti = confettiBurst;
+
+  const _toast = window.showToast;
+  if (typeof _toast === "function" && !window.__hkFeatToast) {
+    window.__hkFeatToast = true;
+    window.showToast = function(msg) {
+      const r = _toast.apply(this, arguments);
+      try {
+        const m = String(msg || "").toLowerCase();
+        if (feats.confetti && (m.includes("saved") || m.includes("added") || m.includes("updated") || m.includes("goal"))) confettiBurst();
+      } catch (_) {}
+      return r;
+    };
+  }
+
+  function tickClock() {
+    if (!feats.liveClock) return;
+    const el = document.getElementById("todayLabel");
+    if (!el) return;
+    const n = new Date();
+    el.textContent = n.toLocaleDateString("en", { day: "2-digit", month: "short" }) + " · " + n.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function renderFeatureToggles(listEl) {
+    if (!listEl) return;
+    const on = FEAT_META.filter(([k]) => feats[k]).length;
+    listEl.innerHTML = `
+      <div class="hk-feat-head">
+        <span class="hk-feat-count"><strong id="hkFeatOnCount">${on}</strong> / ${FEAT_META.length} on</span>
+        <div class="hk-feat-bulk">
+          <button type="button" class="text-btn" id="hkFeatAllOn">All on</button>
+          <button type="button" class="text-btn" id="hkFeatAllOff">All off</button>
+        </div>
+      </div>
+      <div class="hk-feat-scroll">
+        ${FEAT_META.map(([k, label]) => `
+          <label class="hk-feat-row" data-feat="${k}">
+            <span class="hk-feat-label">${label}</span>
+            <span class="hk-toggle ${feats[k] ? "on" : ""}" role="switch" aria-checked="${feats[k] ? "true" : "false"}" tabindex="0">
+              <span class="hk-toggle-knob"></span>
+            </span>
+          </label>
+        `).join("")}
+      </div>`;
+
+    const setCount = () => {
+      const c = document.getElementById("hkFeatOnCount");
+      if (c) c.textContent = FEAT_META.filter(([k]) => feats[k]).length;
+    };
+
+    listEl.querySelectorAll(".hk-feat-row").forEach(row => {
+      const k = row.getAttribute("data-feat");
+      const tog = row.querySelector(".hk-toggle");
+      const flip = () => {
+        feats[k] = !feats[k];
+        saveFeats(feats);
+        applyFeats();
+        tog.classList.toggle("on", !!feats[k]);
+        tog.setAttribute("aria-checked", feats[k] ? "true" : "false");
+        setCount();
+        const label = (FEAT_META.find(x => x[0] === k) || [k, k])[1];
+        if (typeof showToast === "function") showToast(label + (feats[k] ? " on" : " off"));
+        if (k === "liveClock") tickClock();
+      };
+      row.addEventListener("click", (e) => { e.preventDefault(); flip(); });
+      tog.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); }
+      });
+    });
+
+    const allOn = listEl.querySelector("#hkFeatAllOn");
+    const allOff = listEl.querySelector("#hkFeatAllOff");
+    if (allOn) allOn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      FEAT_META.forEach(([k]) => { feats[k] = true; });
+      saveFeats(feats); applyFeats();
+      renderFeatureToggles(listEl);
+      setCount();
+      if (typeof showToast === "function") showToast("All pro features on");
+    });
+    if (allOff) allOff.addEventListener("click", (e) => {
+      e.stopPropagation();
+      FEAT_META.forEach(([k]) => { feats[k] = false; });
+      saveFeats(feats); applyFeats();
+      renderFeatureToggles(listEl);
+      setCount();
+      if (typeof showToast === "function") showToast("All pro features off");
+    });
+  }
+
+  function ensureFeatModal() {
+    let backdrop = document.getElementById("hkFeatModalBackdrop");
+    if (backdrop) return backdrop;
+    backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    backdrop.id = "hkFeatModalBackdrop";
+    backdrop.innerHTML = `
+      <div class="modal-card hk-feat-modal" role="dialog" aria-modal="true" aria-labelledby="hkFeatModalTitle">
+        <div class="modal-heading">
+          <div>
+            <span class="eyebrow">PRO</span>
+            <h2 id="hkFeatModalTitle">Pro features</h2>
+          </div>
+          <button type="button" class="icon-btn" id="hkFeatModalClose" aria-label="Close"><i data-lucide="x"></i></button>
+        </div>
+        <p class="muted" style="font-size:12px;margin:0 0 12px">Toggle any upgrade on or off. Same size card — full list here.</p>
+        <div id="hkFeatPanel" class="hk-feat-panel"></div>
+        <button type="button" class="outline-btn" id="hkFeatModalDone" style="width:100%;justify-content:center;margin-top:14px">Done</button>
+      </div>`;
+    document.body.appendChild(backdrop);
+    const close = () => {
+      backdrop.classList.remove("open");
+      backdrop.style.display = "";
+    };
+    backdrop.addEventListener("click", (e) => { if (e.target === backdrop) close(); });
+    const closeBtn = backdrop.querySelector("#hkFeatModalClose");
+    const doneBtn = backdrop.querySelector("#hkFeatModalDone");
+    if (closeBtn) closeBtn.addEventListener("click", close);
+    if (doneBtn) doneBtn.addEventListener("click", close);
+    return backdrop;
+  }
+
+  function openFeatModal() {
+    const backdrop = ensureFeatModal();
+    const panel = backdrop.querySelector("#hkFeatPanel");
+    renderFeatureToggles(panel);
+    backdrop.style.display = "flex";
+    backdrop.classList.add("open");
+    try { if (window.lucide) lucide.createIcons({ nodes: [backdrop] }); } catch (_) {}
+  }
+
+  function injectFeatureCard() {
+    const grid = document.getElementById("settingsCardsGrid");
+    if (!grid) return;
+    const old = document.getElementById("featureTogglesCard");
+    if (old) old.remove();
+
+    const art = document.createElement("article");
+    art.className = "panel settings-card-main";
+    art.id = "featureTogglesCard";
+    art.setAttribute("data-settings-card", "features");
+    art.innerHTML = `
+      <div class="settings-card-icon"><i data-lucide="sparkles"></i></div>
+      <div class="settings-card-body">
+        <h3>Pro features</h3>
+        <p class="muted">Quality upgrades for the workspace</p>
+      </div>
+      <div class="settings-card-foot">
+        <div class="sb-select-wrap settings-card-control">
+          <button type="button" class="sb-select hk-feat-select-btn" id="hkOpenFeatToggles" aria-haspopup="dialog">
+            Feature toggles
+          </button>
+          <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+        </div>
+      </div>`;
+    grid.appendChild(art);
+    const btn = art.querySelector("#hkOpenFeatToggles");
+    if (btn) btn.addEventListener("click", openFeatModal);
+    try { if (window.lucide) lucide.createIcons({ nodes: [art] }); } catch (_) {}
+  }
+
+  function wire() {
+    applyFeats();
+    injectFeatureCard();
+    tickClock();
+    setInterval(tickClock, 30000);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wire);
+  else wire();
+  setTimeout(wire, 400);
+  setTimeout(injectFeatureCard, 1000);
+})();
+
+/* ===== Nav card layouts (25) ===== */
+(function navStylePack() {
+  const KEY = "hisabKitabNavStyleV1";
+  const STYLES = ["glass","minimal","pill","solid","outline","neon","soft","bar","chip","elegant","aurora","luxury","cyber","frost","ink","duo","mesh","ribbon","halo","slate","orbit","prism","velvet","pulse","luxe","royal","carbon","capsule","dock","terminal","emboss","crystal","magazine","sunset","nova"];
+  const LABELS = {glass:"Glass",minimal:"Minimal",pill:"Pill",solid:"Solid",outline:"Outline",neon:"Neon",soft:"Soft",bar:"Bar",chip:"Chip",elegant:"Elegant",aurora:"Aurora",luxury:"Luxury",cyber:"Cyber",frost:"Frost",ink:"Ink",duo:"Duo",mesh:"Mesh",ribbon:"Ribbon",halo:"Halo",slate:"Slate",orbit:"Orbit",prism:"Prism",velvet:"Velvet",pulse:"Pulse",luxe:"Luxe",royal:"Royal",carbon:"Carbon",capsule:"Capsule",dock:"Dock",terminal:"Terminal",emboss:"Emboss",crystal:"Crystal",magazine:"Magazine",sunset:"Sunset",nova:"Nova"};
+
+  const HOVER_HINTS = {
+    glass: "Hover: frosted lift + soft shadow",
+    minimal: "Hover: soft tint + slight shift",
+    pill: "Hover: capsule scale + glow",
+    solid: "Hover: border accent + depth",
+    outline: "Hover: gold edge + color",
+    neon: "Hover: neon glow ring",
+    soft: "Hover: pastel wash",
+    bar: "Hover: left accent bar slides",
+    chip: "Hover: chip floats up",
+    elegant: "Hover: underline accent",
+    aurora: "Hover: gradient lift",
+    luxury: "Hover: gold frame glow",
+    cyber: "Hover: tech edge brighten",
+    frost: "Hover: icy blur + edge",
+    ink: "Hover: deep fill rise",
+    duo: "Hover: split-tone brighten",
+    mesh: "Hover: layered border",
+    ribbon: "Hover: top ribbon accent",
+    halo: "Hover: soft ring around",
+    slate: "Hover: matte panel lift",
+    orbit: "Hover: circular icon scale",
+    prism: "Hover: angled shine skew",
+    velvet: "Hover: rich surface glow",
+    pulse: "Hover: heartbeat pulse",
+    luxe: "Hover: premium badge shine",
+    royal: "Hover: gold rail brightens",
+    carbon: "Hover: fiber weave lift",
+    capsule: "Hover: icon bubble scales",
+    dock: "Hover: island floats up",
+    terminal: "Hover: console cursor edge",
+    emboss: "Hover: deeper 3D press",
+    crystal: "Hover: multi-edge shine",
+    magazine: "Hover: editorial expand",
+    sunset: "Hover: warm gradient bloom",
+    nova: "Hover: star burst glow"
+  };
+
+  function getNavStyle(){try{const v=localStorage.getItem(KEY);return STYLES.includes(v)?v:"glass"}catch{return"glass"}}
+  let _nspHideTimer = null;
+  function ensureNavPreviewPop(){
+    let pop = document.getElementById("navStylePreviewPop");
+    if (pop) return pop;
+    pop = document.createElement("div");
+    pop.id = "navStylePreviewPop";
+    pop.className = "nav-style-preview-pop";
+    pop.setAttribute("role", "dialog");
+    pop.setAttribute("aria-label", "Nav layout preview");
+    pop.hidden = true;
+    pop.innerHTML = `
+      <div class="nsp-pop-head">
+        <span class="nsp-label">Preview</span>
+        <strong id="nspPopTitle">Glass</strong>
+      </div>
+      <div class="nav-style-preview" id="navStylePreview" data-nav-style="glass">
+        <div class="nsp-menu">
+          <button type="button" class="nsp-link active" tabindex="-1"><i data-lucide="layout-dashboard"></i><span>Overview</span></button>
+          <button type="button" class="nsp-link" tabindex="-1"><i data-lucide="arrow-left-right"></i><span>Transactions</span></button>
+          <button type="button" class="nsp-link" tabindex="-1"><i data-lucide="target"></i><span>Budget</span></button>
+        </div>
+      </div>
+      <div class="nsp-foot" id="nspHoverHint">Hover: lift · glow · shift</div>`;
+    document.body.appendChild(pop);
+    pop.addEventListener("mouseenter", () => {
+      if (_nspHideTimer) { clearTimeout(_nspHideTimer); _nspHideTimer = null; }
+    });
+    pop.addEventListener("mouseleave", () => {
+      scheduleHideNavPreview(400);
+    });
+    return pop;
+  }
+  function positionNavPreviewPop(){
+    const pop = document.getElementById("navStylePreviewPop");
+    const sel = document.getElementById("navStyleSelect");
+    if (!pop || !sel) return;
+    const wrap = sel.closest(".select-anim-wrap") || sel.closest(".sb-select-wrap") || sel;
+    const btn = (wrap && wrap.querySelector(".select-anim-btn")) || wrap || sel;
+    const r = btn.getBoundingClientRect();
+    const pw = 236;
+    const ph = pop.offsetHeight || 180;
+    // Prefer ABOVE trigger so list below never covers preview
+    let left = r.left + r.width / 2 - pw / 2;
+    let top = r.top - ph - 12;
+    if (top < 12) {
+      // side placement if no room above
+      top = Math.max(12, Math.min(r.top, window.innerHeight - ph - 12));
+      left = r.right + 12;
+      if (left + pw > window.innerWidth - 12) left = Math.max(12, r.left - pw - 12);
+    }
+    if (left < 12) left = 12;
+    if (left + pw > window.innerWidth - 12) left = Math.max(12, window.innerWidth - pw - 12);
+    pop.style.left = Math.round(left) + "px";
+    pop.style.top = Math.round(top) + "px";
+    pop.style.zIndex = "10050";
+  }
+  function showNavPreviewPop(){
+    const pop = ensureNavPreviewPop();
+    if (_nspHideTimer) { clearTimeout(_nspHideTimer); _nspHideTimer = null; }
+    pop.hidden = false;
+    positionNavPreviewPop();
+    requestAnimationFrame(() => {
+      pop.classList.add("open");
+      positionNavPreviewPop();
+    });
+  }
+  function hideNavPreviewPop(){
+    const pop = document.getElementById("navStylePreviewPop");
+    if (!pop) return;
+    pop.classList.remove("open");
+    _nspHideTimer = setTimeout(() => {
+      pop.hidden = true;
+      _nspHideTimer = null;
+    }, 180);
+  }
+  function scheduleHideNavPreview(ms){
+    if (_nspHideTimer) clearTimeout(_nspHideTimer);
+    _nspHideTimer = setTimeout(() => hideNavPreviewPop(), ms == null ? 1400 : ms);
+  }
+  function updateNavStylePreview(style){
+    if(!STYLES.includes(style)) style="glass";
+    ensureNavPreviewPop();
+    const prev = document.getElementById("navStylePreview");
+    if (prev) prev.setAttribute("data-nav-style", style);
+    const title = document.getElementById("nspPopTitle");
+    if (title) title.textContent = LABELS[style] || style;
+    const hint = document.getElementById("nspHoverHint");
+    if (hint) hint.textContent = HOVER_HINTS[style] || "Hover sidebar to feel the style";
+    try{ if(window.lucide) lucide.createIcons({ nodes:[document.getElementById("navStylePreviewPop")].filter(Boolean) }); }catch(_){}
+  }
+  function applyNavStyle(style){
+    if(!STYLES.includes(style)) style="glass";
+    document.documentElement.setAttribute("data-nav-style", style);
+    const sb=document.getElementById("sidebar"); if(sb) sb.setAttribute("data-nav-style", style);
+    try{localStorage.setItem(KEY, style)}catch(_){}
+    const sel=document.getElementById("navStyleSelect");
+    if(sel && sel.value!==style){ sel.value=style; try{const w=sel.closest(".select-anim-wrap"); if(w&&w._selectAnim&&w._selectAnim.syncLabel)w._selectAnim.syncLabel()}catch(_){} }
+    updateNavStylePreview(style);
+  }
+  window.applyNavStyle=applyNavStyle; window.getNavStyle=getNavStyle;
+  function ensureNavOptions(){
+    const sel=document.getElementById("navStyleSelect"); if(!sel) return;
+    const have=new Set([...sel.options].map(o=>o.value));
+    const desc={glass:"Glass — frosted cards",minimal:"Minimal — clean flat",pill:"Pill — soft capsules",solid:"Solid — filled blocks",outline:"Outline — border only",neon:"Neon — glowing edges",soft:"Soft — pastel cards",bar:"Bar — accent strip",chip:"Chip — compact chips",elegant:"Elegant — thin refined",aurora:"Aurora — gradient wash",luxury:"Luxury — gold frame",cyber:"Cyber — tech grid",frost:"Frost — icy glass",ink:"Ink — deep fill",duo:"Duo — split tone",mesh:"Mesh — layered depth",ribbon:"Ribbon — top accent",halo:"Halo — soft glow ring",slate:"Slate — matte panels",orbit:"Orbit — circular icons",prism:"Prism — angled shine",velvet:"Velvet — rich surface",pulse:"Pulse — active heartbeat",luxe:"Luxe — premium badge"};
+    STYLES.forEach(s=>{ if(have.has(s)) return; const o=document.createElement("option"); o.value=s; o.textContent=desc[s]||LABELS[s]||s; sel.appendChild(o); });
+  }
+  function wire(){
+    ensureNavOptions(); applyNavStyle(getNavStyle());
+    const sel=document.getElementById("navStyleSelect");
+    if(sel && !sel.dataset.navStyleBound){
+      sel.dataset.navStyleBound="1";
+      const onPick = () => {
+        applyNavStyle(sel.value);
+        updateNavStylePreview(sel.value);
+        showNavPreviewPop();
+        if(typeof showToast==="function") showToast((LABELS[sel.value]||sel.value)+" nav layout");
+        scheduleHideNavPreview(1800);
+      };
+      sel.addEventListener("change", onPick);
+      sel.addEventListener("input", () => { updateNavStylePreview(sel.value); showNavPreviewPop(); scheduleHideNavPreview(2200); });
+      sel.addEventListener("focus", () => { updateNavStylePreview(sel.value); showNavPreviewPop(); });
+      sel.addEventListener("blur", () => scheduleHideNavPreview(280));
+      const wrap = sel.closest(".select-anim-wrap") || sel.parentElement;
+      if (wrap) {
+        wrap.addEventListener("click", (e) => {
+          const opt = e.target.closest("[data-value], .select-anim-option");
+          if (opt) {
+            const v = opt.getAttribute("data-value") || (opt.dataset && opt.dataset.value);
+            if (v) { updateNavStylePreview(v); showNavPreviewPop(); }
+          } else {
+            showNavPreviewPop();
+          }
+        }, true);
+      }
+      document.addEventListener("click", (e) => {
+        const pop = document.getElementById("navStylePreviewPop");
+        if (!pop || pop.hidden) return;
+        if (e.target.closest("#navStylePreviewPop, #navStyleSelect, #navStyleSelectWrap, .select-anim-wrap")) return;
+        hideNavPreviewPop();
+      });
+      window.addEventListener("resize", () => { if (document.getElementById("navStylePreviewPop") && !document.getElementById("navStylePreviewPop").hidden) positionNavPreviewPop(); });
+    }
+    updateNavStylePreview(getNavStyle());
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", wire); else wire();
+  setTimeout(wire, 400);
+})();
+
+
+
+
+
+/* ===== Sidebar animation library (premium) ===== */
+(function sidebarAnimPack() {
+  const KEY = "hisabKitabSidebarAnimV1";
+  const MODES = ["none","stagger","cascade","slide","rise","fade","scale","blur","elastic","sweep","premium"];
+  const LABELS = {
+    none:"None", stagger:"Stagger", cascade:"Cascade", slide:"Slide", rise:"Rise",
+    fade:"Fade", scale:"Scale", blur:"Blur", elastic:"Elastic", sweep:"Sweep", premium:"Premium"
+  };
+
+  let _playedOnce = false;
+  let _playing = false;
+  let _wired = false;
+
+  function getMode() {
+    try {
+      const v = localStorage.getItem(KEY);
+      return MODES.includes(v) ? v : "premium";
+    } catch { return "premium"; }
+  }
+
+  function applySidebarAnim(mode, opts) {
+    opts = opts || {};
+    if (!MODES.includes(mode)) mode = "premium";
+    const prev = document.documentElement.getAttribute("data-sidebar-anim");
+    document.documentElement.setAttribute("data-sidebar-anim", mode);
+    const sb = document.getElementById("sidebar");
+    if (sb) sb.setAttribute("data-sidebar-anim", mode);
+    try { localStorage.setItem(KEY, mode); } catch (_) {}
+    const sel = document.getElementById("sidebarAnimSelect");
+    if (sel && sel.value !== mode) {
+      sel.value = mode;
+      try {
+        const w = sel.closest(".select-anim-wrap");
+        if (w && w._selectAnim && w._selectAnim.syncLabel) w._selectAnim.syncLabel();
+      } catch (_) {}
+    }
+    // Play only when user changes mode, or first boot once
+    if (opts.forcePlay || (prev && prev !== mode) || opts.boot) {
+      playSidebarAnim(!!opts.forcePlay || !!opts.boot || prev !== mode);
+    }
+  }
+
+  function playSidebarAnim(force) {
+    const mode = document.documentElement.getAttribute("data-sidebar-anim") || "none";
+    const menu = document.querySelector("#sidebar .nav-menu");
+    if (!menu || mode === "none") return;
+    // Prevent bar-bar refresh loops
+    if (_playing) return;
+    if (_playedOnce && !force) return;
+    _playing = true;
+    _playedOnce = true;
+
+    const links = [...menu.querySelectorAll(".nav-link")];
+    let maxDelay = 0;
+    links.forEach((el, i) => {
+      el.classList.remove("sb-anim-play");
+      el.style.setProperty("--sb-i", String(i));
+      void el.offsetWidth;
+      el.classList.add("sb-anim-play");
+      maxDelay = Math.max(maxDelay, 50 * i + 700);
+    });
+    // Clear play class after animation so it cannot re-trigger on reflow
+    setTimeout(() => {
+      links.forEach(el => el.classList.remove("sb-anim-play"));
+      _playing = false;
+    }, maxDelay + 50);
+  }
+
+  window.applySidebarAnim = applySidebarAnim;
+  window.playSidebarAnim = function() { playSidebarAnim(true); };
+  window.getSidebarAnim = getMode;
+
+  function wire() {
+    if (_wired) return;
+    _wired = true;
+    applySidebarAnim(getMode(), { boot: true });
+    const sel = document.getElementById("sidebarAnimSelect");
+    if (sel && !sel.dataset.bound) {
+      sel.dataset.bound = "1";
+      sel.addEventListener("change", () => {
+        _playedOnce = false; // allow one play for new mode
+        applySidebarAnim(sel.value, { forcePlay: true });
+        if (typeof showToast === "function") showToast((LABELS[sel.value] || sel.value) + " sidebar motion");
+      });
+    }
+    // Mobile menu open: only once per open session, not spam
+    const menuBtn = document.getElementById("menuBtn");
+    if (menuBtn && !menuBtn.dataset.sbAnim) {
+      menuBtn.dataset.sbAnim = "1";
+      menuBtn.addEventListener("click", () => {
+        // only replay if sidebar was closed (mobile)
+        setTimeout(() => playSidebarAnim(true), 60);
+      });
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wire);
+  else wire();
+})();
+
+/* ===== Extra Pro Features pack (10) ===== */
+(function extraProPack() {
+  const MERCHANT_KEY = "hisabKitabMerchantsV1";
+
+  function loadMerchants() {
+    try {
+      const raw = localStorage.getItem(userScope ? userScope(MERCHANT_KEY) : MERCHANT_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }
+  function saveMerchant(name) {
+    if (!name || name.length < 2) return;
+    const list = loadMerchants();
+    const n = name.trim();
+    if (!list.includes(n)) {
+      list.unshift(n);
+      if (list.length > 40) list.length = 40;
+      try {
+        localStorage.setItem(userScope ? userScope(MERCHANT_KEY) : MERCHANT_KEY, JSON.stringify(list));
+      } catch (_) {}
+    }
+  }
+
+  function injectQuickRanges() {
+    const feats = window.__hkFeats || {};
+    if (!feats.quickRanges) {
+      const el = document.getElementById("hkQuickRanges");
+      if (el) el.remove();
+      return;
+    }
+    if (document.getElementById("hkQuickRanges")) return;
+    const filters = document.querySelector("#transactionsPage .filters") || document.querySelector(".filters");
+    if (!filters) return;
+    const bar = document.createElement("div");
+    bar.id = "hkQuickRanges";
+    bar.className = "hk-quick-ranges";
+    bar.innerHTML = `
+      <button type="button" data-range="7">7d</button>
+      <button type="button" data-range="30">30d</button>
+      <button type="button" data-range="month">This month</button>
+      <button type="button" data-range="last">Last month</button>
+      <button type="button" data-range="all">All</button>`;
+    filters.appendChild(bar);
+    bar.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-range]");
+      if (!btn) return;
+      const r = btn.getAttribute("data-range");
+      const now = new Date();
+      let from = "", to = "";
+      const iso = (d) => d.toISOString().slice(0, 10);
+      if (r === "7") {
+        const d = new Date(now); d.setDate(d.getDate() - 7);
+        from = iso(d); to = iso(now);
+      } else if (r === "30") {
+        const d = new Date(now); d.setDate(d.getDate() - 30);
+        from = iso(d); to = iso(now);
+      } else if (r === "month") {
+        from = iso(new Date(now.getFullYear(), now.getMonth(), 1));
+        to = iso(now);
+      } else if (r === "last") {
+        from = iso(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+        to = iso(new Date(now.getFullYear(), now.getMonth(), 0));
+      } else {
+        from = ""; to = "";
+      }
+      const fromEl = document.getElementById("dateFrom") || document.getElementById("filterFrom");
+      const toEl = document.getElementById("dateTo") || document.getElementById("filterTo");
+      if (fromEl) fromEl.value = from;
+      if (toEl) toEl.value = to;
+      bar.querySelectorAll("button").forEach(b => b.classList.toggle("active", b === btn));
+      try {
+        if (typeof renderAll === "function") renderAll();
+        else if (typeof renderTransactions === "function") renderTransactions();
+      } catch (_) {}
+      if (typeof showToast === "function") showToast("Range: " + btn.textContent);
+    });
+  }
+
+  function enhanceMerchantMemory() {
+    const feats = window.__hkFeats || {};
+    if (!feats.merchantMemory) return;
+    const input = document.getElementById("txDescription") || document.getElementById("description") || document.querySelector("#txForm input[name='description']");
+    if (!input || input.dataset.merchantBound) return;
+    input.dataset.merchantBound = "1";
+    let list = document.getElementById("hkMerchantList");
+    if (!list) {
+      list = document.createElement("datalist");
+      list.id = "hkMerchantList";
+      document.body.appendChild(list);
+    }
+    input.setAttribute("list", "hkMerchantList");
+    const refresh = () => {
+      list.innerHTML = loadMerchants().map(m => `<option value="${String(m).replace(/"/g, "&quot;")}"></option>`).join("");
+    };
+    refresh();
+    // save on successful add — hook after toast or form submit
+    const form = document.getElementById("txForm") || document.getElementById("transactionForm");
+    if (form && !form.dataset.merchantSave) {
+      form.dataset.merchantSave = "1";
+      form.addEventListener("submit", () => {
+        try { saveMerchant(input.value); refresh(); } catch (_) {}
+      });
+    }
+  }
+
+  function wireDuplicateButtons() {
+    const feats = window.__hkFeats || {};
+    if (!feats.duplicateTx) return;
+    document.querySelectorAll("[data-edit], .tx-actions, .row-actions").forEach(wrap => {
+      if (wrap.querySelector("[data-dup]")) return;
+      const id = wrap.getAttribute("data-id") || (wrap.closest("tr") && wrap.closest("tr").getAttribute("data-id"));
+      if (!id) return;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "icon-action";
+      btn.title = "Duplicate";
+      btn.setAttribute("data-dup", id);
+      btn.innerHTML = `<i data-lucide="copy"></i>`;
+      wrap.appendChild(btn);
+    });
+    try { if (window.lucide) lucide.createIcons(); } catch (_) {}
+  }
+
+  document.addEventListener("click", (e) => {
+    const dup = e.target.closest && e.target.closest("[data-dup]");
+    if (!dup) return;
+    const id = dup.getAttribute("data-dup");
+    const t = (transactions || []).find(x => String(x.id) === String(id));
+    if (!t) return;
+    const copy = { ...t, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: new Date().toISOString().slice(0, 10) };
+    transactions.unshift(copy);
+    try { saveTransactions(); } catch (_) {}
+    try { if (typeof refreshAll === "function") refreshAll(); else if (typeof renderAll === "function") renderAll(); } catch (_) {}
+    if (typeof showToast === "function") showToast("Transaction duplicated");
+  });
+
+  function savingsAlertCheck() {
+    const feats = window.__hkFeats || {};
+    if (!feats.savingsAlert) return;
+    try {
+      const t = totals();
+      if (t.income <= 0) return;
+      const rate = ((t.income - t.expense) / t.income) * 100;
+      if (rate < 10 && t.expense > 0) {
+        const key = "hkSavingsAlertShown_" + monthKey();
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, "1");
+          if (typeof showToast === "function") showToast("Savings rate low: " + rate.toFixed(0) + "% — consider cutting spend");
+        }
+      }
+    } catch (_) {}
+  }
+
+  function backupBadge() {
+    const feats = window.__hkFeats || {};
+    const btn = document.getElementById("profileBackupBtn") || document.getElementById("profileTrigger");
+    if (!btn) return;
+    let badge = document.getElementById("hkBackupBadge");
+    if (!feats.backupBadge) {
+      if (badge) badge.remove();
+      return;
+    }
+    const last = localStorage.getItem("hisabKitabLastBackupAt");
+    const days = last ? (Date.now() - Number(last)) / 86400000 : 999;
+    if (days < 14) {
+      if (badge) badge.remove();
+      return;
+    }
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.id = "hkBackupBadge";
+      badge.className = "hk-backup-badge";
+      badge.textContent = "!";
+      badge.title = "Backup recommended";
+      btn.style.position = "relative";
+      btn.appendChild(badge);
+    }
+  }
+
+  // Track backup time
+  const _dl = window.downloadBackupFile;
+  if (typeof _dl === "function" && !window.__hkBackupStamp) {
+    window.__hkBackupStamp = true;
+    window.downloadBackupFile = function () {
+      const r = _dl.apply(this, arguments);
+      try { localStorage.setItem("hisabKitabLastBackupAt", String(Date.now())); } catch (_) {}
+      try { backupBadge(); } catch (_) {}
+      return r;
+    };
+  }
+
+  window.__hkApplyExtraFeats = function (feats) {
+    injectQuickRanges();
+    enhanceMerchantMemory();
+    setTimeout(wireDuplicateButtons, 300);
+    savingsAlertCheck();
+    backupBadge();
+  };
+
+  function boot() {
+    try {
+      if (window.__hkFeats) window.__hkApplyExtraFeats(window.__hkFeats);
+    } catch (_) {}
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 600));
+  else setTimeout(boot, 600);
+  setTimeout(boot, 1500);
+})();
+
+
+
+
+/* ===== Workspace controls — one card, all selects inside ===== */
+(function workspaceControlsPack() {
+  const CARDS = [
+    {
+      id: "startupPage",
+      key: "hisabKitabStartupPageV1",
+      title: "Startup page",
+      options: [
+        ["overview", "Overview"], ["transactions", "Transactions"], ["reports", "Reports"],
+        ["budget", "Budget"], ["goals", "Goals"], ["debts", "Debts"], ["bills", "Bills"],
+        ["insights", "Insights"], ["settings", "Settings"], ["profile", "Profile"]
+      ],
+      def: "overview",
+      apply(v) { window.__hkStartupPage = v; }
+    },
+    {
+      id: "dateFormat",
+      key: "hisabKitabDateFmtV1",
+      title: "Date format",
+      options: [
+        ["dmy", "DD/MM/YYYY"], ["mdy", "MM/DD/YYYY"], ["ymd", "YYYY-MM-DD"],
+        ["dmon", "DD Mon YYYY"], ["monyd", "Mon DD, YYYY"], ["long", "Full weekday"],
+        ["short", "Short numeric"], ["iso", "ISO 8601"], ["rel", "Relative"], ["compact", "Compact"]
+      ],
+      def: "dmon",
+      apply(v) { document.documentElement.setAttribute("data-date-fmt", v); window.__hkDateFmt = v; }
+    },
+    {
+      id: "numberFormat",
+      key: "hisabKitabNumFmtV1",
+      title: "Number format",
+      options: [
+        ["en", "1,234.56 (EN)"], ["eu", "1.234,56 (EU)"], ["fr", "1 234,56 (FR)"],
+        ["in", "1,23,456.78 (IN)"], ["ch", "1'234.56 (CH)"], ["space", "1 234.56"],
+        ["plain", "1234.56"], ["compact", "1.2k style"], ["arabic", "Arabic-Indic"], ["sci", "Scientific"]
+      ],
+      def: "en",
+      apply(v) { document.documentElement.setAttribute("data-num-fmt", v); window.__hkNumFmt = v; }
+    },
+    {
+      id: "timeFormat",
+      key: "hisabKitabTimeFmtV1",
+      title: "Time format",
+      options: [
+        ["24h", "24-hour"], ["12h", "12-hour AM/PM"], ["12h-lower", "12-hour am/pm"],
+        ["24h-sec", "24h + seconds"], ["12h-sec", "12h + seconds"], ["military", "Military"],
+        ["minimal", "Hours only"], ["iso-time", "ISO time"], ["relative", "Relative"], ["hidden", "Hide time"]
+      ],
+      def: "24h",
+      apply(v) { document.documentElement.setAttribute("data-time-fmt", v); window.__hkTimeFmt = v; }
+    },
+    {
+      id: "uiRadius",
+      key: "hisabKitabRadiusV1",
+      title: "Corner radius",
+      options: [
+        ["sharp", "Sharp"], ["soft", "Soft"], ["default", "Default"], ["round", "Round"],
+        ["pill", "Pill"], ["circle", "Extra round"], ["mixed", "Mixed"], ["tech", "Tech"],
+        ["none", "Square"], ["organic", "Organic"]
+      ],
+      def: "default",
+      apply(v) {
+        const map = { sharp: "4px", soft: "10px", default: "18px", round: "24px", pill: "32px",
+          circle: "40px", mixed: "16px", tech: "6px", none: "2px", organic: "22px" };
+        document.documentElement.style.setProperty("--radius", map[v] || "18px");
+        document.documentElement.setAttribute("data-radius", v);
+      }
+    },
+    {
+      id: "chartStyle",
+      key: "hisabKitabChartStyleV1",
+      title: "Chart style",
+      options: [
+        ["smooth", "Smooth"], ["sharp", "Sharp lines"], ["fill", "Filled area"], ["minimal", "Minimal"],
+        ["bold", "Bold"], ["gradient", "Gradient"], ["dots", "Dots + line"], ["bars", "Bars"],
+        ["neon", "Neon"], ["classic", "Classic"]
+      ],
+      def: "smooth",
+      apply(v) {
+        document.documentElement.setAttribute("data-chart-style", v);
+        try { if (typeof renderCharts === "function") renderCharts(); } catch (_) {}
+      }
+    },
+    {
+      id: "iconWeight",
+      key: "hisabKitabIconWeightV1",
+      title: "Icon weight",
+      options: [
+        ["thin", "Thin"], ["light", "Light"], ["regular", "Regular"], ["medium", "Medium"],
+        ["bold", "Bold"], ["heavy", "Heavy"], ["duo", "Duotone"], ["solid", "Solid"],
+        ["outline", "Outline"], ["soft", "Soft"]
+      ],
+      def: "regular",
+      apply(v) { document.documentElement.setAttribute("data-icon-weight", v); }
+    },
+    {
+      id: "toastPos",
+      key: "hisabKitabToastPosV1",
+      title: "Toast position",
+      options: [
+        ["bottom", "Bottom center"], ["bottom-left", "Bottom left"], ["bottom-right", "Bottom right"],
+        ["top", "Top center"], ["top-left", "Top left"], ["top-right", "Top right"],
+        ["center", "Center"], ["under-topbar", "Under topbar"], ["above-fab", "Above FAB"], ["hidden", "Silent"]
+      ],
+      def: "bottom",
+      apply(v) { document.documentElement.setAttribute("data-toast-pos", v); }
+    },
+    {
+      id: "defaultTxType",
+      key: "hisabKitabDefaultTxTypeV1",
+      title: "Default add type",
+      options: [
+        ["expense", "Expense"], ["income", "Income"], ["transfer", "Transfer"], ["remittance", "Remittance"],
+        ["last", "Remember last"], ["ask", "Always ask"], ["expense-food", "Expense · Food"],
+        ["expense-bills", "Expense · Bills"], ["income-salary", "Income · Salary"], ["quick", "Quick amount"]
+      ],
+      def: "expense",
+      apply(v) { window.__hkDefaultTxType = v; }
+    },
+    {
+      id: "contrast",
+      key: "hisabKitabContrastV1",
+      title: "Contrast",
+      options: [
+        ["normal", "Normal"], ["soft", "Soft"], ["medium", "Medium"], ["high", "High"], ["max", "Maximum"],
+        ["oled", "OLED punch"], ["paper", "Paper"], ["muted", "Muted"], ["cinema", "Cinema"], ["accessible", "Accessible"]
+      ],
+      def: "normal",
+      apply(v) { document.documentElement.setAttribute("data-contrast", v); }
+    }
+  ];
+
+  function scopeKey(base) {
+    try { if (typeof userScope === "function") return userScope(base); } catch (_) {}
+    return base;
+  }
+  function loadVal(card) {
+    try {
+      const v = localStorage.getItem(scopeKey(card.key));
+      if (v && card.options.some(o => o[0] === v)) return v;
+    } catch (_) {}
+    return card.def;
+  }
+  function saveVal(card, v) {
+    try { localStorage.setItem(scopeKey(card.key), v); } catch (_) {}
+  }
+
+  function applyAllStored() {
+    CARDS.forEach(card => {
+      try { card.apply(loadVal(card)); } catch (_) {}
+    });
+  }
+
+  function renderPanel(panel) {
+    if (!panel) return;
+    panel.innerHTML = CARDS.map(card => {
+      const cur = loadVal(card);
+      return `
+        <div class="hk-ws-row">
+          <label class="hk-ws-label" for="hkSelect_${card.id}">${card.title}</label>
+          <div class="sb-select-wrap">
+            <select id="hkSelect_${card.id}" class="sb-select" data-ws="${card.id}" aria-label="${card.title}">
+              ${card.options.map(([v, lab]) => `<option value="${v}" ${v === cur ? "selected" : ""}>${lab}</option>`).join("")}
+            </select>
+            <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+          </div>
+        </div>`;
+    }).join("");
+    panel.querySelectorAll("select[data-ws]").forEach(sel => {
+      sel.addEventListener("change", () => {
+        const card = CARDS.find(c => c.id === sel.getAttribute("data-ws"));
+        if (!card) return;
+        saveVal(card, sel.value);
+        try { card.apply(sel.value); } catch (_) {}
+        if (typeof showToast === "function") {
+          const lab = (card.options.find(o => o[0] === sel.value) || [])[1] || sel.value;
+          showToast(card.title + ": " + lab);
+        }
+      });
+    });
+    try { if (window.lucide) lucide.createIcons({ nodes: [panel] }); } catch (_) {}
+  }
+
+  function ensureModal() {
+    let backdrop = document.getElementById("hkWorkspaceModalBackdrop");
+    if (backdrop) return backdrop;
+    backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    backdrop.id = "hkWorkspaceModalBackdrop";
+    backdrop.innerHTML = `
+      <div class="modal-card hk-ws-modal" role="dialog" aria-modal="true" aria-labelledby="hkWsModalTitle">
+        <div class="modal-heading">
+          <div>
+            <span class="eyebrow">WORKSPACE</span>
+            <h2 id="hkWsModalTitle">Workspace controls</h2>
+          </div>
+          <button type="button" class="icon-btn" id="hkWsModalClose" aria-label="Close"><i data-lucide="x"></i></button>
+        </div>
+        <p class="muted" style="font-size:12px;margin:0 0 12px">All extra preferences in one place.</p>
+        <div id="hkWsPanel" class="hk-ws-panel"></div>
+        <button type="button" class="outline-btn" id="hkWsModalDone" style="width:100%;justify-content:center;margin-top:14px">Done</button>
+      </div>`;
+    document.body.appendChild(backdrop);
+    const close = () => {
+      backdrop.classList.remove("open");
+      backdrop.style.display = "";
+    };
+    backdrop.addEventListener("click", (e) => { if (e.target === backdrop) close(); });
+    backdrop.querySelector("#hkWsModalClose").addEventListener("click", close);
+    backdrop.querySelector("#hkWsModalDone").addEventListener("click", close);
+    return backdrop;
+  }
+
+  function openModal() {
+    const backdrop = ensureModal();
+    renderPanel(backdrop.querySelector("#hkWsPanel"));
+    backdrop.style.display = "flex";
+    backdrop.classList.add("open");
+    try { if (window.lucide) lucide.createIcons({ nodes: [backdrop] }); } catch (_) {}
+  }
+
+  function injectCard() {
+    const grid = document.getElementById("settingsCardsGrid");
+    if (!grid) return;
+    // remove old scattered cards if any
+    CARDS.forEach(c => {
+      const el = document.getElementById("hkCard_" + c.id);
+      if (el) el.remove();
+    });
+    if (document.getElementById("hkWorkspaceCard")) return;
+
+    const art = document.createElement("article");
+    art.className = "panel settings-card-main";
+    art.id = "hkWorkspaceCard";
+    art.setAttribute("data-settings-card", "workspace");
+    art.innerHTML = `
+      <div class="settings-card-icon"><i data-lucide="sliders-horizontal"></i></div>
+      <div class="settings-card-body">
+        <h3>Workspace controls</h3>
+        <p class="muted">Dates, numbers, charts, startup & more</p>
+      </div>
+      <div class="settings-card-foot">
+        <div class="sb-select-wrap settings-card-control">
+          <button type="button" class="sb-select hk-feat-select-btn" id="hkOpenWorkspace" aria-haspopup="dialog">
+            Open controls
+          </button>
+          <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+        </div>
+      </div>`;
+    grid.appendChild(art);
+    art.querySelector("#hkOpenWorkspace").addEventListener("click", openModal);
+    try { if (window.lucide) lucide.createIcons({ nodes: [art] }); } catch (_) {}
+  }
+
+  function expandFontSelect() {
+    const sel = document.getElementById("fontSelect");
+    if (!sel) return;
+    const extra = [
+      ["inter", "Inter"], ["manrope", "Manrope"], ["sora", "Sora"], ["outfit", "Outfit"],
+      ["plus-jakarta", "Plus Jakarta Sans"], ["dm-sans", "DM Sans"], ["rubik", "Rubik"],
+      ["nunito", "Nunito"], ["poppins", "Poppins"], ["space-grotesk", "Space Grotesk"]
+    ];
+    const have = new Set([...sel.options].map(o => o.value));
+    extra.forEach(([v, lab]) => {
+      if (have.has(v)) return;
+      const o = document.createElement("option");
+      o.value = v;
+      o.textContent = lab;
+      sel.appendChild(o);
+    });
+  }
+
+  function boot() {
+    applyAllStored();
+    injectCard();
+    expandFontSelect();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 500));
+  else setTimeout(boot, 500);
+  setTimeout(boot, 1200);
+})();
+
+
+
+/* ===== Sounds studio — dedicated settings card + full customization ===== */
+(function hkSoundStudio() {
+  const KEY = "hisabKitabSoundPrefsV1";
+  const DEFAULTS = {
+    enabled: false,
+    volume: 0.55,
+    pack: "soft",
+    click: true,
+    nav: true,
+    save: true,
+    toggle: true,
+    error: true,
+    delete: true,
+    modal: true,
+    success: true
+  };
+
+  function scopeKey() {
+    try { if (typeof userScope === "function") return userScope(KEY); } catch (_) {}
+    return KEY;
+  }
+  function loadPrefs() {
+    try {
+      const raw = localStorage.getItem(scopeKey());
+      if (!raw) return { ...DEFAULTS };
+      return { ...DEFAULTS, ...JSON.parse(raw) };
+    } catch { return { ...DEFAULTS }; }
+  }
+  function savePrefs(p) {
+    try { localStorage.setItem(scopeKey(), JSON.stringify(p)); } catch (_) {}
+  }
+  let prefs = loadPrefs();
+
+  let ctx = null;
+  function getCtx() {
+    if (ctx) return ctx;
+    try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) { ctx = null; }
+    return ctx;
+  }
+  function unlock() {
+    const c = getCtx();
+    if (c && c.state === "suspended") c.resume().catch(() => {});
+  }
+  ["pointerdown", "keydown", "touchstart"].forEach(ev => {
+    document.addEventListener(ev, unlock, { once: true, passive: true });
+  });
+
+  function vol() {
+    const v = Number(prefs.volume);
+    return Math.max(0.02, Math.min(1, Number.isFinite(v) ? v : 0.55)) * 0.08;
+  }
+
+  function tone({ freq = 520, dur = 0.08, type = "sine", gain = 1, slide = 0 }) {
+    if (!prefs.enabled) return;
+    const c = getCtx();
+    if (!c) return;
+    try {
+      if (c.state === "suspended") c.resume();
+      const t0 = c.currentTime;
+      const osc = c.createOscillator();
+      const g = c.createGain();
+      const master = vol() * (gain || 1);
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+      if (slide) osc.frequency.exponentialRampToValueAtTime(Math.max(40, freq + slide), t0 + dur);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, master), t0 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      osc.connect(g);
+      g.connect(c.destination);
+      osc.start(t0);
+      osc.stop(t0 + dur + 0.02);
+    } catch (_) {}
+  }
+
+  const PACK_META = [
+    ["soft", "Soft UI"],
+    ["crystal", "Crystal"],
+    ["warm", "Warm"],
+    ["neon", "Neon"],
+    ["minimal", "Minimal"],
+    ["silk", "Silk"],
+    ["glass", "Glass"],
+    ["aurora", "Aurora"],
+    ["velvet", "Velvet"],
+    ["pearl", "Pearl"],
+    ["ember", "Ember"],
+    ["frost", "Frost"],
+    ["coral", "Coral"],
+    ["mint", "Mint"],
+    ["ink", "Ink"],
+    ["gold", "Gold leaf"],
+    ["silver", "Silver"],
+    ["onyx", "Onyx"],
+    ["pulse", "Pulse"],
+    ["breeze", "Breeze"],
+    ["thunder", "Thunder"],
+    ["hologram", "Hologram"],
+    ["marble", "Marble"],
+    ["luxe", "Luxe"],
+    ["studio", "Studio"],
+    ["analog", "Analog"],
+    ["digital", "Digital"],
+    ["cinema", "Cinema"],
+    ["zen", "Zen"],
+    ["spark", "Spark"]
+  ];
+
+  function makePack(spec) {
+    const { base, spread, type, gain, multi } = spec;
+    const t = type || "sine";
+    const g = gain || 0.85;
+    const sp = spread || 1;
+    return {
+      click: () => tone({ freq: base * 1.2 * sp, dur: 0.045, type: t, gain: g * 0.9 }),
+      tap: () => tone({ freq: base * sp, dur: 0.04, type: t, gain: g * 0.85 }),
+      nav: () => tone({ freq: base * 1.05 * sp, dur: 0.042, type: t === "square" ? "triangle" : t, gain: g * 0.8 }),
+      toggle: () => tone({ freq: base * 1.35 * sp, dur: 0.05, type: t, gain: g * 0.88 }),
+      save: () => {
+        tone({ freq: base * 0.95 * sp, dur: 0.055, type: t, gain: g * 0.9 });
+        setTimeout(() => tone({ freq: base * 1.4 * sp, dur: 0.09, type: "sine", gain: g * 0.85, slide: 30 * sp }), 48);
+      },
+      success: () => {
+        if (multi === "arpeggio") {
+          tone({ freq: base * sp, dur: 0.06, type: "sine", gain: g * 0.9 });
+          setTimeout(() => tone({ freq: base * 1.25 * sp, dur: 0.07, type: "sine", gain: g * 0.85 }), 50);
+          setTimeout(() => tone({ freq: base * 1.5 * sp, dur: 0.1, type: "sine", gain: g * 0.8 }), 110);
+        } else if (multi === "chord") {
+          tone({ freq: base * sp, dur: 0.12, type: "sine", gain: g * 0.55 });
+          tone({ freq: base * 1.25 * sp, dur: 0.12, type: "sine", gain: g * 0.45 });
+          tone({ freq: base * 1.5 * sp, dur: 0.12, type: "triangle", gain: g * 0.4 });
+        } else {
+          tone({ freq: base * 1.1 * sp, dur: 0.07, type: "sine", gain: g * 0.9 });
+          setTimeout(() => tone({ freq: base * 1.45 * sp, dur: 0.11, type: "sine", gain: g * 0.82 }), 60);
+        }
+      },
+      error: () => tone({ freq: Math.max(90, base * 0.35 * sp), dur: 0.13, type: type === "sine" ? "triangle" : "sawtooth", gain: g * 0.7, slide: -55 }),
+      delete: () => tone({ freq: Math.max(110, base * 0.45 * sp), dur: 0.1, type: "triangle", gain: g * 0.75, slide: -75 }),
+      open: () => tone({ freq: base * 0.85 * sp, dur: 0.075, type: t, gain: g * 0.8, slide: 110 }),
+      close: () => tone({ freq: base * 1.15 * sp, dur: 0.065, type: t, gain: g * 0.75, slide: -95 })
+    };
+  }
+
+  const PACK_SPECS = {
+    soft: { base: 520, type: "sine", gain: 0.88, multi: "arpeggio" },
+    crystal: { base: 780, type: "sine", gain: 0.78, multi: "arpeggio", spread: 1.15 },
+    warm: { base: 380, type: "triangle", gain: 0.9, multi: "arpeggio", spread: 0.95 },
+    neon: { base: 640, type: "square", gain: 0.38, multi: "arpeggio", spread: 1.05 },
+    minimal: { base: 500, type: "sine", gain: 0.55, multi: "chord", spread: 1 },
+    silk: { base: 460, type: "sine", gain: 0.7, multi: "chord", spread: 1.02 },
+    glass: { base: 820, type: "triangle", gain: 0.65, multi: "arpeggio", spread: 1.2 },
+    aurora: { base: 540, type: "sine", gain: 0.8, multi: "arpeggio", spread: 1.1 },
+    velvet: { base: 340, type: "triangle", gain: 0.92, multi: "chord", spread: 0.9 },
+    pearl: { base: 700, type: "sine", gain: 0.72, multi: "arpeggio", spread: 1.08 },
+    ember: { base: 300, type: "sawtooth", gain: 0.42, multi: "arpeggio", spread: 0.88 },
+    frost: { base: 900, type: "sine", gain: 0.62, multi: "arpeggio", spread: 1.25 },
+    coral: { base: 480, type: "triangle", gain: 0.85, multi: "arpeggio", spread: 1 },
+    mint: { base: 620, type: "sine", gain: 0.8, multi: "arpeggio", spread: 1.06 },
+    ink: { base: 280, type: "triangle", gain: 0.88, multi: "chord", spread: 0.85 },
+    gold: { base: 440, type: "sine", gain: 0.9, multi: "chord", spread: 1 },
+    silver: { base: 760, type: "triangle", gain: 0.7, multi: "arpeggio", spread: 1.12 },
+    onyx: { base: 220, type: "sine", gain: 0.95, multi: "chord", spread: 0.8 },
+    pulse: { base: 560, type: "square", gain: 0.32, multi: "arpeggio", spread: 1 },
+    breeze: { base: 500, type: "sine", gain: 0.68, multi: "arpeggio", spread: 1.03 },
+    thunder: { base: 180, type: "sawtooth", gain: 0.4, multi: "chord", spread: 0.75 },
+    hologram: { base: 860, type: "square", gain: 0.28, multi: "arpeggio", spread: 1.3 },
+    marble: { base: 400, type: "triangle", gain: 0.86, multi: "chord", spread: 0.98 },
+    luxe: { base: 494, type: "sine", gain: 0.9, multi: "arpeggio", spread: 1.05 },
+    studio: { base: 528, type: "sine", gain: 0.82, multi: "arpeggio", spread: 1 },
+    analog: { base: 360, type: "sawtooth", gain: 0.36, multi: "chord", spread: 0.92 },
+    digital: { base: 680, type: "square", gain: 0.34, multi: "arpeggio", spread: 1.15 },
+    cinema: { base: 260, type: "triangle", gain: 0.9, multi: "chord", spread: 0.85 },
+    zen: { base: 432, type: "sine", gain: 0.75, multi: "chord", spread: 0.97 },
+    spark: { base: 980, type: "sine", gain: 0.6, multi: "arpeggio", spread: 1.22 }
+  };
+
+  const PACKS = {};
+  Object.keys(PACK_SPECS).forEach(k => { PACKS[k] = makePack(PACK_SPECS[k]); });
+
+
+  function play(name) {
+    if (!prefs.enabled) return;
+    // map event → preference flag
+    const flagMap = {
+      click: "click", tap: "click", nav: "nav", toggle: "toggle",
+      save: "save", success: "success", error: "error", delete: "delete",
+      open: "modal", close: "modal"
+    };
+    const flag = flagMap[name] || "click";
+    if (prefs[flag] === false) return;
+    const pack = PACKS[prefs.pack] || PACKS.soft;
+    const fn = pack[name] || pack.click;
+    try { fn(); } catch (_) {}
+  }
+  window.hkPlaySound = play;
+  window.hkSoundPrefs = () => prefs;
+
+  // Clicks
+  document.addEventListener("click", (e) => {
+    if (!prefs.enabled) return;
+    const t = e.target;
+    if (!t || !t.closest) return;
+    if (t.closest(".nav-link")) return play("nav");
+    if (t.closest(".hk-toggle, .hk-feat-row")) return play("toggle");
+    if (t.closest(".primary-btn, .fab-add")) return play("tap");
+    if (t.closest(".outline-btn, .text-btn, .icon-btn, .sb-select, .hk-feat-select-btn, select")) return play("click");
+    if (t.closest("[data-del], .danger, #logoutBtn")) return play("delete");
+  }, true);
+
+  // Toast
+  const _toast = window.showToast;
+  if (typeof _toast === "function" && !window.__hkSoundToast) {
+    window.__hkSoundToast = true;
+    window.showToast = function (msg) {
+      const r = _toast.apply(this, arguments);
+      try {
+        const m = String(msg || "").toLowerCase();
+        if (m.includes("error") || m.includes("fail") || m.includes("invalid") || m.includes("could not")) play("error");
+        else if (m.includes("saved") || m.includes("added") || m.includes("updated") || m.includes("complete")) play("success");
+        else if (m.includes(" on") || m.includes(" off") || m.endsWith(" on") || m.endsWith(" off")) play("toggle");
+        else play("click");
+      } catch (_) {}
+      return r;
+    };
+  }
+
+  const obs = new MutationObserver((muts) => {
+    if (!prefs.enabled) return;
+    muts.forEach(m => {
+      if (m.type !== "attributes" || m.attributeName !== "class") return;
+      const el = m.target;
+      if (el.classList && el.classList.contains("modal-backdrop") && el.classList.contains("open")) play("open");
+    });
+  });
+  function watchModals() {
+    document.querySelectorAll(".modal-backdrop").forEach(el => {
+      try { obs.observe(el, { attributes: true, attributeFilter: ["class"] }); } catch (_) {}
+    });
+  }
+
+  function renderStudio(panel) {
+    if (!panel) return;
+    const volPct = Math.round((Number(prefs.volume) || 0.55) * 100);
+    panel.innerHTML = `
+      <div class="hk-snd-row">
+        <label class="hk-snd-label">Master</label>
+        <div class="sb-select-wrap">
+          <select id="hkSndEnabled" class="sb-select">
+            <option value="1" ${prefs.enabled ? "selected" : ""}>Sounds on</option>
+            <option value="0" ${!prefs.enabled ? "selected" : ""}>Sounds off</option>
+          </select>
+          <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+        </div>
+      </div>
+      <div class="hk-snd-row">
+        <label class="hk-snd-label">Sound pack</label>
+        <div class="sb-select-wrap">
+          <select id="hkSndPack" class="sb-select">
+            ${PACK_META.map(([id, lab]) => `<option value="${id}" ${prefs.pack === id ? "selected" : ""}>${lab}</option>`).join("")}
+          </select>
+          <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+        </div>
+      </div>
+      <div class="hk-snd-row">
+        <label class="hk-snd-label">Volume <span id="hkSndVolLabel">${volPct}%</span></label>
+        <input type="range" id="hkSndVolume" min="10" max="100" value="${volPct}" class="hk-snd-range" />
+      </div>
+      <div class="hk-snd-divider">Events</div>
+      ${[
+        ["click", "Buttons & taps"],
+        ["nav", "Navigation"],
+        ["save", "Save actions"],
+        ["success", "Success toasts"],
+        ["toggle", "Feature toggles"],
+        ["error", "Errors"],
+        ["delete", "Delete / logout"],
+        ["modal", "Modals open"]
+      ].map(([k, lab]) => `
+        <label class="hk-feat-row hk-snd-event" data-snd="${k}">
+          <span class="hk-feat-label">${lab}</span>
+          <span class="hk-toggle ${prefs[k] !== false ? "on" : ""}" role="switch" aria-checked="${prefs[k] !== false ? "true" : "false"}">
+            <span class="hk-toggle-knob"></span>
+          </span>
+        </label>
+      `).join("")}
+      <div class="hk-snd-preview-row">
+        <button type="button" class="outline-btn" id="hkSndPreview" style="flex:1;justify-content:center">Preview pack</button>
+        <button type="button" class="primary-btn" id="hkSndTestSuccess" style="flex:1;justify-content:center">Test success</button>
+      </div>
+    `;
+
+    const en = panel.querySelector("#hkSndEnabled");
+    const pack = panel.querySelector("#hkSndPack");
+    const range = panel.querySelector("#hkSndVolume");
+    const volLab = panel.querySelector("#hkSndVolLabel");
+
+    if (en) en.addEventListener("change", () => {
+      prefs.enabled = en.value === "1";
+      savePrefs(prefs);
+      // keep pro-feature flag in sync if present
+      try {
+        if (window.__hkFeats) {
+          window.__hkFeats.sound = prefs.enabled;
+        }
+      } catch (_) {}
+      play(prefs.enabled ? "success" : "click");
+      if (typeof showToast === "function") showToast(prefs.enabled ? "Sounds on" : "Sounds off");
+    });
+    if (pack) pack.addEventListener("change", () => {
+      prefs.pack = pack.value;
+      savePrefs(prefs);
+      play("success");
+      if (typeof showToast === "function") showToast("Pack: " + pack.options[pack.selectedIndex].text);
+    });
+    if (range) range.addEventListener("input", () => {
+      prefs.volume = Number(range.value) / 100;
+      if (volLab) volLab.textContent = range.value + "%";
+      savePrefs(prefs);
+    });
+    if (range) range.addEventListener("change", () => play("click"));
+
+    panel.querySelectorAll(".hk-snd-event").forEach(row => {
+      const k = row.getAttribute("data-snd");
+      const tog = row.querySelector(".hk-toggle");
+      row.addEventListener("click", (e) => {
+        e.preventDefault();
+        prefs[k] = !prefs[k];
+        savePrefs(prefs);
+        tog.classList.toggle("on", !!prefs[k]);
+        tog.setAttribute("aria-checked", prefs[k] ? "true" : "false");
+        // briefly force enable to hear preview of that event
+        const was = prefs.enabled;
+        prefs.enabled = true;
+        if (k === "click") play("click");
+        else if (k === "nav") play("nav");
+        else if (k === "save") play("save");
+        else if (k === "success") play("success");
+        else if (k === "toggle") play("toggle");
+        else if (k === "error") play("error");
+        else if (k === "delete") play("delete");
+        else if (k === "modal") play("open");
+        prefs.enabled = was;
+      });
+    });
+
+    const prev = panel.querySelector("#hkSndPreview");
+    const test = panel.querySelector("#hkSndTestSuccess");
+    if (prev) prev.addEventListener("click", () => {
+      const was = prefs.enabled;
+      prefs.enabled = true;
+      play("click");
+      setTimeout(() => play("nav"), 120);
+      setTimeout(() => play("toggle"), 240);
+      setTimeout(() => play("save"), 360);
+      setTimeout(() => { prefs.enabled = was; }, 500);
+    });
+    if (test) test.addEventListener("click", () => {
+      const was = prefs.enabled;
+      prefs.enabled = true;
+      play("success");
+      setTimeout(() => { prefs.enabled = was; }, 400);
+    });
+
+    try { if (window.lucide) lucide.createIcons({ nodes: [panel] }); } catch (_) {}
+  }
+
+  function ensureModal() {
+    let backdrop = document.getElementById("hkSoundModalBackdrop");
+    if (backdrop) return backdrop;
+    backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    backdrop.id = "hkSoundModalBackdrop";
+    backdrop.innerHTML = `
+      <div class="modal-card hk-snd-modal" role="dialog" aria-modal="true" aria-labelledby="hkSndModalTitle">
+        <div class="modal-heading">
+          <div>
+            <span class="eyebrow">AUDIO</span>
+            <h2 id="hkSndModalTitle">Sounds</h2>
+          </div>
+          <button type="button" class="icon-btn" id="hkSndModalClose" aria-label="Close"><i data-lucide="x"></i></button>
+        </div>
+        <p class="muted" style="font-size:12px;margin:0 0 12px">Fully customize UI sounds — pack, volume and events.</p>
+        <div id="hkSndPanel" class="hk-snd-panel"></div>
+        <button type="button" class="outline-btn" id="hkSndModalDone" style="width:100%;justify-content:center;margin-top:14px">Done</button>
+      </div>`;
+    document.body.appendChild(backdrop);
+    const close = () => { backdrop.classList.remove("open"); backdrop.style.display = ""; };
+    backdrop.addEventListener("click", (e) => { if (e.target === backdrop) close(); });
+    backdrop.querySelector("#hkSndModalClose").addEventListener("click", close);
+    backdrop.querySelector("#hkSndModalDone").addEventListener("click", close);
+    return backdrop;
+  }
+
+  function openStudio() {
+    const backdrop = ensureModal();
+    renderStudio(backdrop.querySelector("#hkSndPanel"));
+    backdrop.style.display = "flex";
+    backdrop.classList.add("open");
+    try { if (window.lucide) lucide.createIcons({ nodes: [backdrop] }); } catch (_) {}
+  }
+
+  function injectCard() {
+    const grid = document.getElementById("settingsCardsGrid");
+    if (!grid || document.getElementById("hkSoundCard")) return;
+    const art = document.createElement("article");
+    art.className = "panel settings-card-main";
+    art.id = "hkSoundCard";
+    art.setAttribute("data-settings-card", "sounds");
+    art.innerHTML = `
+      <div class="settings-card-icon"><i data-lucide="volume-2"></i></div>
+      <div class="settings-card-body">
+        <h3>Sounds</h3>
+        <p class="muted">Packs, volume and event cues</p>
+      </div>
+      <div class="settings-card-foot">
+        <div class="sb-select-wrap settings-card-control">
+          <button type="button" class="sb-select hk-feat-select-btn" id="hkOpenSounds" aria-haspopup="dialog">
+            Sound studio
+          </button>
+          <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+        </div>
+      </div>`;
+    grid.appendChild(art);
+    art.querySelector("#hkOpenSounds").addEventListener("click", openStudio);
+    try { if (window.lucide) lucide.createIcons({ nodes: [art] }); } catch (_) {}
+  }
+
+  // Sync from pro-features "sound" toggle if user flips it there
+  const _apply = window.__hkApplyExtraFeats;
+  // also watch feats object periodically light touch
+  function syncFromFeats() {
+    try {
+      if (window.__hkFeats && typeof window.__hkFeats.sound === "boolean") {
+        if (prefs.enabled !== window.__hkFeats.sound) {
+          // only pull if pro toggle changed — don't fight studio
+        }
+      }
+    } catch (_) {}
+  }
+
+  function boot() {
+    prefs = loadPrefs();
+    injectCard();
+    watchModals();
+    setTimeout(watchModals, 1500);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 550));
+  else setTimeout(boot, 550);
+  setTimeout(boot, 1300);
+})();
+
+function renderPremiumWidgets() {
+  try { if (typeof window.renderUserWidgetBoard === "function") window.renderUserWidgetBoard(); } catch (e) { console.warn(e); }
+}
+
+
+/* ===== Android-style Widget Board ===== */
+(function () {
+  const KEY = "hisabKitabUserWidgetsV2";
+  const KEY_LEGACY = "hisabKitabUserWidgetsV1";
+  const DEFAULT_IDS = ["analog", "clock", "pulse", "today", "goals", "tip"];
+  const SIZES = ["s", "m", "l", "xl"];
+  const ACCENTS = ["default", "gold", "green", "blue", "purple", "rose", "orange", "cyan"];
+  const BOARD_KEY = "hisabKitabWidgetBoardV1";
+
+  const CATALOG = [
+    { id: "analog", name: "Analog Clock", cat: "Time", desc: "Premium round analog clock", icon: "clock-3" },
+    { id: "clock", name: "Digital Clock", cat: "Time", desc: "Digital clock with date & greeting", icon: "clock" },
+    { id: "pulse", name: "Money Pulse", cat: "Money", desc: "Paise lene, dene & bills due", icon: "activity" },
+    { id: "today", name: "Today", cat: "Money", desc: "Today income & spend", icon: "sun" },
+    { id: "goals", name: "Goals", cat: "Goals", desc: "Top goals progress", icon: "flag" },
+    { id: "topspend", name: "Top Spend", cat: "Money", desc: "Biggest category this month", icon: "pie-chart" },
+    { id: "tip", name: "Smart Tip", cat: "Insights", desc: "Personal money tip", icon: "sparkles" },
+    { id: "balance", name: "Balance", cat: "Money", desc: "Total balance snapshot", icon: "wallet" },
+    { id: "budget", name: "Budget", cat: "Money", desc: "Monthly budget used", icon: "target" },
+    { id: "savings", name: "Savings Rate", cat: "Insights", desc: "Income saved this month", icon: "piggy-bank" },
+    { id: "networth", name: "Net Worth", cat: "Money", desc: "Assets − debts", icon: "landmark" },
+    { id: "bills", name: "Bills Due", cat: "Bills", desc: "Upcoming unpaid bills", icon: "calendar-clock" },
+    { id: "debts", name: "Debts", cat: "Money", desc: "Open lend / borrow list", icon: "hand-coins" },
+    { id: "streak", name: "Streak", cat: "Habits", desc: "Tracking streak", icon: "flame" },
+    { id: "recent", name: "Recent Tx", cat: "Money", desc: "Last 4 transactions", icon: "receipt" },
+    { id: "quickadd", name: "Quick Add", cat: "Actions", desc: "One-tap add buttons", icon: "plus-circle" },
+    { id: "month", name: "This Month", cat: "Money", desc: "Month income vs expense", icon: "calendar" },
+    { id: "count", name: "Tx Count", cat: "Insights", desc: "How many entries logged", icon: "hash" },
+    { id: "alerts", name: "Alerts", cat: "Insights", desc: "Top money alerts", icon: "bell" },
+    { id: "week", name: "This Week", cat: "Money", desc: "7-day income vs expense", icon: "calendar-days" },
+    { id: "avg", name: "Daily Average", cat: "Insights", desc: "Average daily spend this month", icon: "gauge" },
+    { id: "health", name: "Health Score", cat: "Insights", desc: "Financial health score", icon: "heart-pulse" },
+    { id: "quote", name: "Money Quote", cat: "Premium", desc: "Motivational finance quote", icon: "quote" },
+    { id: "focus", name: "Focus Mode", cat: "Premium", desc: "Today focus + remaining budget", icon: "focus" },
+    { id: "calendar", name: "Mini Calendar", cat: "Time", desc: "Month grid with activity dots", icon: "calendar-range" },
+    { id: "currency", name: "Base Currency", cat: "Premium", desc: "Your active currency badge", icon: "coins" }
+  ];
+
+  function normalizeItem(x) {
+    if (typeof x === "string") return { id: x, size: "m", accent: "default" };
+    if (!x || !x.id) return null;
+    return {
+      id: x.id,
+      size: SIZES.includes(x.size) ? x.size : "m",
+      accent: ACCENTS.includes(x.accent) ? x.accent : "default"
+    };
+  }
+  function loadItems() {
+    try {
+      let raw = localStorage.getItem(KEY);
+      if (!raw) raw = localStorage.getItem(KEY_LEGACY);
+      if (!raw) return DEFAULT_IDS.map(id => ({ id, size: "m", accent: "default" }));
+      const arr = JSON.parse(raw);
+      if (!Array.isArray(arr)) return DEFAULT_IDS.map(id => ({ id, size: "m", accent: "default" }));
+      return arr.map(normalizeItem).filter(it => it && CATALOG.some(c => c.id === it.id));
+    } catch (_) {
+      return DEFAULT_IDS.map(id => ({ id, size: "m", accent: "default" }));
+    }
+  }
+  function saveItems(items) {
+    try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (_) {}
+  }
+  function loadIds() { return loadItems().map(i => i.id); }
+  function saveIds(ids) {
+    const prev = loadItems();
+    const map = Object.fromEntries(prev.map(i => [i.id, i]));
+    saveItems(ids.map(id => map[id] || { id, size: "m", accent: "default" }));
+  }
+  function loadBoardPrefs() {
+    try {
+      const raw = localStorage.getItem(BOARD_KEY);
+      if (!raw) return { cols: 2, gap: "normal", radius: "normal" };
+      const o = JSON.parse(raw);
+      return {
+        cols: [1, 2, 3, 4].includes(Number(o.cols)) ? Number(o.cols) : 2,
+        gap: ["tight", "normal", "wide"].includes(o.gap) ? o.gap : "normal",
+        radius: ["sharp", "normal", "round"].includes(o.radius) ? o.radius : "normal"
+      };
+    } catch (_) { return { cols: 2, gap: "normal", radius: "normal" }; }
+  }
+  function saveBoardPrefs(p) {
+    try { localStorage.setItem(BOARD_KEY, JSON.stringify(p)); } catch (_) {}
+  }
+
+  function amt(n) { return typeof money === "function" ? money(n) : String(n); }
+  function esc(s) { return typeof safe === "function" ? safe(s) : String(s || ""); }
+
+  function debtTotals() {
+    let receive = 0, pay = 0, open = 0, list = [];
+    try {
+      list = (typeof loadDebts === "function" ? loadDebts() : []).filter(d => d && !d.settled);
+      list.forEach(d => {
+        open++;
+        const a = Number(d.amount) || 0;
+        if (d.type === "lend") receive += a; else pay += a;
+      });
+    } catch (_) {}
+    return { receive, pay, open, list };
+  }
+  function billsSoon() {
+    const today = new Date().toISOString().slice(0, 10);
+    const soon = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
+    let total = 0, list = [];
+    try {
+      list = (typeof loadBills === "function" ? loadBills() : []).filter(b => b && !b.paid && b.due && b.due <= soon);
+      list.forEach(b => { total += Number(b.amount) || 0; });
+    } catch (_) {}
+    return { total, list };
+  }
+  function monthStats() {
+    const mk = typeof monthKey === "function" ? monthKey() : new Date().toISOString().slice(0, 7);
+    let inc = 0, exp = 0;
+    const byCat = {};
+    (transactions || []).forEach(t => {
+      if (!t || !t.date || !String(t.date).startsWith(mk)) return;
+      const a = typeof amountInBase === "function" ? amountInBase(t) : (Number(t.amount) || 0);
+      if (typeof isIncomeType === "function" ? isIncomeType(t) : t.type === "income") inc += a;
+      else if (t.type === "expense") {
+        exp += a;
+        const c = t.category || "Other";
+        byCat[c] = (byCat[c] || 0) + a;
+      }
+    });
+    let topCat = "", topAmt = 0;
+    Object.entries(byCat).forEach(([c, v]) => { if (v > topAmt) { topAmt = v; topCat = c; } });
+    return { inc, exp, topCat, topAmt };
+  }
+  function todayStats() {
+    const d = new Date().toISOString().slice(0, 10);
+    let inc = 0, exp = 0, n = 0;
+    (transactions || []).forEach(t => {
+      if (!t || t.date !== d) return;
+      n++;
+      const a = typeof amountInBase === "function" ? amountInBase(t) : (Number(t.amount) || 0);
+      if (typeof isIncomeType === "function" ? isIncomeType(t) : t.type === "income") inc += a;
+      else if (t.type === "expense") exp += a;
+    });
+    return { inc, exp, n };
+  }
+
+  function cardShell(meta, bodyHtml, extraClass, conf) {
+    conf = conf || { size: "m", accent: "default" };
+    const size = conf.size || "m";
+    const accent = conf.accent || "default";
+    return `<article class="panel prem-card uw-card uw-size-${size} uw-accent-${accent} ${extraClass || ""}" data-uw="${meta.id}" data-uw-size="${size}" data-uw-accent="${accent}">
+      <div class="prem-card-head">
+        <span class="eyebrow">${esc(meta.name)}</span>
+        <div class="uw-card-actions">
+          <button type="button" class="uw-cfg" data-uw-cfg="${meta.id}" title="Customize">⚙</button>
+          <button type="button" class="uw-remove" data-uw-remove="${meta.id}" title="Remove">×</button>
+        </div>
+      </div>
+      ${bodyHtml}
+    </article>`;
+  }
+
+  function renderWidget(idOrConf) {
+    const conf = normalizeItem(idOrConf) || { id: idOrConf, size: "m", accent: "default" };
+    const id = conf.id;
+    const meta = CATALOG.find(c => c.id === id);
+    if (!meta) return "";
+    const d = debtTotals();
+    const b = billsSoon();
+    const m = monthStats();
+    const t = todayStats();
+
+    if (id === "clock") {
+      return cardShell(meta, `<div class="prem-clock" data-uw-clock-time>--:--:--</div>
+        <div class="prem-clock-date" data-uw-clock-date>—</div>
+        <p class="muted prem-foot" data-uw-clock-greet>Have a focused day</p>`, "prem-clock-card", conf);
+    }
+    if (id === "pulse") {
+      return cardShell(meta, `<div class="prem-pulse-row">
+        <div><span class="muted">Lene</span><strong class="amount-income">${amt(d.receive)}</strong></div>
+        <div><span class="muted">Dene</span><strong class="amount-expense">${amt(d.pay)}</strong></div>
+        <div><span class="muted">Bills</span><strong>${amt(b.total)}</strong></div>
+      </div>
+      <p class="muted prem-foot">${d.open} reminders · ${b.list.length} bills soon</p>`, conf);
+    }
+    if (id === "today") {
+      return cardShell(meta, `<div class="prem-today-spend"><span class="muted">Spent</span><strong class="amount-expense">${amt(t.exp)}</strong></div>
+        <div class="prem-today-spend" style="margin-top:8px"><span class="muted">Income</span><strong class="amount-income">${amt(t.inc)}</strong></div>
+        <p class="muted prem-foot">${t.n ? t.n + " entries · net " + amt(t.inc - t.exp) : "No entries today"}</p>`, conf);
+    }
+    if (id === "goals") {
+      let goals = [];
+      try { goals = typeof loadGoals === "function" ? loadGoals() : []; } catch (_) {}
+      const html = !goals.length
+        ? `<div class="empty-mini">No goals yet</div>`
+        : goals.slice(0, 3).map(g => {
+            const pct = Math.min(100, Math.round(((Number(g.saved) || 0) / (Number(g.target) || 1)) * 100));
+            return `<div class="prem-goal-row"><div class="prem-goal-top"><strong>${esc(g.name || "Goal")}</strong><span>${pct}%</span></div>
+              <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;
+          }).join("");
+      return cardShell(meta, `<div class="prem-goals-list">${html}</div>`, conf);
+    }
+    if (id === "topspend") {
+      const pct = m.exp > 0 ? Math.round((m.topAmt / m.exp) * 100) : 0;
+      return cardShell(meta, `<strong>${esc(m.topAmt ? m.topCat : "No spend yet")}</strong>
+        <div class="prem-top-amt amount-expense">${amt(m.topAmt)}</div>
+        <div class="progress-track" style="margin-top:8px"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <p class="muted prem-foot">${m.topAmt ? pct + "% of this month" : "This month"}</p>`, conf);
+    }
+    if (id === "tip") {
+      let tip = "Track expenses for 7 days to see patterns.";
+      if (d.pay > d.receive && d.pay > 0) tip = "Paise dene zyada hain — overdue pehle clear karo.";
+      else if (d.receive > 0) tip = "Aapko paise milne hain — due dates check karo.";
+      else if (m.topAmt > 0 && m.exp > 0 && m.topAmt / m.exp > 0.4) tip = m.topCat + " is over 40% of spend — set a limit.";
+      else if (b.list.length) tip = b.list.length + " bill(s) due soon — plan payments.";
+      else if ((transactions || []).length < 5) tip = "5+ transactions ke baad better insights milte hain.";
+      return cardShell(meta, `<p class="prem-tip-text">${esc(tip)}</p>`, "prem-tip-card", conf);
+    }
+    if (id === "balance") {
+      const tot = typeof totals === "function" ? totals() : { balance: 0 };
+      return cardShell(meta, `<div class="prem-top-amt">${amt(tot.balance || 0)}</div>
+        <p class="muted prem-foot">Income − expenses (all time)</p>`, conf);
+    }
+    if (id === "budget") {
+      let limit = 0;
+      try { limit = typeof loadBudget === "function" ? loadBudget() : 0; } catch (_) {}
+      const used = m.exp;
+      const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+      return cardShell(meta, `<div class="prem-top-amt">${limit ? pct + "%" : "—"}</div>
+        <div class="progress-track" style="margin-top:8px"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <p class="muted prem-foot">${limit ? amt(used) + " / " + amt(limit) : "Set a budget in Budget page"}</p>`, conf);
+    }
+    if (id === "savings") {
+      const rate = m.inc > 0 ? Math.round(((m.inc - m.exp) / m.inc) * 100) : 0;
+      return cardShell(meta, `<div class="prem-top-amt ${rate >= 0 ? "amount-income" : "amount-expense"}">${m.inc ? rate + "%" : "—"}</div>
+        <p class="muted prem-foot">Saved of this month’s income</p>`, conf);
+    }
+    if (id === "networth") {
+      let assets = 0;
+      try {
+        const raw = localStorage.getItem(typeof userScope === "function" ? userScope("hisabKitabAssetsV1") : "hisabKitabAssetsV1");
+        const list = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(list)) list.forEach(a => { assets += Number(a.value || a.amount) || 0; });
+      } catch (_) {}
+      const nw = assets + d.receive - d.pay;
+      return cardShell(meta, `<div class="prem-top-amt">${amt(nw)}</div>
+        <p class="muted prem-foot">Assets ${amt(assets)} · net debts ${amt(d.pay - d.receive)}</p>`, conf);
+    }
+    if (id === "bills") {
+      const rows = b.list.slice(0, 4).map(x =>
+        `<div class="uw-mini-row"><span>${esc(x.name || "Bill")}</span><strong class="amount-expense">${amt(x.amount)}</strong></div>`
+      ).join("") || `<div class="empty-mini">No bills due soon</div>`;
+      return cardShell(meta, rows + `<p class="muted prem-foot">Next 14 days · ${amt(b.total)}</p>`);
+    }
+    if (id === "debts") {
+      const rows = d.list.slice(0, 4).map(x => {
+        const kind = x.type === "lend" ? "Lene" : "Dene";
+        const cls = x.type === "lend" ? "amount-income" : "amount-expense";
+        return `<div class="uw-mini-row"><span>${esc(x.person || "—")} · ${kind}</span><strong class="${cls}">${amt(x.amount)}</strong></div>`;
+      }).join("") || `<div class="empty-mini">No open debts</div>`;
+      return cardShell(meta, rows);
+    }
+    if (id === "streak") {
+      let days = 0;
+      try {
+        const k = typeof userScope === "function" ? userScope("hisabKitabStreakV1") : "hisabKitabStreakV1";
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          const o = JSON.parse(raw);
+          days = Number(o.days || o.count || 0) || 0;
+        }
+      } catch (_) {}
+      if (!days && (transactions || []).length) {
+        const dates = [...new Set((transactions || []).map(t => t.date).filter(Boolean))].sort().reverse();
+        let cur = new Date().toISOString().slice(0, 10);
+        for (const d0 of dates) {
+          if (d0 === cur) { days++; const dt = new Date(cur + "T00:00:00"); dt.setDate(dt.getDate() - 1); cur = dt.toISOString().slice(0, 10); }
+          else break;
+        }
+      }
+      return cardShell(meta, `<div class="prem-top-amt">${days} day${days === 1 ? "" : "s"}</div>
+        <p class="muted prem-foot">Tracking streak</p>`, conf);
+    }
+    if (id === "recent") {
+      const list = [...(transactions || [])].sort((a, b) => String(b.date || "").localeCompare(String(a.date || ""))).slice(0, 4);
+      const rows = list.map(t => {
+        const sign = (typeof isIncomeType === "function" ? isIncomeType(t) : t.type === "income") ? "+" : "−";
+        const cls = sign === "+" ? "amount-income" : "amount-expense";
+        return `<div class="uw-mini-row"><span>${esc(t.description || t.category || "Tx")}</span><strong class="${cls}">${sign}${amt(typeof amountInBase === "function" ? amountInBase(t) : t.amount)}</strong></div>`;
+      }).join("") || `<div class="empty-mini">No transactions</div>`;
+      return cardShell(meta, rows);
+    }
+    if (id === "quickadd") {
+      return cardShell(meta, `<div class="uw-quick-row">
+        <button type="button" class="primary-btn uw-qa" data-uw-qa="expense">− Expense</button>
+        <button type="button" class="outline-btn uw-qa" data-uw-qa="income">+ Income</button>
+      </div>
+      <p class="muted prem-foot">Quick add transaction</p>`, conf);
+    }
+    if (id === "month") {
+      return cardShell(meta, `<div class="prem-pulse-row">
+        <div><span class="muted">In</span><strong class="amount-income">${amt(m.inc)}</strong></div>
+        <div><span class="muted">Out</span><strong class="amount-expense">${amt(m.exp)}</strong></div>
+        <div><span class="muted">Net</span><strong>${amt(m.inc - m.exp)}</strong></div>
+      </div>
+      <p class="muted prem-foot">This calendar month</p>`, conf);
+    }
+    if (id === "count") {
+      const n = (transactions || []).length;
+      return cardShell(meta, `<div class="prem-top-amt">${n}</div>
+        <p class="muted prem-foot">Total transactions logged</p>`, conf);
+    }
+    if (id === "alerts") {
+      const items = [];
+      if (b.list.length) items.push(b.list.length + " bills due soon");
+      if (d.pay > 0) items.push("Payables " + amt(d.pay));
+      if (d.receive > 0) items.push("Receivables " + amt(d.receive));
+      let limit = 0;
+      try { limit = typeof loadBudget === "function" ? loadBudget() : 0; } catch (_) {}
+      if (limit > 0 && m.exp > limit * 0.85) items.push("Budget almost used");
+      if (!items.length) items.push("All clear — no critical alerts");
+      return cardShell(meta, items.slice(0, 4).map(x => `<div class="uw-mini-row"><span>${esc(x)}</span></div>`).join(""));
+    }
+    if (id === "analog") {
+      const ticks = Array.from({ length: 60 }, (_, i) => {
+        const major = i % 5 === 0;
+        return `<span class="analog-tick${major ? " major" : ""}" style="--i:${i}"></span>`;
+      }).join("");
+      return cardShell(meta, `<div class="analog-wrap">
+        <div class="analog-clock" data-analog-clock>
+          <div class="analog-face">
+            ${ticks}
+            <span class="ah ah-12">12</span><span class="ah ah-3">3</span><span class="ah ah-6">6</span><span class="ah ah-9">9</span>
+            <div class="analog-hand hour" data-ah></div>
+            <div class="analog-hand minute" data-am></div>
+            <div class="analog-hand second" data-as></div>
+            <div class="analog-center"></div>
+          </div>
+        </div>
+        <div class="prem-clock-date" data-uw-clock-date style="text-align:center;margin-top:10px">—</div>
+      </div>`, "prem-clock-card", conf);
+    }
+    if (id === "week") {
+      const start = new Date(); start.setDate(start.getDate() - 6);
+      const from = start.toISOString().slice(0, 10);
+      let wi = 0, we = 0;
+      (transactions || []).forEach(tx => {
+        if (!tx || !tx.date || tx.date < from) return;
+        const a = typeof amountInBase === "function" ? amountInBase(tx) : (Number(tx.amount) || 0);
+        if (typeof isIncomeType === "function" ? isIncomeType(tx) : tx.type === "income") wi += a;
+        else if (tx.type === "expense") we += a;
+      });
+      return cardShell(meta, `<div class="prem-pulse-row">
+        <div><span class="muted">In</span><strong class="amount-income">${amt(wi)}</strong></div>
+        <div><span class="muted">Out</span><strong class="amount-expense">${amt(we)}</strong></div>
+        <div><span class="muted">Net</span><strong>${amt(wi - we)}</strong></div>
+      </div><p class="muted prem-foot">Last 7 days</p>`, conf);
+    }
+    if (id === "avg") {
+      const day = Math.max(1, new Date().getDate());
+      const avg = m.exp / day;
+      return cardShell(meta, `<div class="prem-top-amt amount-expense">${amt(avg)}</div>
+        <p class="muted prem-foot">Avg daily spend · ${day} days so far</p>`, conf);
+    }
+    if (id === "health") {
+      let score = 50;
+      if (m.inc > 0) {
+        const save = (m.inc - m.exp) / m.inc;
+        score = Math.round(Math.max(0, Math.min(100, 55 + save * 40 - (b.list.length * 3))));
+      }
+      const label = score >= 80 ? "Excellent" : score >= 60 ? "Good" : score >= 40 ? "Fair" : "Needs care";
+      return cardShell(meta, `<div class="prem-top-amt">${score}</div>
+        <div class="progress-track" style="margin-top:8px"><div class="progress-fill" style="width:${score}%"></div></div>
+        <p class="muted prem-foot">${label} · based on month activity</p>`, conf);
+    }
+    if (id === "quote") {
+      const quotes = [
+        "Do not save what is left after spending; spend what is left after saving.",
+        "A budget is telling your money where to go.",
+        "Small daily savings build big freedom.",
+        "Track it today — thank yourself tomorrow.",
+        "Wealth is the ability to wait."
+      ];
+      const q = quotes[new Date().getDate() % quotes.length];
+      return cardShell(meta, `<p class="prem-tip-text">“${esc(q)}”</p>`, "prem-tip-card", conf);
+    }
+    if (id === "focus") {
+      let limit = 0;
+      try { limit = typeof loadBudget === "function" ? loadBudget() : 0; } catch (_) {}
+      const left = limit > 0 ? Math.max(0, limit - m.exp) : 0;
+      return cardShell(meta, `<div class="prem-today-spend"><span class="muted">Today spent</span><strong class="amount-expense">${amt(t.exp)}</strong></div>
+        <div class="prem-today-spend" style="margin-top:8px"><span class="muted">Budget left</span><strong>${limit ? amt(left) : "No budget"}</strong></div>
+        <p class="muted prem-foot">${limit ? "Stay under monthly limit" : "Set budget for focus"}</p>`, conf);
+    }
+    if (id === "calendar") {
+      const now = new Date();
+      const y = now.getFullYear(), mo = now.getMonth();
+      const days = new Date(y, mo + 1, 0).getDate();
+      const first = new Date(y, mo, 1).getDay();
+      const active = {};
+      const mk = `${y}-${String(mo + 1).padStart(2, "0")}`;
+      (transactions || []).forEach(tx => {
+        if (!tx || !tx.date || !String(tx.date).startsWith(mk)) return;
+        const dd = Number(String(tx.date).slice(8, 10));
+        active[dd] = true;
+      });
+      let cells = "";
+      for (let i = 0; i < first; i++) cells += `<span class="uw-cal empty"></span>`;
+      for (let d0 = 1; d0 <= days; d0++) {
+        const cls = ["uw-cal"];
+        if (active[d0]) cls.push("on");
+        if (d0 === now.getDate()) cls.push("today");
+        cells += `<span class="${cls.join(" ")}">${d0}</span>`;
+      }
+      return cardShell(meta, `<div class="uw-cal-grid">${cells}</div>
+        <p class="muted prem-foot">Dots = activity this month</p>`, conf);
+    }
+    if (id === "currency") {
+      let cur = "SAR";
+      try {
+        if (typeof getBaseCurrency === "function") cur = getBaseCurrency();
+        else if (typeof baseCurrency !== "undefined") cur = baseCurrency;
+      } catch (_) {}
+      return cardShell(meta, `<div class="prem-top-amt">${esc(cur)}</div>
+        <p class="muted prem-foot">Base currency for reports</p>`, conf);
+    }
+    return "";
+  }
+
+  function applyBoardPrefs() {
+    const board = document.getElementById("userWidgetBoard");
+    if (!board) return;
+    const p = loadBoardPrefs();
+    board.style.setProperty("--uw-cols", String(p.cols));
+    board.dataset.uwGap = p.gap;
+    board.dataset.uwRadius = p.radius;
+    board.classList.add("uw-board-advanced");
+  }
+
+  function openWidgetCustomize(id) {
+    const items = loadItems();
+    const item = items.find(i => i.id === id) || { id, size: "m", accent: "default" };
+    const meta = CATALOG.find(c => c.id === id);
+    let pop = document.getElementById("uwCustomizePop");
+    if (!pop) {
+      pop = document.createElement("div");
+      pop.id = "uwCustomizePop";
+      pop.className = "uw-cfg-pop";
+      document.body.appendChild(pop);
+    }
+    pop.innerHTML = `
+      <div class="uw-cfg-card">
+        <div class="uw-cfg-head">
+          <strong>Customize · ${esc(meta ? meta.name : id)}</strong>
+          <button type="button" class="icon-btn" id="uwCfgClose" aria-label="Close">×</button>
+        </div>
+        <label class="uw-cfg-label">Size</label>
+        <div class="uw-cfg-seg" id="uwCfgSize">
+          ${SIZES.map(s => `<button type="button" data-size="${s}" class="${item.size===s?"on":""}">${s.toUpperCase()}</button>`).join("")}
+        </div>
+        <label class="uw-cfg-label">Accent</label>
+        <div class="uw-cfg-accents" id="uwCfgAccent">
+          ${ACCENTS.map(a => `<button type="button" data-accent="${a}" class="uw-swatch uw-accent-${a} ${item.accent===a?"on":""}" title="${a}"></button>`).join("")}
+        </div>
+        <div class="uw-cfg-actions">
+          <button type="button" class="outline-btn" id="uwCfgRemove">Remove</button>
+          <button type="button" class="primary-btn" id="uwCfgSave">Save</button>
+        </div>
+      </div>`;
+    pop.hidden = false;
+    pop.classList.add("open");
+    const close = () => { pop.classList.remove("open"); pop.hidden = true; };
+    pop.querySelector("#uwCfgClose").onclick = close;
+    pop.onclick = (e) => { if (e.target === pop) close(); };
+    pop.querySelectorAll("#uwCfgSize button").forEach(b => {
+      b.onclick = () => {
+        pop.querySelectorAll("#uwCfgSize button").forEach(x => x.classList.remove("on"));
+        b.classList.add("on");
+        item.size = b.getAttribute("data-size");
+      };
+    });
+    pop.querySelectorAll("#uwCfgAccent button").forEach(b => {
+      b.onclick = () => {
+        pop.querySelectorAll("#uwCfgAccent button").forEach(x => x.classList.remove("on"));
+        b.classList.add("on");
+        item.accent = b.getAttribute("data-accent");
+      };
+    });
+    pop.querySelector("#uwCfgSave").onclick = () => {
+      const next = loadItems().map(i => i.id === id ? { id, size: item.size, accent: item.accent } : i);
+      saveItems(next);
+      close();
+      renderBoard();
+      if (typeof showToast === "function") showToast("Widget updated");
+    };
+    pop.querySelector("#uwCfgRemove").onclick = () => {
+      saveItems(loadItems().filter(i => i.id !== id));
+      close();
+      renderBoard();
+      if (typeof showToast === "function") showToast("Widget removed");
+    };
+  }
+
+  function renderBoard() {
+    const board = document.getElementById("userWidgetBoard");
+    const empty = document.getElementById("userWidgetEmpty");
+    if (!board) return;
+    applyBoardPrefs();
+    const items = loadItems();
+    board.innerHTML = items.map(renderWidget).join("");
+    if (empty) empty.hidden = items.length > 0;
+    board.querySelectorAll("[data-uw-remove]").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const id = btn.getAttribute("data-uw-remove");
+        saveItems(loadItems().filter(x => x.id !== id));
+        renderBoard();
+        if (typeof showToast === "function") showToast("Widget removed");
+      });
+    });
+    board.querySelectorAll("[data-uw-cfg]").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        openWidgetCustomize(btn.getAttribute("data-uw-cfg"));
+      });
+    });
+    board.querySelectorAll("[data-uw-qa]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const ty = btn.getAttribute("data-uw-qa");
+        if (typeof openModal === "function") {
+          openModal(null);
+          setTimeout(() => {
+            const sel = document.getElementById("txType");
+            if (sel && ty) sel.value = ty;
+          }, 50);
+        }
+      });
+    });
+    // digital + analog clock tick
+    window.__uwClockTick = function () {
+      const now = new Date();
+      document.querySelectorAll("[data-uw-clock-time]").forEach(el => {
+        el.textContent = now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      });
+      document.querySelectorAll("[data-uw-clock-date]").forEach(el => {
+        el.textContent = now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "short", year: "numeric" });
+      });
+      document.querySelectorAll("[data-uw-clock-greet]").forEach(el => {
+        const hr = now.getHours();
+        el.textContent = hr < 12 ? "Good morning — plan your spend" : hr < 17 ? "Good afternoon — stay on budget" : "Good evening — review today";
+      });
+      const h = now.getHours() % 12;
+      const mi = now.getMinutes();
+      const s = now.getSeconds();
+      const ms = now.getMilliseconds();
+      const hDeg = h * 30 + mi * 0.5;
+      const mDeg = mi * 6 + s * 0.1;
+      const sDeg = s * 6 + ms * 0.006;
+      document.querySelectorAll("[data-ah]").forEach(el => { el.style.transform = `translate(-50%, -100%) rotate(${hDeg}deg)`; });
+      document.querySelectorAll("[data-am]").forEach(el => { el.style.transform = `translate(-50%, -100%) rotate(${mDeg}deg)`; });
+      document.querySelectorAll("[data-as]").forEach(el => { el.style.transform = `translate(-50%, -100%) rotate(${sDeg}deg)`; });
+    };
+    try { window.__uwClockTick(); } catch (_) {}
+    if (!window.__uwClockTimer) {
+      window.__uwClockTimer = setInterval(() => { try { window.__uwClockTick(); } catch (_) {} }, 250);
+    }
+    try { if (window.lucide) lucide.createIcons({ nodes: [board, empty].filter(Boolean) }); } catch (_) {}
+  }
+
+  let galleryCat = "All";
+  function openGallery() {
+    const bd = document.getElementById("widgetGalleryBackdrop");
+    if (!bd) return;
+    bd.classList.add("open");
+    bd.style.display = "flex";
+    const search = document.getElementById("widgetSearchInput");
+    if (search) search.value = "";
+    galleryCat = "All";
+    renderGallery();
+    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
+    setTimeout(() => { if (search) search.focus(); }, 100);
+  }
+  function closeGallery() {
+    const bd = document.getElementById("widgetGalleryBackdrop");
+    if (bd) { bd.classList.remove("open"); bd.style.display = ""; }
+  }
+  function renderGallery() {
+    const list = document.getElementById("widgetGalleryList");
+    const cats = document.getElementById("widgetGalleryCats");
+    const q = ((document.getElementById("widgetSearchInput") || {}).value || "").trim().toLowerCase();
+    const enabled = new Set(loadIds());
+    const catSet = ["All", ...new Set(CATALOG.map(c => c.cat))];
+    if (cats) {
+      cats.innerHTML = catSet.map(c =>
+        `<button type="button" class="wg-cat ${c === galleryCat ? "active" : ""}" data-wg-cat="${c}">${c}</button>`
+      ).join("");
+      cats.querySelectorAll("[data-wg-cat]").forEach(btn => {
+        btn.addEventListener("click", () => { galleryCat = btn.getAttribute("data-wg-cat"); renderGallery(); });
+      });
+    }
+    if (!list) return;
+    const items = CATALOG.filter(c => {
+      if (galleryCat !== "All" && c.cat !== galleryCat) return false;
+      if (!q) return true;
+      return (c.name + " " + c.desc + " " + c.cat).toLowerCase().includes(q);
+    });
+    list.innerHTML = items.map(c => {
+      const on = enabled.has(c.id);
+      return `<div class="wg-item ${on ? "on" : ""}" data-wg-id="${c.id}">
+        <div class="wg-ico"><i data-lucide="${c.icon}"></i></div>
+        <div class="wg-meta"><strong>${esc(c.name)}</strong><span>${esc(c.desc)}</span></div>
+        <button type="button" class="wg-add-btn">${on ? "Remove" : "Add"}</button>
+      </div>`;
+    }).join("") || `<div class="empty-mini" style="padding:20px">No widgets match</div>`;
+    list.querySelectorAll(".wg-item").forEach(row => {
+      const id = row.getAttribute("data-wg-id");
+      const btn = row.querySelector(".wg-add-btn");
+      if (!btn) return;
+      btn.addEventListener("click", () => {
+        let ids = loadIds();
+        if (ids.includes(id)) ids = ids.filter(x => x !== id);
+        else ids.push(id);
+        saveIds(ids);
+        renderBoard();
+        renderGallery();
+        if (typeof showToast === "function") showToast(ids.includes(id) ? "Widget added" : "Widget removed");
+      });
+    });
+    try { if (window.lucide) lucide.createIcons({ nodes: [list] }); } catch (_) {}
+  }
+
+  function boot() {
+    window.renderUserWidgetBoard = renderBoard;
+
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("#uwBoardSettingsBtn");
+    if (b && typeof window.__uwOpenBoardSettings === "function") {
+      e.preventDefault();
+      window.__uwOpenBoardSettings();
+    }
+  });
+
+  window.__uwOpenBoardSettings = function () {
+    const prefs = loadBoardPrefs();
+    let pop = document.getElementById("uwBoardSettingsPop");
+    if (!pop) {
+      pop = document.createElement("div");
+      pop.id = "uwBoardSettingsPop";
+      pop.className = "uw-cfg-pop";
+      document.body.appendChild(pop);
+    }
+    pop.innerHTML = `<div class="uw-cfg-card">
+      <div class="uw-cfg-head"><strong>Board layout</strong>
+        <button type="button" class="icon-btn" id="uwBoardClose">×</button></div>
+      <label class="uw-cfg-label">Columns</label>
+      <div class="uw-cfg-seg" id="uwBoardCols">
+        ${[1,2,3,4].map(c => `<button type="button" data-cols="${c}" class="${prefs.cols===c?"on":""}">${c}</button>`).join("")}
+      </div>
+      <label class="uw-cfg-label">Gap</label>
+      <div class="uw-cfg-seg" id="uwBoardGap">
+        ${["tight","normal","wide"].map(g => `<button type="button" data-gap="${g}" class="${prefs.gap===g?"on":""}">${g}</button>`).join("")}
+      </div>
+      <label class="uw-cfg-label">Corners</label>
+      <div class="uw-cfg-seg" id="uwBoardRadius">
+        ${["sharp","normal","round"].map(r => `<button type="button" data-radius="${r}" class="${prefs.radius===r?"on":""}">${r}</button>`).join("")}
+      </div>
+      <div class="uw-cfg-actions">
+        <button type="button" class="primary-btn" id="uwBoardSave" style="flex:1;justify-content:center">Apply</button>
+      </div>
+    </div>`;
+    pop.hidden = false; pop.classList.add("open");
+    const close = () => { pop.classList.remove("open"); pop.hidden = true; };
+    pop.querySelector("#uwBoardClose").onclick = close;
+    pop.onclick = e => { if (e.target === pop) close(); };
+    const state = { ...prefs };
+    pop.querySelectorAll("#uwBoardCols button").forEach(b => b.onclick = () => {
+      pop.querySelectorAll("#uwBoardCols button").forEach(x => x.classList.remove("on"));
+      b.classList.add("on"); state.cols = Number(b.getAttribute("data-cols"));
+    });
+    pop.querySelectorAll("#uwBoardGap button").forEach(b => b.onclick = () => {
+      pop.querySelectorAll("#uwBoardGap button").forEach(x => x.classList.remove("on"));
+      b.classList.add("on"); state.gap = b.getAttribute("data-gap");
+    });
+    pop.querySelectorAll("#uwBoardRadius button").forEach(b => b.onclick = () => {
+      pop.querySelectorAll("#uwBoardRadius button").forEach(x => x.classList.remove("on"));
+      b.classList.add("on"); state.radius = b.getAttribute("data-radius");
+    });
+    pop.querySelector("#uwBoardSave").onclick = () => {
+      saveBoardPrefs(state); applyBoardPrefs(); close();
+      if (typeof showToast === "function") showToast("Board layout saved");
+    };
+  };
+
+    renderBoard();
+    const openers = ["dashWidgetsBtn", "openWidgetGalleryBtn", "emptyAddWidgetBtn"];
+    openers.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !el.dataset.uwBound) {
+        el.dataset.uwBound = "1";
+        el.addEventListener("click", openGallery);
+      }
+    });
+    const close = document.getElementById("closeWidgetGallery");
+    const done = document.getElementById("widgetGalleryDone");
+    const reset = document.getElementById("widgetGalleryReset");
+    const bd = document.getElementById("widgetGalleryBackdrop");
+    const search = document.getElementById("widgetSearchInput");
+    if (close && !close.dataset.uwBound) { close.dataset.uwBound = "1"; close.addEventListener("click", closeGallery); }
+    if (done && !done.dataset.uwBound) { done.dataset.uwBound = "1"; done.addEventListener("click", closeGallery); }
+    if (reset && !reset.dataset.uwBound) {
+      reset.dataset.uwBound = "1";
+      reset.addEventListener("click", () => {
+        saveItems(DEFAULT_IDS.map(id => ({ id, size: "m", accent: "default" })));
+        renderBoard();
+        renderGallery();
+        if (typeof showToast === "function") showToast("Default widgets restored");
+      });
+    }
+    if (bd && !bd.dataset.uwBound) {
+      bd.dataset.uwBound = "1";
+      bd.addEventListener("click", e => { if (e.target === bd) closeGallery(); });
+    }
+    if (search && !search.dataset.uwBound) {
+      search.dataset.uwBound = "1";
+      search.addEventListener("input", () => renderGallery());
+    }
+
+    // Dashboard-wide search
+    const dashSearch = document.getElementById("dashSearchInput");
+    const dashClear = document.getElementById("dashSearchClear");
+    const hitsBox = document.getElementById("dashSearchHits");
+    function runDashSearch() {
+      const q = (dashSearch && dashSearch.value || "").trim().toLowerCase();
+      if (dashClear) dashClear.hidden = !q;
+      const page = document.getElementById("overviewPage");
+      if (!page) return;
+      page.querySelectorAll(".dash-search-hit").forEach(el => el.classList.remove("dash-search-hit"));
+      if (!q) {
+        page.querySelectorAll("[data-dash-widget], .uw-card, .panel, .stat-card").forEach(el => { el.style.display = ""; });
+        if (hitsBox) { hitsBox.hidden = true; hitsBox.innerHTML = ""; }
+        return;
+      }
+      const nav = [
+        { k: "transaction expense income", page: "transactions", label: "All Transactions" },
+        { k: "budget", page: "budget", label: "Budget" },
+        { k: "goal saving", page: "goals", label: "Goals" },
+        { k: "debt lend borrow paise", page: "debts", label: "Debts" },
+        { k: "bill", page: "bills", label: "Bills" },
+        { k: "report chart", page: "reports", label: "Reports" },
+        { k: "insight calendar", page: "insights", label: "Insights Lab" },
+        { k: "setting theme", page: "settings", label: "Settings" },
+        { k: "widget", action: "widgets", label: "Open Widget Gallery" }
+      ];
+      const matches = nav.filter(n => n.k.includes(q) || n.label.toLowerCase().includes(q) || q.split(/\s+/).some(w => n.k.includes(w)));
+      // filter sections/widgets by text
+      let visibleCards = 0;
+      page.querySelectorAll("[data-dash-widget]").forEach(sec => {
+        const text = (sec.textContent || "").toLowerCase();
+        const show = text.includes(q) || q.length < 2;
+        sec.style.display = show ? "" : "none";
+        if (show) visibleCards++;
+      });
+      page.querySelectorAll(".uw-card").forEach(card => {
+        const text = (card.textContent || "").toLowerCase();
+        const show = text.includes(q) || (card.getAttribute("data-uw") || "").includes(q);
+        card.style.display = show ? "" : "none";
+        if (show) { card.classList.add("dash-search-hit"); visibleCards++; }
+      });
+      if (hitsBox) {
+        hitsBox.hidden = false;
+        const chips = matches.map(m =>
+          `<button type="button" class="dash-hit-chip" data-hit="${m.page || ""}" data-hit-action="${m.action || ""}">${esc(m.label)}</button>`
+        ).join("");
+        hitsBox.innerHTML = `<span class="muted" style="font-size:11px">Jump:</span>${chips || `<span class="muted" style="font-size:11px">${visibleCards} area(s) match</span>`}`;
+        hitsBox.querySelectorAll(".dash-hit-chip").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const act = btn.getAttribute("data-hit-action");
+            const pg = btn.getAttribute("data-hit");
+            if (act === "widgets") openGallery();
+            else if (pg && typeof switchPage === "function") switchPage(pg);
+          });
+        });
+      }
+    }
+    if (dashSearch && !dashSearch.dataset.uwBound) {
+      dashSearch.dataset.uwBound = "1";
+      dashSearch.addEventListener("input", runDashSearch);
+    }
+    if (dashClear && !dashClear.dataset.uwBound) {
+      dashClear.dataset.uwBound = "1";
+      dashClear.addEventListener("click", () => {
+        if (dashSearch) dashSearch.value = "";
+        runDashSearch();
+        dashSearch && dashSearch.focus();
+      });
+    }
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 350));
+  else setTimeout(boot, 350);
+  setTimeout(boot, 1000);
+})();
+
+
+/* ===== Dashboard section layout (Edit mode) ===== */
+(function () {
+  const DASH_KEY = "hisabKitabDashLayoutV1";
+  const SETTINGS_KEY = "hisabKitabSettingsOrderV1";
+  const WIDGET_META = [
+    { id: "health", label: "Financial health & story" },
+    { id: "premium", label: "Widget board" },
+    { id: "stats", label: "Balance / Income / Expense cards" },
+    { id: "kpi", label: "Savings · Burn · Forecast KPIs" },
+    { id: "alerts", label: "Alerts & Targets" },
+    { id: "budget", label: "Monthly budget progress" },
+    { id: "charts", label: "Cash flow & expense charts" },
+    { id: "recent", label: "Recent transactions" }
+  ];
+  const DEFAULT_ORDER = WIDGET_META.map(w => w.id);
+  const DEFAULT_VIS = Object.fromEntries(DEFAULT_ORDER.map(id => [id, true]));
+
+  function loadDashLayout() {
+    try {
+      const raw = localStorage.getItem(DASH_KEY);
+      if (!raw) return { order: DEFAULT_ORDER.slice(), vis: { ...DEFAULT_VIS } };
+      const o = JSON.parse(raw);
+      let order = Array.isArray(o.order) ? o.order.filter(id => DEFAULT_ORDER.includes(id)) : DEFAULT_ORDER.slice();
+      DEFAULT_ORDER.forEach(id => { if (!order.includes(id)) order.push(id); });
+      return { order, vis: { ...DEFAULT_VIS, ...(o.vis || {}) } };
+    } catch (_) {
+      return { order: DEFAULT_ORDER.slice(), vis: { ...DEFAULT_VIS } };
+    }
+  }
+  function saveDashLayout(layout) {
+    try { localStorage.setItem(DASH_KEY, JSON.stringify(layout)); } catch (_) {}
+  }
+  function applyDashLayout() {
+    const root = document.getElementById("dashWidgets");
+    if (!root) return;
+    const layout = loadDashLayout();
+    const map = {};
+    root.querySelectorAll("[data-dash-widget]").forEach(el => {
+      map[el.getAttribute("data-dash-widget")] = el;
+    });
+    layout.order.forEach(id => {
+      const el = map[id];
+      if (el) {
+        root.appendChild(el);
+        el.style.display = layout.vis[id] === false ? "none" : "";
+      }
+    });
+  }
+
+  let dragEl = null;
+  let editMode = false;
+  function setEditMode(on) {
+    editMode = !!on;
+    const page = document.getElementById("overviewPage");
+    const root = document.getElementById("dashWidgets");
+    const editBtn = document.getElementById("dashEditBtn");
+    const doneBtn = document.getElementById("dashEditDoneBtn");
+    if (page) page.classList.toggle("dash-edit-mode", editMode);
+    if (root) root.querySelectorAll("[data-dash-widget]").forEach(el => el.setAttribute("draggable", editMode ? "true" : "false"));
+    if (editBtn) { editBtn.hidden = !!editMode; editBtn.setAttribute("aria-pressed", editMode ? "true" : "false"); }
+    if (doneBtn) doneBtn.hidden = !editMode;
+    try { if (window.lucide) lucide.createIcons(); } catch (_) {}
+    if (editMode && typeof showToast === "function") showToast("Edit mode — drag sections");
+  }
+  function wireDashDrag() {
+    const root = document.getElementById("dashWidgets");
+    if (!root || root.dataset.dnd === "1") return;
+    root.dataset.dnd = "1";
+    root.addEventListener("dragstart", e => {
+      if (!editMode) { e.preventDefault(); return; }
+      const w = e.target.closest("[data-dash-widget]");
+      if (!w || !root.contains(w)) return;
+      dragEl = w;
+      w.classList.add("dash-dragging");
+      try { e.dataTransfer.effectAllowed = "move"; } catch (_) {}
+    });
+    root.addEventListener("dragend", () => {
+      if (dragEl) dragEl.classList.remove("dash-dragging");
+      dragEl = null;
+      root.querySelectorAll(".dash-drag-over").forEach(el => el.classList.remove("dash-drag-over"));
+      if (!editMode) return;
+      const order = [...root.querySelectorAll("[data-dash-widget]")].map(el => el.getAttribute("data-dash-widget"));
+      const layout = loadDashLayout();
+      layout.order = order;
+      saveDashLayout(layout);
+      if (typeof showToast === "function") showToast("Order saved");
+    });
+    root.addEventListener("dragover", e => {
+      if (!editMode || !dragEl) return;
+      e.preventDefault();
+      const over = e.target.closest("[data-dash-widget]");
+      if (!over || over === dragEl) return;
+      root.querySelectorAll(".dash-drag-over").forEach(el => el.classList.remove("dash-drag-over"));
+      over.classList.add("dash-drag-over");
+      const rect = over.getBoundingClientRect();
+      if (e.clientY < rect.top + rect.height / 2) root.insertBefore(dragEl, over);
+      else root.insertBefore(dragEl, over.nextSibling);
+    });
+  }
+  function openDashLayoutModal() {
+    const backdrop = document.getElementById("dashLayoutModalBackdrop");
+    const list = document.getElementById("dashLayoutList");
+    if (!backdrop || !list) return;
+    const layout = loadDashLayout();
+    list.innerHTML = WIDGET_META.map(w => {
+      const on = layout.vis[w.id] !== false;
+      return `<label class="hk-feat-row dash-layout-row" data-wid="${w.id}">
+        <span class="hk-feat-label">${w.label}</span>
+        <span class="hk-toggle ${on ? "on" : ""}" role="switch"><span class="hk-toggle-knob"></span></span>
+      </label>`;
+    }).join("");
+    list.querySelectorAll(".dash-layout-row").forEach(row => {
+      row.addEventListener("click", e => {
+        e.preventDefault();
+        const id = row.getAttribute("data-wid");
+        const layout2 = loadDashLayout();
+        layout2.vis[id] = !(layout2.vis[id] !== false);
+        saveDashLayout(layout2);
+        const on = layout2.vis[id] !== false;
+        const tog = row.querySelector(".hk-toggle");
+        if (tog) tog.classList.toggle("on", on);
+        applyDashLayout();
+      });
+    });
+    backdrop.classList.add("open");
+    backdrop.style.display = "flex";
+  }
+  function closeDashLayoutModal() {
+    const backdrop = document.getElementById("dashLayoutModalBackdrop");
+    if (backdrop) { backdrop.classList.remove("open"); backdrop.style.display = ""; }
+  }
+  function bootLayout() {
+    applyDashLayout();
+    setEditMode(false);
+    wireDashDrag();
+    const editBtn = document.getElementById("dashEditBtn");
+    const doneEdit = document.getElementById("dashEditDoneBtn");
+    const close = document.getElementById("closeDashLayoutModal");
+    const done = document.getElementById("dashLayoutDone");
+    const reset = document.getElementById("dashLayoutReset");
+    const backdrop = document.getElementById("dashLayoutModalBackdrop");
+    if (editBtn && !editBtn.dataset.bound) {
+      editBtn.dataset.bound = "1";
+      editBtn.addEventListener("click", () => setEditMode(true));
+    }
+    if (doneEdit && !doneEdit.dataset.bound) {
+      doneEdit.dataset.bound = "1";
+      doneEdit.addEventListener("click", () => { setEditMode(false); if (typeof showToast === "function") showToast("Layout locked"); });
+    }
+    if (close && !close.dataset.bound) { close.dataset.bound = "1"; close.addEventListener("click", closeDashLayoutModal); }
+    if (done && !done.dataset.bound) { done.dataset.bound = "1"; done.addEventListener("click", closeDashLayoutModal); }
+    if (reset && !reset.dataset.bound) {
+      reset.dataset.bound = "1";
+      reset.addEventListener("click", () => {
+        saveDashLayout({ order: DEFAULT_ORDER.slice(), vis: { ...DEFAULT_VIS } });
+        applyDashLayout();
+        openDashLayoutModal();
+      });
+    }
+    if (backdrop && !backdrop.dataset.bound) {
+      backdrop.dataset.bound = "1";
+      backdrop.addEventListener("click", e => { if (e.target === backdrop) closeDashLayoutModal(); });
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(bootLayout, 400));
+  else setTimeout(bootLayout, 400);
+  setTimeout(bootLayout, 1200);
+  window.applyDashLayout = applyDashLayout;
+})();
+
+try { window.setEntryType = setEntryType; } catch (_) {}
+
+
+/* ===== Mega polish pack 2026 — recurring, split, digest, share, gallery, tags, bio, checklist, shortcuts ===== */
+(function megaPolishPack() {
+  const RKEY = "hisabKitabRecurringV1";
+  const DIGEST_KEY = "hisabKitabLastDigestV1";
+  const CHECK_KEY = "hisabKitabChecklistV1";
+
+  function scopeKey(base) {
+    try {
+      if (typeof userScope === "function") return userScope(base);
+    } catch (_) {}
+    return base;
+  }
+  function loadJSON(key, fallback) {
+    try {
+      const raw = localStorage.getItem(scopeKey(key));
+      if (!raw) return fallback;
+      return JSON.parse(raw);
+    } catch { return fallback; }
+  }
+  function saveJSON(key, val) {
+    try { localStorage.setItem(scopeKey(key), JSON.stringify(val)); } catch (_) {}
+  }
+
+  /* --- Recurring --- */
+  function loadRecurring() {
+    const list = loadJSON(RKEY, []);
+    return Array.isArray(list) ? list : [];
+  }
+  function saveRecurring(list) { saveJSON(RKEY, list); }
+
+  function dueRecurringToday() {
+    const today = new Date();
+    const day = today.getDate();
+    const iso = today.toISOString().slice(0, 10);
+    return loadRecurring().filter(r => {
+      if (!r || !r.active) return false;
+      if (r.frequency === "monthly") return Number(r.dayOfMonth || 1) === day;
+      if (r.frequency === "weekly") return Number(r.weekday || 1) === today.getDay();
+      if (r.frequency === "daily") return true;
+      return false;
+    }).filter(r => r.lastRun !== iso);
+  }
+
+  function applyDueRecurring() {
+    const due = dueRecurringToday();
+    if (!due.length || typeof transactions === "undefined") return 0;
+    const iso = new Date().toISOString().slice(0, 10);
+    let n = 0;
+    const list = loadRecurring();
+    due.forEach(r => {
+      const tx = {
+        id: "rec_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+        type: r.type || "expense",
+        category: r.category || "Other",
+        description: r.label || "Recurring",
+        amount: Number(r.amount) || 0,
+        currency: r.currency || (typeof getBaseCurrency === "function" ? getBaseCurrency() : "SAR"),
+        date: iso,
+        account: r.account || "Cash",
+        note: "Auto · recurring",
+        tags: ["recurring"]
+      };
+      transactions.unshift(tx);
+      n++;
+      const item = list.find(x => x.id === r.id);
+      if (item) item.lastRun = iso;
+    });
+    if (n) {
+      saveRecurring(list);
+      try { if (typeof saveTransactions === "function") saveTransactions(); } catch (_) {}
+      try { if (typeof renderStats === "function") renderStats(false); } catch (_) {}
+      try { if (typeof renderAll === "function") renderAll(); } catch (_) {}
+      try { if (typeof showToast === "function") showToast(n + " recurring applied"); } catch (_) {}
+    }
+    return n;
+  }
+
+  function openRecurringModal() {
+    let bd = document.getElementById("recurringModalBackdrop");
+    if (!bd) {
+      bd = document.createElement("div");
+      bd.id = "recurringModalBackdrop";
+      bd.className = "modal-backdrop";
+      bd.innerHTML = `
+        <div class="modal-card" role="dialog" style="max-width:480px">
+          <div class="modal-heading"><div><span class="eyebrow">AUTOMATION</span><h2>Recurring</h2></div>
+            <button type="button" class="icon-btn" id="closeRecurringModal"><i data-lucide="x"></i></button></div>
+          <form id="recurringForm" class="stack-form">
+            <label>Label <input id="recLabel" required maxlength="40" placeholder="Salary / Rent"></label>
+            <div class="form-row">
+              <label>Type
+                <select id="recType"><option value="income">Income</option><option value="expense" selected>Expense</option></select>
+              </label>
+              <label>Amount <input id="recAmount" type="number" min="0.01" step="0.01" required></label>
+            </div>
+            <div class="form-row">
+              <label>Category <input id="recCategory" maxlength="30" placeholder="Bills" value="Bills"></label>
+              <label>Frequency
+                <select id="recFreq"><option value="monthly">Monthly</option><option value="weekly">Weekly</option><option value="daily">Daily</option></select>
+              </label>
+            </div>
+            <label>Day of month (monthly) <input id="recDay" type="number" min="1" max="28" value="1"></label>
+            <div class="modal-actions" style="display:flex;gap:8px;margin-top:12px">
+              <button type="button" class="outline-btn" id="cancelRecurringModal">Close</button>
+              <button type="submit" class="primary-btn">Add recurring</button>
+            </div>
+          </form>
+          <div id="recurringList" class="recurring-list"></div>
+        </div>`;
+      document.body.appendChild(bd);
+      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
+      bd.addEventListener("click", e => { if (e.target === bd) close(); });
+      bd.querySelector("#closeRecurringModal").onclick = close;
+      bd.querySelector("#cancelRecurringModal").onclick = close;
+      bd.querySelector("#recurringForm").onsubmit = (e) => {
+        e.preventDefault();
+        const list = loadRecurring();
+        list.push({
+          id: "r" + Date.now(),
+          label: document.getElementById("recLabel").value.trim(),
+          type: document.getElementById("recType").value,
+          amount: Number(document.getElementById("recAmount").value),
+          category: document.getElementById("recCategory").value.trim() || "Other",
+          frequency: document.getElementById("recFreq").value,
+          dayOfMonth: Number(document.getElementById("recDay").value) || 1,
+          weekday: new Date().getDay(),
+          active: true,
+          lastRun: null,
+          currency: typeof getBaseCurrency === "function" ? getBaseCurrency() : "SAR",
+          account: "Cash"
+        });
+        saveRecurring(list);
+        renderRecurringList();
+        e.target.reset();
+        if (typeof showToast === "function") showToast("Recurring saved");
+      };
+    }
+    renderRecurringList();
+    bd.style.display = "flex";
+    bd.classList.add("open");
+    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
+  }
+
+  function renderRecurringList() {
+    const box = document.getElementById("recurringList");
+    if (!box) return;
+    const list = loadRecurring();
+    if (!list.length) {
+      box.innerHTML = `<div class="empty-mini" style="padding:12px">No recurring rules yet.</div>`;
+      return;
+    }
+    box.innerHTML = list.map(r => `
+      <div class="rec-row" data-id="${r.id}">
+        <div>
+          <strong>${escapeHtml(r.label)}</strong>
+          <span class="muted">${r.frequency} · ${r.type} · ${typeof money === "function" ? money(r.amount, r.currency) : r.amount}</span>
+        </div>
+        <button type="button" class="text-btn rec-del" data-id="${r.id}">Remove</button>
+      </div>`).join("");
+    box.querySelectorAll(".rec-del").forEach(btn => {
+      btn.onclick = () => {
+        saveRecurring(loadRecurring().filter(x => x.id !== btn.getAttribute("data-id")));
+        renderRecurringList();
+      };
+    });
+  }
+
+  /* --- Split bill --- */
+  function openSplitBill() {
+    let bd = document.getElementById("splitBillBackdrop");
+    if (!bd) {
+      bd = document.createElement("div");
+      bd.id = "splitBillBackdrop";
+      bd.className = "modal-backdrop";
+      bd.innerHTML = `
+        <div class="modal-card" role="dialog" style="max-width:420px">
+          <div class="modal-heading"><div><span class="eyebrow">SPLIT</span><h2>Split bill</h2></div>
+            <button type="button" class="icon-btn" id="closeSplitBill"><i data-lucide="x"></i></button></div>
+          <label>Total amount <input id="splitTotal" type="number" min="0.01" step="0.01" placeholder="0.00"></label>
+          <label>People (names, comma separated)
+            <input id="splitPeople" type="text" placeholder="Ali, Sara, You" value="You, Friend">
+          </label>
+          <div id="splitResult" class="split-result muted">Enter amount & names</div>
+          <div class="modal-actions" style="display:flex;gap:8px;margin-top:12px">
+            <button type="button" class="outline-btn" id="cancelSplitBill">Close</button>
+            <button type="button" class="primary-btn" id="splitSaveExpense">Save my share as expense</button>
+          </div>
+        </div>`;
+      document.body.appendChild(bd);
+      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
+      bd.onclick = e => { if (e.target === bd) close(); };
+      bd.querySelector("#closeSplitBill").onclick = close;
+      bd.querySelector("#cancelSplitBill").onclick = close;
+      const calc = () => {
+        const total = Number(document.getElementById("splitTotal").value) || 0;
+        const people = document.getElementById("splitPeople").value.split(",").map(s => s.trim()).filter(Boolean);
+        const box = document.getElementById("splitResult");
+        if (!total || people.length < 2) {
+          box.textContent = "Need total + at least 2 people";
+          return null;
+        }
+        const share = total / people.length;
+        box.innerHTML = people.map(p => `<div class="split-line"><strong>${escapeHtml(p)}</strong><span>${typeof money === "function" ? money(share) : share.toFixed(2)}</span></div>`).join("");
+        return { share, people, total };
+      };
+      bd.querySelector("#splitTotal").oninput = calc;
+      bd.querySelector("#splitPeople").oninput = calc;
+      bd.querySelector("#splitSaveExpense").onclick = () => {
+        const r = calc();
+        if (!r || typeof transactions === "undefined") return;
+        const iso = new Date().toISOString().slice(0, 10);
+        transactions.unshift({
+          id: "sp_" + Date.now(),
+          type: "expense",
+          category: "Food",
+          description: "Split bill share",
+          amount: r.share,
+          currency: typeof getBaseCurrency === "function" ? getBaseCurrency() : "SAR",
+          date: iso,
+          account: "Cash",
+          note: "Split with " + r.people.join(", "),
+          tags: ["split"]
+        });
+        try { saveTransactions(); } catch (_) {}
+        try { renderStats(true); } catch (_) {}
+        if (typeof showToast === "function") showToast("Your share saved");
+        close();
+      };
+    }
+    bd.style.display = "flex";
+    bd.classList.add("open");
+    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
+  }
+
+  /* --- Weekly digest --- */
+  function buildDigest() {
+    if (typeof transactions === "undefined" || !transactions.length) {
+      return { title: "Weekly digest", body: "Add a few transactions to unlock your weekly story.", expense: 0, income: 0 };
+    }
+    const now = new Date();
+    const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+    const iso = d => d.toISOString().slice(0, 10);
+    const from = iso(weekAgo), to = iso(now);
+    const list = transactions.filter(t => t.date && t.date >= from && t.date <= to);
+    const income = list.filter(t => (typeof isIncomeType === "function" ? isIncomeType(t) : t.type === "income")).reduce((s, t) => s + (typeof amountInBase === "function" ? amountInBase(t) : Number(t.amount) || 0), 0);
+    const expense = list.filter(t => t.type === "expense").reduce((s, t) => s + (typeof amountInBase === "function" ? amountInBase(t) : Number(t.amount) || 0), 0);
+    const byCat = {};
+    list.filter(t => t.type === "expense").forEach(t => {
+      const c = t.category || "Other";
+      byCat[c] = (byCat[c] || 0) + (typeof amountInBase === "function" ? amountInBase(t) : Number(t.amount) || 0);
+    });
+    const top = Object.entries(byCat).sort((a, b) => b[1] - a[1])[0];
+    const m = typeof money === "function" ? money : (v) => String(v);
+    return {
+      title: "Weekly digest",
+      body: `Last 7 days: spent ${m(expense)}, earned ${m(income)}.${top ? ` Top category: ${top[0]} (${m(top[1])}).` : ""} Net ${m(income - expense)}.`,
+      expense, income, top
+    };
+  }
+
+  function showWeeklyDigest(force) {
+    const dig = buildDigest();
+    const today = new Date().toISOString().slice(0, 10);
+    const last = localStorage.getItem(scopeKey(DIGEST_KEY));
+    if (!force && last === today) return;
+    try { localStorage.setItem(scopeKey(DIGEST_KEY), today); } catch (_) {}
+    if (typeof showToast === "function") showToast(dig.body.slice(0, 120) + (dig.body.length > 120 ? "…" : ""));
+    const el = document.getElementById("insightText");
+    if (el && dig.body) el.textContent = dig.body;
+  }
+
+  /* --- Share card --- */
+  function openShareCard() {
+    const t = typeof totals === "function" ? totals() : { income: 0, expense: 0, balance: 0 };
+    const m = typeof money === "function" ? money : (v) => String(v);
+    const name = (document.getElementById("userNameLabel") || {}).textContent || "Hisab Kitab";
+    let bd = document.getElementById("shareCardBackdrop");
+    if (!bd) {
+      bd = document.createElement("div");
+      bd.id = "shareCardBackdrop";
+      bd.className = "modal-backdrop";
+      bd.innerHTML = `
+        <div class="modal-card" role="dialog" style="max-width:400px">
+          <div class="modal-heading"><div><span class="eyebrow">SHARE</span><h2>Story card</h2></div>
+            <button type="button" class="icon-btn" id="closeShareCard"><i data-lucide="x"></i></button></div>
+          <div id="shareCardPreview" class="share-card-preview">
+            <div class="sc-brand">Hisab Kitab</div>
+            <div class="sc-name" id="scName"></div>
+            <div class="sc-grid">
+              <div><span>Balance</span><strong id="scBal"></strong></div>
+              <div><span>Income</span><strong id="scInc"></strong></div>
+              <div><span>Expense</span><strong id="scExp"></strong></div>
+            </div>
+            <div class="sc-foot">Private · On-device</div>
+          </div>
+          <div class="modal-actions" style="display:flex;gap:8px;margin-top:12px">
+            <button type="button" class="outline-btn" id="cancelShareCard">Close</button>
+            <button type="button" class="primary-btn" id="downloadShareCard">Download PNG</button>
+          </div>
+        </div>`;
+      document.body.appendChild(bd);
+      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
+      bd.onclick = e => { if (e.target === bd) close(); };
+      bd.querySelector("#closeShareCard").onclick = close;
+      bd.querySelector("#cancelShareCard").onclick = close;
+      bd.querySelector("#downloadShareCard").onclick = () => downloadSharePng();
+    }
+    document.getElementById("scName").textContent = name;
+    document.getElementById("scBal").textContent = m(t.balance);
+    document.getElementById("scInc").textContent = m(t.income);
+    document.getElementById("scExp").textContent = m(t.expense);
+    bd.style.display = "flex";
+    bd.classList.add("open");
+  }
+
+  function downloadSharePng() {
+    const node = document.getElementById("shareCardPreview");
+    if (!node) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = 720; canvas.height = 900;
+    const ctx = canvas.getContext("2d");
+    const cs = getComputedStyle(document.documentElement);
+    const bg = cs.getPropertyValue("--panel").trim() || "#191b20";
+    const text = cs.getPropertyValue("--text").trim() || "#fff";
+    const accent = cs.getPropertyValue("--accent").trim() || "#d8b46a";
+    const muted = cs.getPropertyValue("--muted").trim() || "#aaa";
+    ctx.fillStyle = bg;
+    roundRect(ctx, 0, 0, 720, 900, 40);
+    ctx.fill();
+    ctx.fillStyle = accent;
+    ctx.font = "700 22px system-ui";
+    ctx.fillText("HISAB KITAB", 48, 80);
+    ctx.fillStyle = text;
+    ctx.font = "800 36px system-ui";
+    ctx.fillText((document.getElementById("scName") || {}).textContent || "Workspace", 48, 140);
+    const rows = [
+      ["Balance", (document.getElementById("scBal") || {}).textContent],
+      ["Income", (document.getElementById("scInc") || {}).textContent],
+      ["Expense", (document.getElementById("scExp") || {}).textContent]
+    ];
+    rows.forEach((row, i) => {
+      const y = 240 + i * 120;
+      ctx.fillStyle = muted;
+      ctx.font = "600 18px system-ui";
+      ctx.fillText(row[0], 48, y);
+      ctx.fillStyle = text;
+      ctx.font = "800 40px system-ui";
+      ctx.fillText(row[1] || "—", 48, y + 48);
+    });
+    ctx.fillStyle = muted;
+    ctx.font = "500 16px system-ui";
+    ctx.fillText("Private · On-device finance", 48, 840);
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = "hisab-kitab-share.png";
+    a.click();
+    if (typeof showToast === "function") showToast("Share card downloaded");
+  }
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  /* --- Receipts gallery --- */
+  function openReceiptGallery() {
+    const txs = (typeof transactions !== "undefined" ? transactions : []).filter(t => t.receipt || t.receiptData);
+    let bd = document.getElementById("receiptGalleryBackdrop");
+    if (!bd) {
+      bd = document.createElement("div");
+      bd.id = "receiptGalleryBackdrop";
+      bd.className = "modal-backdrop";
+      bd.innerHTML = `
+        <div class="modal-card" role="dialog" style="max-width:520px">
+          <div class="modal-heading"><div><span class="eyebrow">MEDIA</span><h2>Receipts</h2></div>
+            <button type="button" class="icon-btn" id="closeReceiptGallery"><i data-lucide="x"></i></button></div>
+          <div id="receiptGalleryList" class="receipt-gallery-list"></div>
+          <button type="button" class="outline-btn" id="cancelReceiptGallery" style="width:100%;margin-top:12px;justify-content:center">Close</button>
+        </div>`;
+      document.body.appendChild(bd);
+      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
+      bd.onclick = e => { if (e.target === bd) close(); };
+      bd.querySelector("#closeReceiptGallery").onclick = close;
+      bd.querySelector("#cancelReceiptGallery").onclick = close;
+    }
+    const list = document.getElementById("receiptGalleryList");
+    if (!txs.length) {
+      list.innerHTML = `<div class="empty-mini" style="padding:16px">No receipts attached yet. Add a receipt on a transaction.</div>`;
+    } else {
+      list.innerHTML = txs.slice(0, 40).map(t => `
+        <div class="receipt-gal-item">
+          <div><strong>${escapeHtml(t.description || t.category || "Receipt")}</strong>
+          <span class="muted">${t.date || ""} · ${typeof moneyTx === "function" ? moneyTx(t) : t.amount}</span></div>
+          ${t.receiptData || t.receipt ? `<img alt="" src="${t.receiptData || t.receipt}">` : ""}
+        </div>`).join("");
+    }
+    bd.style.display = "flex";
+    bd.classList.add("open");
+  }
+
+  /* --- Tags analytics --- */
+  function openTagsAnalytics() {
+    const map = {};
+    (typeof transactions !== "undefined" ? transactions : []).forEach(t => {
+      const tags = Array.isArray(t.tags) ? t.tags : [];
+      tags.forEach(tag => {
+        const k = String(tag || "").trim();
+        if (!k) return;
+        map[k] = (map[k] || 0) + (typeof amountInBase === "function" ? amountInBase(t) : Number(t.amount) || 0);
+      });
+    });
+    const entries = Object.entries(map).sort((a, b) => b[1] - a[1]);
+    let bd = document.getElementById("tagsAnalyticsBackdrop");
+    if (!bd) {
+      bd = document.createElement("div");
+      bd.id = "tagsAnalyticsBackdrop";
+      bd.className = "modal-backdrop";
+      bd.innerHTML = `
+        <div class="modal-card" role="dialog" style="max-width:420px">
+          <div class="modal-heading"><div><span class="eyebrow">TAGS</span><h2>Tag spend</h2></div>
+            <button type="button" class="icon-btn" id="closeTagsAnalytics"><i data-lucide="x"></i></button></div>
+          <div id="tagsAnalyticsList"></div>
+          <button type="button" class="outline-btn" id="cancelTagsAnalytics" style="width:100%;margin-top:12px;justify-content:center">Close</button>
+        </div>`;
+      document.body.appendChild(bd);
+      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
+      bd.onclick = e => { if (e.target === bd) close(); };
+      bd.querySelector("#closeTagsAnalytics").onclick = close;
+      bd.querySelector("#cancelTagsAnalytics").onclick = close;
+    }
+    const box = document.getElementById("tagsAnalyticsList");
+    const m = typeof money === "function" ? money : (v) => v;
+    box.innerHTML = entries.length
+      ? entries.map(([k, v]) => `<div class="tag-row"><span class="tag-pill">#${escapeHtml(k)}</span><strong>${m(v)}</strong></div>`).join("")
+      : `<div class="empty-mini" style="padding:12px">No tags yet. Add tags on transactions.</div>`;
+    bd.style.display = "flex";
+    bd.classList.add("open");
+  }
+
+  /* --- CSV export --- */
+  function exportCsv() {
+    const rows = [["id", "date", "type", "category", "description", "amount", "currency", "account", "note"]];
+    (typeof transactions !== "undefined" ? transactions : []).forEach(t => {
+      rows.push([
+        t.id || "", t.date || "", t.type || "", t.category || "", t.description || "",
+        t.amount || "", t.currency || "", t.account || "", (t.note || "").replace(/\n/g, " ")
+      ]);
+    });
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "hisab-kitab-export.csv";
+    a.click();
+    if (typeof showToast === "function") showToast("CSV exported");
+  }
+
+  /* --- Checklist --- */
+  function checklistState() {
+    const st = loadJSON(CHECK_KEY, {});
+    const hasTx = typeof transactions !== "undefined" && transactions.length > 0;
+    const hasBudget = typeof loadBudget === "function" && loadBudget() > 0;
+    const hasGoal = (() => { try { return !!(localStorage.getItem(typeof userScope === "function" ? userScope("hisabKitabGoalsV1") : "hisabKitabGoalsV1")); } catch { return false; } })();
+    return {
+      tx: !!st.tx || hasTx,
+      budget: !!st.budget || hasBudget,
+      goal: !!st.goal || hasGoal,
+      backup: !!st.backup,
+      theme: !!st.theme
+    };
+  }
+
+  function openChecklist() {
+    const st = checklistState();
+    const items = [
+      ["tx", "Add first transaction", st.tx],
+      ["budget", "Set a monthly budget", st.budget],
+      ["goal", "Create a savings goal", st.goal],
+      ["backup", "Download a backup once", st.backup],
+      ["theme", "Pick your theme", st.theme]
+    ];
+    let bd = document.getElementById("checklistBackdrop");
+    if (!bd) {
+      bd = document.createElement("div");
+      bd.id = "checklistBackdrop";
+      bd.className = "modal-backdrop";
+      bd.innerHTML = `
+        <div class="modal-card" role="dialog" style="max-width:400px">
+          <div class="modal-heading"><div><span class="eyebrow">START</span><h2>Setup checklist</h2></div>
+            <button type="button" class="icon-btn" id="closeChecklist"><i data-lucide="x"></i></button></div>
+          <div id="checklistList"></div>
+          <button type="button" class="outline-btn" id="cancelChecklist" style="width:100%;margin-top:12px;justify-content:center">Close</button>
+        </div>`;
+      document.body.appendChild(bd);
+      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
+      bd.onclick = e => { if (e.target === bd) close(); };
+      bd.querySelector("#closeChecklist").onclick = close;
+      bd.querySelector("#cancelChecklist").onclick = close;
+    }
+    document.getElementById("checklistList").innerHTML = items.map(([id, label, on]) =>
+      `<label class="check-row"><input type="checkbox" data-check="${id}" ${on ? "checked" : ""}> <span>${label}</span></label>`
+    ).join("");
+    document.getElementById("checklistList").querySelectorAll("input").forEach(inp => {
+      inp.onchange = () => {
+        const cur = loadJSON(CHECK_KEY, {});
+        cur[inp.getAttribute("data-check")] = inp.checked;
+        saveJSON(CHECK_KEY, cur);
+      };
+    });
+    bd.style.display = "flex";
+    bd.classList.add("open");
+  }
+
+  /* --- Shortcuts --- */
+  function openShortcuts() {
+    let bd = document.getElementById("shortcutsBackdrop");
+    if (!bd) {
+      bd = document.createElement("div");
+      bd.id = "shortcutsBackdrop";
+      bd.className = "modal-backdrop";
+      bd.innerHTML = `
+        <div class="modal-card" role="dialog" style="max-width:420px">
+          <div class="modal-heading"><div><span class="eyebrow">KEYBOARD</span><h2>Shortcuts</h2></div>
+            <button type="button" class="icon-btn" id="closeShortcuts"><i data-lucide="x"></i></button></div>
+          <div class="shortcut-grid">
+            <div><kbd>N</kbd> New transaction</div>
+            <div><kbd>/</kbd> Command palette</div>
+            <div><kbd>?</kbd> This help</div>
+            <div><kbd>G</kbd> then <kbd>O</kbd> Overview</div>
+            <div><kbd>G</kbd> then <kbd>T</kbd> Transactions</div>
+            <div><kbd>G</kbd> then <kbd>S</kbd> Settings</div>
+            <div><kbd>P</kbd> Privacy blur</div>
+            <div><kbd>Esc</kbd> Close modal</div>
+          </div>
+          <button type="button" class="outline-btn" id="cancelShortcuts" style="width:100%;margin-top:12px;justify-content:center">Close</button>
+        </div>`;
+      document.body.appendChild(bd);
+      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
+      bd.onclick = e => { if (e.target === bd) close(); };
+      bd.querySelector("#closeShortcuts").onclick = close;
+      bd.querySelector("#cancelChecklist") && (bd.querySelector("#cancelChecklist").onclick = close);
+      const c = bd.querySelector("#cancelShortcuts"); if (c) c.onclick = close;
+    }
+    bd.style.display = "flex";
+    bd.classList.add("open");
+  }
+
+  /* --- Biometric (WebAuthn optional) --- */
+  async function tryBiometricUnlock() {
+    if (!window.PublicKeyCredential) {
+      if (typeof showToast === "function") showToast("Biometric not supported on this device");
+      return false;
+    }
+    try {
+      // Soft gate: presence test — real full WebAuthn needs server; here we use a local credential flag
+      const ok = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      if (!ok) {
+        if (typeof showToast === "function") showToast("No platform authenticator");
+        return false;
+      }
+      if (typeof showToast === "function") showToast("Biometric available — use with PIN lock for best security");
+      try { localStorage.setItem(scopeKey("hisabKitabBioHintV1"), "1"); } catch (_) {}
+      return true;
+    } catch (e) {
+      if (typeof showToast === "function") showToast("Biometric check failed");
+      return false;
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  /* --- Tools inject into settings grid --- */
+  function injectToolsCard() {
+    const grid = document.getElementById("settingsCardsGrid");
+    if (!grid || document.getElementById("megaToolsCard")) return;
+    const art = document.createElement("article");
+    art.className = "panel settings-card-main";
+    art.id = "megaToolsCard";
+    art.setAttribute("data-settings-card", "mega-tools");
+    art.innerHTML = `
+      <div class="settings-card-icon"><i data-lucide="wand-2"></i></div>
+      <div class="settings-card-body">
+        <h3>Power tools</h3>
+        <p class="muted">Recurring, split, share, CSV…</p>
+      </div>
+      <div class="settings-card-foot">
+        <div class="sb-select-wrap settings-card-control">
+          <select id="powerToolsSelect" class="sb-select" aria-label="Power tools">
+            <option value="">Choose a tool…</option>
+            <option value="recurring">Recurring transactions</option>
+            <option value="split">Split bill</option>
+            <option value="digest">Weekly digest</option>
+            <option value="share">Share story card</option>
+            <option value="receipts">Receipts gallery</option>
+            <option value="tags">Tags analytics</option>
+            <option value="csv">Export CSV</option>
+            <option value="check">Setup checklist</option>
+            <option value="keys">Keyboard shortcuts</option>
+            <option value="bio">Biometric check</option>
+          </select>
+          <i data-lucide="chevron-down" class="sb-select-chevron"></i>
+        </div>
+      </div>`;
+    grid.appendChild(art);
+    const sel = art.querySelector("#powerToolsSelect");
+    sel.addEventListener("change", () => {
+      const k = sel.value;
+      if (!k) return;
+      if (k === "recurring") openRecurringModal();
+      else if (k === "split") openSplitBill();
+      else if (k === "digest") showWeeklyDigest(true);
+      else if (k === "share") openShareCard();
+      else if (k === "receipts") openReceiptGallery();
+      else if (k === "tags") openTagsAnalytics();
+      else if (k === "csv") exportCsv();
+      else if (k === "check") openChecklist();
+      else if (k === "keys") openShortcuts();
+      else if (k === "bio") tryBiometricUnlock();
+      sel.value = "";
+      try {
+        const w = sel.closest(".select-anim-wrap");
+        if (w && w._selectAnim && w._selectAnim.syncLabel) w._selectAnim.syncLabel();
+      } catch (_) {}
+    });
+    try { if (window.lucide) lucide.createIcons({ nodes: [art] }); } catch (_) {}
+  }
+
+  // Keyboard
+  let gPending = false;
+  document.addEventListener("keydown", (e) => {
+    const tag = (e.target && e.target.tagName) || "";
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || e.target.isContentEditable) return;
+    if (e.key === "?") { e.preventDefault(); openShortcuts(); return; }
+    if (e.key === "n" || e.key === "N") {
+      if (typeof openModal === "function") { e.preventDefault(); openModal(null); }
+      return;
+    }
+    if (e.key === "p" || e.key === "P") {
+      const btn = document.getElementById("privacyToggleBtn");
+      if (btn) btn.click();
+      return;
+    }
+    if (e.key === "g" || e.key === "G") { gPending = true; setTimeout(() => { gPending = false; }, 800); return; }
+    if (gPending) {
+      gPending = false;
+      const map = { o: "overview", t: "transactions", s: "settings", r: "reports", b: "budget" };
+      const page = map[e.key.toLowerCase()];
+      if (page && typeof switchPage === "function") switchPage(page);
+    }
+  });
+
+  function boot() {
+    injectToolsCard();
+    try { applyDueRecurring(); } catch (_) {}
+    setTimeout(() => { try { showWeeklyDigest(false); } catch (_) {} }, 1200);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 600));
+  else setTimeout(boot, 600);
+  setTimeout(injectToolsCard, 1400);
+
+  window.openRecurringModal = openRecurringModal;
+  window.openSplitBill = openSplitBill;
+  window.openShareCard = openShareCard;
+  window.exportCsv = exportCsv;
+})();
+
+
+/* ===== Settings card skin (20 equal-size designs) ===== */
+(function settingsSkinPack() {
+  const KEY = "hisabKitabSettingsSkinV1";
+  const SKINS = ["classic","glass","soft","outline","solid","neon","luxury","minimal","tile","ribbon","duo","elevate","frost","ink","pill","mesh","aurora","slate","luxe","studio"];
+  const ALL = ["mixed"].concat(SKINS);
+  const LABELS = {mixed:"Mixed",classic:"Classic",glass:"Glass",soft:"Soft",outline:"Outline",solid:"Solid",neon:"Neon",luxury:"Luxury",minimal:"Minimal",tile:"Tile",ribbon:"Ribbon",duo:"Duo",elevate:"Elevate",frost:"Frost",ink:"Ink",pill:"Pill",mesh:"Mesh",aurora:"Aurora",slate:"Slate",luxe:"Luxe",studio:"Studio"};
+
+  function getSkin() {
+    try {
+      const v = localStorage.getItem(KEY);
+      return ALL.includes(v) ? v : "mixed";
+    } catch { return "mixed"; }
+  }
+
+  function paintCards(mode) {
+    const grid = document.getElementById("settingsCardsGrid");
+    if (!grid) return;
+    const cards = grid.querySelectorAll(".settings-card-main");
+    cards.forEach((card, i) => {
+      if (mode === "mixed") {
+        card.setAttribute("data-card-skin", SKINS[i % SKINS.length]);
+      } else {
+        card.removeAttribute("data-card-skin");
+      }
+    });
+  }
+
+  function applySettingsSkin(skin) {
+    if (!ALL.includes(skin)) skin = "mixed";
+    document.documentElement.setAttribute("data-settings-skin", skin);
+    try { localStorage.setItem(KEY, skin); } catch (_) {}
+    paintCards(skin);
+    const sel = document.getElementById("settingsSkinSelect");
+    if (sel && sel.value !== skin) {
+      sel.value = skin;
+      try {
+        const w = sel.closest(".select-anim-wrap");
+        if (w && w._selectAnim && w._selectAnim.syncLabel) w._selectAnim.syncLabel();
+      } catch (_) {}
+    }
+  }
+
+  window.applySettingsSkin = applySettingsSkin;
+  window.getSettingsSkin = getSkin;
+
+  function wire() {
+    applySettingsSkin(getSkin());
+    const sel = document.getElementById("settingsSkinSelect");
+    if (sel && !sel.dataset.bound) {
+      sel.dataset.bound = "1";
+      sel.addEventListener("change", () => {
+        applySettingsSkin(sel.value);
+        if (typeof showToast === "function") showToast((LABELS[sel.value] || sel.value) + " settings cards");
+      });
+    }
+    // re-paint when tools inject new cards
+    setTimeout(() => paintCards(getSkin()), 800);
+    setTimeout(() => paintCards(getSkin()), 1800);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wire);
+  else wire();
+  setTimeout(wire, 400);
+})();
+
+
+
+/* ===== Topbar single Dark / Light switch ===== */
+(function themeModeTogglePack() {
+  function syncThemeModeToggle(theme) {
+    const btn = document.getElementById("themeModeToggle");
+    if (!btn) return;
+    const light = theme === "light";
+    btn.setAttribute("aria-pressed", light ? "true" : "false");
+    const lab = document.getElementById("themeModeLabel");
+    if (lab) lab.textContent = light ? "Light" : "Dark"; // optional label if present
+    try { if (window.lucide) lucide.createIcons({ nodes: [btn] }); } catch (_) {}
+  }
+
+  function setMode(mode) {
+    // Only dark or light — never other themes from this control
+    const theme = mode === "light" ? "light" : "dark";
+    if (typeof setTheme === "function") setTheme(theme);
+    else if (typeof applyTheme === "function") {
+      try {
+        const key = typeof THEME_KEY === "function" ? THEME_KEY() : "hisabKitabThemeV1";
+        localStorage.setItem(key, theme);
+      } catch (_) {}
+      applyTheme(theme);
+    }
+    syncThemeModeToggle(theme);
+  }
+
+  function wire() {
+    const btn = document.getElementById("themeModeToggle");
+    if (!btn || btn.dataset.bound) return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", () => {
+      const isLight = btn.getAttribute("aria-pressed") === "true";
+      setMode(isLight ? "dark" : "light");
+    });
+    let t = "dark";
+    try {
+      if (typeof getTheme === "function") t = getTheme();
+    } catch (_) {}
+    // If user was on a fancy theme, map non-light → dark for this switch only
+    if (t !== "light") t = "dark";
+    // Optionally normalize stored theme to dark/light only for consistency
+    syncThemeModeToggle(t);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wire);
+  else wire();
+  setTimeout(wire, 300);
+  setTimeout(() => {
+    try {
+      let t = typeof getTheme === "function" ? getTheme() : "dark";
+      if (t !== "light") t = "dark";
+      syncThemeModeToggle(t);
+    } catch (_) {}
+  }, 800);
+
+  window.syncThemeModeToggle = syncThemeModeToggle;
+  window.setThemeMode = setMode;
+})();
+
+
+/* ===== Professional stability pack v361 ===== */
+(function premiumPolishPackV361() {
+  function paintBalance() {
+    try {
+      if (typeof totals !== "function" || typeof money !== "function") return;
+      const el = document.getElementById("balanceValue");
+      if (!el) return;
+      const t = totals();
+      const cur = String(el.textContent || "").trim();
+      if (!cur || cur === "—" || cur === "SAR" || /^[A-Z]{3}\s*$/.test(cur)) {
+        el.textContent = money(t.balance);
+      }
+    } catch (_) {}
+  }
+  function syncToggle() {
+    try {
+      if (typeof window.syncThemeModeToggle !== "function") return;
+      let t = typeof getTheme === "function" ? getTheme() : "dark";
+      window.syncThemeModeToggle(t === "light" ? "light" : "dark");
+    } catch (_) {}
+  }
+  function boot() {
+    paintBalance();
+    syncToggle();
+    try { document.documentElement.classList.add("hk-premium"); } catch (_) {}
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 80));
+  else setTimeout(boot, 80);
+  window.addEventListener("load", () => { paintBalance(); setTimeout(paintBalance, 300); });
+})();
+
+
+/* ===== Feature pack HK 1.8 Beta — accounts digest, CSV import, undo, encrypted backup ===== */
+(function featurePack18() {
+  const UNDO_KEY = "hisabKitabUndoStackV1";
+  const MAX_UNDO = 8;
+
+  function scopeKey(base) {
+    try {
+      if (typeof userScope === "function") return userScope(base);
+    } catch (_) {}
+    return base;
+  }
+
+  function loadUndo() {
+    try {
+      const raw = localStorage.getItem(scopeKey(UNDO_KEY));
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }
+  function saveUndo(arr) {
+    try { localStorage.setItem(scopeKey(UNDO_KEY), JSON.stringify(arr.slice(0, MAX_UNDO))); } catch (_) {}
+  }
+
+  function pushUndo(entry) {
+    const st = loadUndo();
+    st.unshift(entry);
+    saveUndo(st);
+  }
+
+  function toastUndo(message, onUndo) {
+    if (typeof showToast === "function") {
+      try {
+        showToast(message, {
+          action: "Undo",
+          onAction: () => { try { onUndo(); } catch (_) {} }
+        });
+        return;
+      } catch (_) {}
+    }
+    // Fallback: toast + global undo
+    window.__hkLastUndo = onUndo;
+    if (typeof showToast === "function") showToast(message + " · press Ctrl+Z");
+  }
+
+  // Wrap delete if exists
+  function enhanceDelete() {
+    const names = ["deleteTransaction", "removeTransaction", "deleteTx"];
+    names.forEach(n => {
+      if (typeof window[n] === "function" && !window[n]._hkUndo) {
+        const orig = window[n];
+        window[n] = function (id) {
+          let tx = null;
+          try {
+            if (typeof transactions !== "undefined") tx = transactions.find(t => String(t.id) === String(id));
+          } catch (_) {}
+          const res = orig.apply(this, arguments);
+          if (tx) {
+            pushUndo({ type: "delete", tx: JSON.parse(JSON.stringify(tx)), at: Date.now() });
+            toastUndo("Transaction deleted", () => {
+              try {
+                if (typeof transactions !== "undefined") {
+                  transactions.unshift(tx);
+                  if (typeof saveTransactions === "function") saveTransactions();
+                  if (typeof renderAll === "function") renderAll();
+                  else if (typeof renderStats === "function") renderStats(false);
+                  if (typeof renderTable === "function") renderTable();
+                }
+                if (typeof showToast === "function") showToast("Restored");
+              } catch (_) {}
+            });
+          }
+          return res;
+        };
+        window[n]._hkUndo = true;
+      }
+    });
+  }
+
+  function undoLast() {
+    const st = loadUndo();
+    const item = st.shift();
+    if (!item) {
+      if (typeof showToast === "function") showToast("Nothing to undo");
+      return;
+    }
+    saveUndo(st);
+    if (item.type === "delete" && item.tx) {
+      try {
+        if (typeof transactions !== "undefined") {
+          if (!transactions.some(t => String(t.id) === String(item.tx.id))) {
+            transactions.unshift(item.tx);
+            if (typeof saveTransactions === "function") saveTransactions();
+            if (typeof renderAll === "function") renderAll();
+            else {
+              if (typeof renderStats === "function") renderStats(false);
+              if (typeof renderTable === "function") renderTable();
+            }
+          }
+        }
+        if (typeof showToast === "function") showToast("Undone");
+      } catch (e) {
+        if (typeof showToast === "function") showToast("Undo failed");
+      }
+    }
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
+      const tag = (e.target && e.target.tagName) || "";
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      e.preventDefault();
+      undoLast();
+    }
+  });
+
+  /* --- Monthly digest --- */
+  function monthDigest() {
+    const list = (typeof transactions !== "undefined" ? transactions : []) || [];
+    const now = new Date();
+    const key = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
+    const monthTx = list.filter(t => t.date && String(t.date).startsWith(key));
+    let income = 0, expense = 0;
+    const byCat = {};
+    monthTx.forEach(t => {
+      const amt = typeof amountInBase === "function" ? amountInBase(t) : Number(t.amount) || 0;
+      const ty = t.type || "expense";
+      if (ty === "income" || ty === "remittance") income += amt;
+      else if (ty === "expense") {
+        expense += amt;
+        const c = t.category || "Other";
+        byCat[c] = (byCat[c] || 0) + amt;
+      }
+    });
+    const top = Object.entries(byCat).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    const saved = income - expense;
+    const rate = income > 0 ? Math.round((saved / income) * 100) : 0;
+    return { key, income, expense, saved, rate, top, count: monthTx.length };
+  }
+
+  function openMonthlyDigest() {
+    const d = monthDigest();
+    const m = typeof money === "function" ? money : (v) => v;
+    let bd = document.getElementById("monthlyDigestBackdrop");
+    if (!bd) {
+      bd = document.createElement("div");
+      bd.id = "monthlyDigestBackdrop";
+      bd.className = "modal-backdrop";
+      bd.innerHTML = `
+        <div class="modal-card" role="dialog" style="max-width:420px">
+          <div class="modal-heading">
+            <div><span class="eyebrow">THIS MONTH</span><h2>Monthly digest</h2></div>
+            <button type="button" class="icon-btn" id="closeMonthlyDigest"><i data-lucide="x"></i></button>
+          </div>
+          <div id="monthlyDigestBody" class="monthly-digest-body"></div>
+          <button type="button" class="outline-btn" id="okMonthlyDigest" style="width:100%;margin-top:14px;justify-content:center">Close</button>
+        </div>`;
+      document.body.appendChild(bd);
+      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
+      bd.onclick = e => { if (e.target === bd) close(); };
+      bd.querySelector("#closeMonthlyDigest").onclick = close;
+      bd.querySelector("#okMonthlyDigest").onclick = close;
+    }
+    const body = document.getElementById("monthlyDigestBody");
+    const topHtml = d.top.length
+      ? d.top.map(([c, v]) => `<div class="digest-row"><span>${c}</span><strong>${m(v)}</strong></div>`).join("")
+      : `<p class="muted">No expenses this month yet.</p>`;
+    body.innerHTML = `
+      <div class="digest-kpis">
+        <div><span class="muted">Income</span><strong>${m(d.income)}</strong></div>
+        <div><span class="muted">Spent</span><strong>${m(d.expense)}</strong></div>
+        <div><span class="muted">Saved</span><strong class="${d.saved >= 0 ? "positive" : "negative"}">${m(d.saved)}</strong></div>
+      </div>
+      <p class="muted" style="margin:12px 0 8px;font-size:12px">${d.count} transactions · Savings rate ${d.rate}%</p>
+      <div class="eyebrow" style="margin-top:8px">TOP CATEGORIES</div>
+      ${topHtml}`;
+    bd.style.display = "flex";
+    bd.classList.add("open");
+    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
+  }
+
+  /* --- CSV Import --- */
+  function parseCsv(text) {
+    const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) return [];
+    const split = (line) => {
+      const out = []; let cur = ""; let q = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { q = !q; continue; }
+        if (ch === "," && !q) { out.push(cur.trim()); cur = ""; continue; }
+        cur += ch;
+      }
+      out.push(cur.trim());
+      return out;
+    };
+    const headers = split(lines[0]).map(h => h.toLowerCase());
+    const idx = (names) => {
+      for (const n of names) {
+        const i = headers.indexOf(n);
+        if (i >= 0) return i;
+      }
+      return -1;
+    };
+    const iDate = idx(["date", "txn date", "transaction date"]);
+    const iAmt = idx(["amount", "amt", "value"]);
+    const iType = idx(["type", "credit/debit", "dr/cr"]);
+    const iCat = idx(["category", "cat"]);
+    const iDesc = idx(["description", "desc", "narration", "memo", "details"]);
+    const iCur = idx(["currency", "ccy"]);
+    const rows = [];
+    for (let r = 1; r < lines.length; r++) {
+      const cols = split(lines[r]);
+      if (!cols.length) continue;
+      let amount = iAmt >= 0 ? parseFloat(String(cols[iAmt]).replace(/[^0-9.-]/g, "")) : NaN;
+      if (!Number.isFinite(amount) || amount === 0) continue;
+      let type = "expense";
+      if (iType >= 0) {
+        const tv = String(cols[iType] || "").toLowerCase();
+        if (tv.includes("in") || tv.includes("credit") || tv === "cr") type = "income";
+        if (tv.includes("transfer")) type = "transfer";
+      } else if (amount < 0) {
+        amount = Math.abs(amount);
+        type = "expense";
+      }
+      let date = iDate >= 0 ? cols[iDate] : "";
+      // normalize date to YYYY-MM-DD if possible
+      if (date && /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/.test(date)) {
+        const p = date.split(/[\/\-]/);
+        let dd = p[0], mm = p[1], yy = p[2];
+        if (yy.length === 2) yy = "20" + yy;
+        if (Number(dd) > 12) { /* dmy */ }
+        else if (Number(mm) > 12) { const t = dd; dd = mm; mm = t; }
+        date = `${yy.padStart(4, "0")}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
+      }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        const d = new Date();
+        date = d.toISOString().slice(0, 10);
+      }
+      rows.push({
+        id: "imp_" + Date.now() + "_" + r,
+        date,
+        type,
+        amount: Math.abs(amount),
+        category: iCat >= 0 ? (cols[iCat] || "Other") : "Other",
+        description: iDesc >= 0 ? (cols[iDesc] || "Imported") : "Imported",
+        currency: iCur >= 0 ? (cols[iCur] || (typeof getBaseCurrency === "function" ? getBaseCurrency() : "SAR")) : (typeof getBaseCurrency === "function" ? getBaseCurrency() : "SAR"),
+        account: "Cash",
+        note: "CSV import"
+      });
+    }
+    return rows;
+  }
+
+  function openCsvImport() {
+    let bd = document.getElementById("csvImportBackdrop");
+    if (!bd) {
+      bd = document.createElement("div");
+      bd.id = "csvImportBackdrop";
+      bd.className = "modal-backdrop";
+      bd.innerHTML = `
+        <div class="modal-card" role="dialog" style="max-width:440px">
+          <div class="modal-heading">
+            <div><span class="eyebrow">IMPORT</span><h2>CSV bank file</h2></div>
+            <button type="button" class="icon-btn" id="closeCsvImport"><i data-lucide="x"></i></button>
+          </div>
+          <p class="muted" style="font-size:12px;line-height:1.5;margin:0 0 12px">
+            Headers supported: date, amount, type, category, description, currency.
+            Review counts before import — data stays on this device.
+          </p>
+          <input type="file" id="csvImportFile" accept=".csv,text/csv" style="width:100%;margin-bottom:12px">
+          <div id="csvImportPreview" class="muted" style="font-size:12px;min-height:24px"></div>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button type="button" class="outline-btn" id="cancelCsvImport" style="flex:1;justify-content:center">Cancel</button>
+            <button type="button" class="primary-btn" id="runCsvImport" style="flex:1;justify-content:center" disabled>Import</button>
+          </div>
+        </div>`;
+      document.body.appendChild(bd);
+      const close = () => { bd.classList.remove("open"); bd.style.display = ""; bd._rows = null; };
+      bd.onclick = e => { if (e.target === bd) close(); };
+      bd.querySelector("#closeCsvImport").onclick = close;
+      bd.querySelector("#cancelCsvImport").onclick = close;
+      bd.querySelector("#csvImportFile").addEventListener("change", async (ev) => {
+        const f = ev.target.files && ev.target.files[0];
+        const prev = document.getElementById("csvImportPreview");
+        const btn = document.getElementById("runCsvImport");
+        if (!f) return;
+        try {
+          const text = await f.text();
+          const rows = parseCsv(text);
+          bd._rows = rows;
+          prev.textContent = rows.length ? (rows.length + " rows ready to import") : "No valid rows found";
+          btn.disabled = !rows.length;
+        } catch {
+          prev.textContent = "Could not read file";
+          btn.disabled = true;
+        }
+      });
+      bd.querySelector("#runCsvImport").onclick = () => {
+        const rows = bd._rows || [];
+        if (!rows.length) return;
+        try {
+          if (typeof transactions === "undefined") return;
+          rows.forEach(r => transactions.unshift(r));
+          if (typeof saveTransactions === "function") saveTransactions();
+          if (typeof renderAll === "function") renderAll();
+          else {
+            if (typeof renderStats === "function") renderStats(false);
+            if (typeof renderTable === "function") renderTable();
+          }
+          if (typeof showToast === "function") showToast(rows.length + " transactions imported");
+        } catch (e) {
+          if (typeof showToast === "function") showToast("Import failed");
+        }
+        close();
+      };
+    }
+    const prev = document.getElementById("csvImportPreview");
+    const btn = document.getElementById("runCsvImport");
+    const file = document.getElementById("csvImportFile");
+    if (prev) prev.textContent = "";
+    if (btn) btn.disabled = true;
+    if (file) file.value = "";
+    bd._rows = null;
+    bd.style.display = "flex";
+    bd.classList.add("open");
+    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
+  }
+
+  /* --- Encrypted backup (password) --- */
+  async function deriveKey(password, salt) {
+    const enc = new TextEncoder();
+    const base = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
+      base,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt", "decrypt"]
+    );
+  }
+
+  async function exportEncryptedBackup() {
+    const password = prompt("Set a password for encrypted backup:");
+    if (!password) return;
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      transactions: typeof transactions !== "undefined" ? transactions : [],
+      meta: { app: "Hisab Kitab", ver: "1.8" }
+    };
+    try {
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const key = await deriveKey(password, salt);
+      const encoded = new TextEncoder().encode(JSON.stringify(payload));
+      const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
+      const bundle = {
+        hk: "HKENC1",
+        salt: Array.from(salt),
+        iv: Array.from(iv),
+        data: Array.from(new Uint8Array(cipher))
+      };
+      const blob = new Blob([JSON.stringify(bundle)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "hisab-kitab-encrypted-backup.json";
+      a.click();
+      if (typeof showToast === "function") showToast("Encrypted backup downloaded");
+    } catch (e) {
+      if (typeof showToast === "function") showToast("Encryption not available on this device");
+    }
+  }
+
+  async function importEncryptedBackup(file) {
+    const password = prompt("Password for encrypted backup:");
+    if (!password || !file) return;
+    try {
+      const text = await file.text();
+      const bundle = JSON.parse(text);
+      if (!bundle || bundle.hk !== "HKENC1") {
+        if (typeof showToast === "function") showToast("Not an encrypted HK backup");
+        return;
+      }
+      const salt = new Uint8Array(bundle.salt);
+      const iv = new Uint8Array(bundle.iv);
+      const data = new Uint8Array(bundle.data);
+      const key = await deriveKey(password, salt);
+      const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
+      const payload = JSON.parse(new TextDecoder().decode(plain));
+      if (payload && Array.isArray(payload.transactions)) {
+        if (!confirm("Replace current transactions with backup (" + payload.transactions.length + " items)?")) return;
+        transactions.length = 0;
+        payload.transactions.forEach(t => transactions.push(t));
+        if (typeof saveTransactions === "function") saveTransactions();
+        if (typeof renderAll === "function") renderAll();
+        else if (typeof renderStats === "function") renderStats(false);
+        if (typeof showToast === "function") showToast("Encrypted backup restored");
+      }
+    } catch {
+      if (typeof showToast === "function") showToast("Wrong password or corrupt file");
+    }
+  }
+
+  /* --- Net worth snapshot --- */
+  function openNetWorth() {
+    const list = (typeof transactions !== "undefined" ? transactions : []) || [];
+    let income = 0, expense = 0;
+    list.forEach(t => {
+      const amt = typeof amountInBase === "function" ? amountInBase(t) : Number(t.amount) || 0;
+      if (t.type === "income" || t.type === "remittance") income += amt;
+      else if (t.type === "expense") expense += amt;
+    });
+    const cash = income - expense;
+    let debts = 0;
+    try {
+      const raw = localStorage.getItem(typeof userScope === "function" ? userScope("hisabKitabDebtsV1") : "hisabKitabDebtsV1");
+      const arr = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(arr)) debts = arr.reduce((s, d) => s + (Number(d.remaining || d.amount) || 0), 0);
+    } catch (_) {}
+    const net = cash - debts;
+    const m = typeof money === "function" ? money : (v) => v;
+    let bd = document.getElementById("netWorthBackdrop");
+    if (!bd) {
+      bd = document.createElement("div");
+      bd.id = "netWorthBackdrop";
+      bd.className = "modal-backdrop";
+      bd.innerHTML = `
+        <div class="modal-card" role="dialog" style="max-width:380px">
+          <div class="modal-heading">
+            <div><span class="eyebrow">SNAPSHOT</span><h2>Net position</h2></div>
+            <button type="button" class="icon-btn" id="closeNetWorth"><i data-lucide="x"></i></button>
+          </div>
+          <div id="netWorthBody"></div>
+          <button type="button" class="outline-btn" id="okNetWorth" style="width:100%;margin-top:14px;justify-content:center">Close</button>
+        </div>`;
+      document.body.appendChild(bd);
+      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
+      bd.onclick = e => { if (e.target === bd) close(); };
+      bd.querySelector("#closeNetWorth").onclick = close;
+      bd.querySelector("#okNetWorth").onclick = close;
+    }
+    document.getElementById("netWorthBody").innerHTML = `
+      <div class="digest-kpis">
+        <div><span class="muted">Cash position</span><strong>${m(cash)}</strong></div>
+        <div><span class="muted">Debts</span><strong>${m(debts)}</strong></div>
+        <div><span class="muted">Net</span><strong class="${net >= 0 ? "positive" : "negative"}">${m(net)}</strong></div>
+      </div>
+      <p class="muted" style="font-size:12px;margin-top:12px">Cash = income − expenses. Debts from Debts page.</p>`;
+    bd.style.display = "flex";
+    bd.classList.add("open");
+    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
+  }
+
+  /* Inject into Power tools dropdown */
+  function extendPowerTools() {
+    const sel = document.getElementById("powerToolsSelect");
+    if (!sel || sel.dataset.pack18) return;
+    sel.dataset.pack18 = "1";
+    const extras = [
+      ["digest-month", "Monthly digest"],
+      ["csv-import", "Import CSV"],
+      ["enc-backup", "Encrypted backup"],
+      ["enc-restore", "Restore encrypted"],
+      ["net-worth", "Net position"],
+      ["undo-last", "Undo last delete"]
+    ];
+    extras.forEach(([v, label]) => {
+      if ([...sel.options].some(o => o.value === v)) return;
+      const opt = document.createElement("option");
+      opt.value = v;
+      opt.textContent = label;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener("change", () => {
+      const k = sel.value;
+      if (k === "digest-month") openMonthlyDigest();
+      else if (k === "csv-import") openCsvImport();
+      else if (k === "enc-backup") exportEncryptedBackup();
+      else if (k === "enc-restore") {
+        const inp = document.getElementById("hkEncRestoreInput") || (() => {
+          const i = document.createElement("input");
+          i.type = "file"; i.id = "hkEncRestoreInput"; i.accept = ".json,application/json"; i.hidden = true;
+          document.body.appendChild(i);
+          i.addEventListener("change", () => {
+            if (i.files && i.files[0]) importEncryptedBackup(i.files[0]);
+            i.value = "";
+          });
+          return i;
+        })();
+        inp.click();
+      } else if (k === "net-worth") openNetWorth();
+      else if (k === "undo-last") undoLast();
+    });
+  }
+
+  function boot() {
+    enhanceDelete();
+    extendPowerTools();
+    setTimeout(extendPowerTools, 1500);
+    setTimeout(enhanceDelete, 800);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 500));
+  else setTimeout(boot, 500);
+
+  window.openMonthlyDigest = openMonthlyDigest;
+  window.openCsvImport = openCsvImport;
+  window.undoLastHk = undoLast;
+  window.openNetWorth = openNetWorth;
+})();
+
+
+
+
+/* ===== Settings cleanup v2 — tighter IA ===== */
+(function settingsCleanPack18() {
+  function card(key) {
+    return document.querySelector('[data-settings-card="' + key + '"]');
+  }
+  function setCopy(key, title, sub) {
+    const el = card(key);
+    if (!el) return;
+    const h3 = el.querySelector(".settings-card-body h3");
+    const p = el.querySelector(".settings-card-body p.muted, .settings-card-body p");
+    if (h3) h3.textContent = title;
+    if (p) p.textContent = sub;
+  }
+  function hide(key) {
+    const el = card(key);
+    if (!el) return;
+    el.style.display = "none";
+    el.setAttribute("data-settings-hidden", "1");
+  }
+  function orderIn(grid, keys) {
+    if (!grid) return;
+    keys.forEach(k => {
+      const el = card(k);
+      if (el) grid.appendChild(el);
+    });
+  }
+
+  function organize() {
+    const grid = document.getElementById("settingsCardsGrid");
+    if (!grid) return;
+
+    // Hide noise
+    hide("shortcuts");
+    hide("motion-speed");
+    // Card design = advanced — keep but push last
+    // Sidebar anim often ignored — hide for cleaner default
+    hide("sidebar-anim");
+
+    setCopy("theme", "Theme", "Colors and overall look");
+    setCopy("density", "Density", "Comfortable or compact");
+    setCopy("motion", "Motion", "Animation style");
+    setCopy("currency", "Currency", "Default for totals");
+    setCopy("nav", "Menu side", "Left, right, or top");
+    setCopy("nav-style", "Menu style", "Nav link layout");
+    setCopy("settings-skin", "Card design", "Advanced card skins");
+    setCopy("lang", "Language", "App language");
+    setCopy("font", "Font", "App typography");
+    setCopy("lock", "App lock", "PIN on this device");
+    setCopy("backup", "Backup", "Export or restore data");
+    setCopy("app-update", "Updates", "Version and what's new");
+
+    // Logical order inside main grid
+    orderIn(grid, [
+      "theme", "density", "font", "motion", "lang",
+      "currency",
+      "nav", "nav-style",
+      "lock", "backup", "app-update",
+      "settings-skin"
+    ]);
+
+    // Hide replay welcome if visible
+    const replay = document.getElementById("replayOnboardBtn");
+    if (replay) { replay.hidden = true; replay.style.display = "none"; }
+
+    // Tools section: shorten install subtitle
+    document.querySelectorAll(".settings-tools-grid .settings-card-main, .settings-tools-grid .tool-card").forEach(c => {
+      const h3 = c.querySelector("h3");
+      const p = c.querySelector("p.muted");
+      if (!h3) return;
+      const t = (h3.textContent || "").toLowerCase();
+      if (t.includes("install") && p) p.textContent = "Home screen / offline";
+      if (t.includes("zakat") && p) p.textContent = "Simple 2.5% estimate";
+      if ((t.includes("report") || t.includes("data")) && p) p.textContent = "Print or export CSV";
+      if (t.includes("privacy") && p) p.textContent = "Blur balances";
+    });
+
+    const intro = document.querySelector("#settingsPage .section-intro p");
+    if (intro) intro.textContent = "Appearance, security and data";
+
+    const prefSub = document.querySelector("#settingsPrefTitle + p, #settingsPrefTitle");
+    // group sub already in HTML
+
+    // Soft: mark mega power tools card title if present
+    const mega = document.getElementById("megaToolsCard");
+    if (mega) {
+      const h3 = mega.querySelector("h3");
+      const p = mega.querySelector("p.muted");
+      if (h3) h3.textContent = "Power tools";
+      if (p) p.textContent = "Digest, CSV, backup, undo…";
+      // move power tools into tools grid if exists
+      const toolsGrid = document.querySelector(".settings-tools-grid");
+      if (toolsGrid) toolsGrid.appendChild(mega);
+    }
+  }
+
+  function boot() {
+    organize();
+    setTimeout(organize, 700);
+    setTimeout(organize, 1600);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 150));
+  else setTimeout(boot, 150);
+})();
+
+
+/* ===== Settings Pro Polish v18.2 — movable icon cards + bug fixes ===== */
+(function settingsProPolish182() {
+  const ORDER_KEY = "hisabKitabSettingsCardOrderV1";
+  const DEFAULT_APPEARANCE = [
+    "theme", "density", "font", "motion", "lang",
+    "currency", "nav", "nav-style", "lock", "backup", "app-update", "settings-skin"
+  ];
+
+  function scopeKey(base) {
+    try {
+      if (typeof userScope === "function") return userScope(base);
+    } catch (_) {}
+    return base;
+  }
+
+  function loadOrder() {
+    try {
+      const raw = localStorage.getItem(scopeKey(ORDER_KEY));
+      const arr = raw ? JSON.parse(raw) : null;
+      return Array.isArray(arr) && arr.length ? arr : null;
+    } catch { return null; }
+  }
+
+  function saveOrder(keys) {
+    try { localStorage.setItem(scopeKey(ORDER_KEY), JSON.stringify(keys)); } catch (_) {}
+  }
+
+  function cardKey(el) {
+    return el && el.getAttribute("data-settings-card");
+  }
+
+  function ensureHandles(grid) {
+    if (!grid) return;
+    grid.querySelectorAll(".settings-card-main").forEach((card) => {
+      if (card.querySelector(".settings-card-handle")) return;
+      if (card.getAttribute("data-settings-hidden") === "1") return;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "settings-card-handle";
+      btn.title = "Drag to reorder";
+      btn.setAttribute("aria-label", "Drag to reorder");
+      btn.innerHTML = '<i data-lucide="grip-vertical"></i>';
+      card.appendChild(btn);
+      card.setAttribute("draggable", "false");
+    });
+    try { if (window.lucide) lucide.createIcons({ nodes: [grid] }); } catch (_) {}
+  }
+
+  function applyOrder(grid, order) {
+    if (!grid || !order || !order.length) return;
+    const map = {};
+    grid.querySelectorAll(".settings-card-main").forEach((c) => {
+      const k = cardKey(c);
+      if (k) map[k] = c;
+    });
+    order.forEach((k) => {
+      if (map[k]) grid.appendChild(map[k]);
+    });
+    Object.keys(map).forEach((k) => {
+      if (!order.includes(k) && map[k]) grid.appendChild(map[k]);
+    });
+  }
+
+  function currentOrder(grid) {
+    return [...grid.querySelectorAll(".settings-card-main")]
+      .map(cardKey)
+      .filter(Boolean);
+  }
+
+  function setReorderMode(on) {
+    const page = document.getElementById("settingsPage");
+    if (!page) return;
+    page.classList.toggle("settings-reorder-on", !!on);
+    const btn = document.getElementById("settingsReorderBtn");
+    if (btn) {
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      const lab = btn.querySelector("span");
+      if (lab) lab.textContent = on ? "Done" : "Reorder";
+      btn.querySelectorAll("i[data-lucide]").forEach((n) => {
+        n.setAttribute("data-lucide", on ? "check" : "move");
+      });
+      try { if (window.lucide) lucide.createIcons({ nodes: [btn] }); } catch (_) {}
+    }
+    page.querySelectorAll(".settings-cards-grid .settings-card-main").forEach((card) => {
+      if (card.getAttribute("data-settings-hidden") === "1") return;
+      card.setAttribute("draggable", on ? "true" : "false");
+    });
+  }
+
+  let dragSrc = null;
+
+  function wireDrag(grid) {
+    if (!grid || grid.dataset.dragBound) return;
+    grid.dataset.dragBound = "1";
+
+    grid.addEventListener("dragstart", (e) => {
+      const page = document.getElementById("settingsPage");
+      if (!page || !page.classList.contains("settings-reorder-on")) {
+        e.preventDefault();
+        return;
+      }
+      const card = e.target.closest(".settings-card-main");
+      if (!card || !grid.contains(card)) return;
+      const t = e.target;
+      if (t.closest("select, input, .settings-card-btn, a") && !t.closest(".settings-card-handle")) {
+        e.preventDefault();
+        return;
+      }
+      dragSrc = card;
+      card.classList.add("settings-card-dragging");
+      try {
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", cardKey(card) || "card");
+      } catch (_) {}
+    });
+
+    grid.addEventListener("dragend", () => {
+      if (dragSrc) dragSrc.classList.remove("settings-card-dragging");
+      grid.querySelectorAll(".settings-card-drop-target").forEach((c) => c.classList.remove("settings-card-drop-target"));
+      dragSrc = null;
+      saveOrder(currentOrder(grid));
+    });
+
+    grid.addEventListener("dragover", (e) => {
+      if (!dragSrc) return;
+      e.preventDefault();
+      const over = e.target.closest(".settings-card-main");
+      if (!over || over === dragSrc || !grid.contains(over)) return;
+      grid.querySelectorAll(".settings-card-drop-target").forEach((c) => {
+        if (c !== over) c.classList.remove("settings-card-drop-target");
+      });
+      over.classList.add("settings-card-drop-target");
+      const rect = over.getBoundingClientRect();
+      const before = (e.clientY - rect.top) < rect.height / 2;
+      if (before) grid.insertBefore(dragSrc, over);
+      else grid.insertBefore(dragSrc, over.nextSibling);
+    });
+
+    grid.addEventListener("drop", (e) => {
+      e.preventDefault();
+      grid.querySelectorAll(".settings-card-drop-target").forEach((c) => c.classList.remove("settings-card-drop-target"));
+      if (dragSrc) {
+        dragSrc.classList.remove("settings-card-dragging");
+        saveOrder(currentOrder(grid));
+      }
+      dragSrc = null;
+    });
+  }
+
+  function injectToolbar() {
+    const page = document.getElementById("settingsPage");
+    if (!page) return;
+    const titleEl = page.querySelector("#settingsPrefTitle");
+    const head = titleEl && titleEl.closest(".settings-section-head");
+    if (!head || head.querySelector("#settingsReorderBtn")) return;
+
+    const actions = document.createElement("div");
+    actions.className = "settings-section-actions";
+    actions.innerHTML = `
+      <button type="button" class="settings-reset-order" id="settingsResetOrderBtn" title="Reset card order">
+        <i data-lucide="rotate-ccw"></i> Reset
+      </button>
+      <button type="button" class="settings-edit-btn" id="settingsReorderBtn" aria-pressed="false" title="Reorder settings cards">
+        <i data-lucide="move"></i> <span>Reorder</span>
+      </button>
+    `;
+    head.appendChild(actions);
+
+    const section = head.closest(".settings-section");
+    if (section && !section.querySelector(".settings-reorder-hint")) {
+      const hint = document.createElement("div");
+      hint.className = "settings-reorder-hint";
+      hint.innerHTML = '<i data-lucide="grip-vertical"></i><span><strong>Reorder mode</strong> — drag cards by the handle to rearrange. Tap Done when finished.</span>';
+      const grid = section.querySelector(".settings-cards-grid");
+      if (grid) section.insertBefore(hint, grid);
+      else section.appendChild(hint);
+    }
+
+    try { if (window.lucide) lucide.createIcons({ nodes: [actions, section].filter(Boolean) }); } catch (_) {}
+
+    const reorderBtn = document.getElementById("settingsReorderBtn");
+    const resetBtn = document.getElementById("settingsResetOrderBtn");
+    if (reorderBtn && !reorderBtn.dataset.bound) {
+      reorderBtn.dataset.bound = "1";
+      reorderBtn.addEventListener("click", () => {
+        const pageEl = document.getElementById("settingsPage");
+        const on = !(pageEl && pageEl.classList.contains("settings-reorder-on"));
+        setReorderMode(on);
+        if (!on) {
+          const grid = document.getElementById("settingsCardsGrid");
+          if (grid) saveOrder(currentOrder(grid));
+          if (typeof showToast === "function") showToast("Card order saved");
+        }
+      });
+    }
+    if (resetBtn && !resetBtn.dataset.bound) {
+      resetBtn.dataset.bound = "1";
+      resetBtn.addEventListener("click", () => {
+        try { localStorage.removeItem(scopeKey(ORDER_KEY)); } catch (_) {}
+        const grid = document.getElementById("settingsCardsGrid");
+        if (grid) applyOrder(grid, DEFAULT_APPEARANCE);
+        if (typeof showToast === "function") showToast("Card order reset");
+      });
+    }
+  }
+
+  function polishCopy() {
+    const map = {
+      theme: ["Theme", "Colors and overall look"],
+      density: ["Density", "Comfortable or compact spacing"],
+      motion: ["Motion", "Animation style"],
+      currency: ["Currency", "Default for totals"],
+      nav: ["Menu side", "Left, right, or top"],
+      "nav-style": ["Menu style", "Navigation link layout"],
+      "settings-skin": ["Card design", "Settings card skins"],
+      lang: ["Language", "App language"],
+      font: ["Font", "Typography across the app"],
+      lock: ["App lock", "PIN on this device"],
+      backup: ["Backup", "Export or restore data"],
+      "app-update": ["Updates", "Version and what's new"],
+      shortcuts: ["Keyboard shortcuts", "Quick keys for pages"],
+      "mega-tools": ["Power tools", "Digest, CSV, backup, undo…"]
+    };
+    Object.keys(map).forEach((key) => {
+      const el = document.querySelector('[data-settings-card="' + key + '"]');
+      if (!el) return;
+      const h3 = el.querySelector(".settings-card-body h3");
+      const p = el.querySelector(".settings-card-body p.muted, .settings-card-body p");
+      if (h3) h3.textContent = map[key][0];
+      if (p) p.textContent = map[key][1];
+    });
+    const intro = document.querySelector("#settingsPage .section-intro p");
+    if (intro) intro.textContent = "Appearance, security, data and tools";
+  }
+
+  function fixBugs() {
+    document.querySelectorAll("#settingsPage .settings-card-main[draggable]").forEach((c) => {
+      c.setAttribute("draggable", "false");
+    });
+    document.querySelectorAll("#settingsPage .settings-card-action").forEach((c) => {
+      c.classList.add("settings-card-main");
+    });
+    document.querySelectorAll("#settingsPage .settings-tools-grid .settings-card-main, #settingsPage .settings-tools-grid .tool-card").forEach((c) => {
+      const h3 = c.querySelector("h3");
+      const p = c.querySelector("p.muted");
+      if (!h3 || !p) return;
+      const t = (h3.textContent || "").toLowerCase();
+      if (t.includes("install")) p.textContent = "Home screen / offline access";
+      if (t.includes("zakat")) p.textContent = "Simple 2.5% estimate";
+      if (t.includes("report") || t.includes("data")) p.textContent = "Print statement or export CSV";
+      if (t.includes("privacy")) p.textContent = "Blur balances on screen";
+    });
+  }
+
+  function organizeAppearance() {
+    const grid = document.getElementById("settingsCardsGrid");
+    if (!grid) return;
+    const saved = loadOrder();
+    applyOrder(grid, saved || DEFAULT_APPEARANCE);
+    ensureHandles(grid);
+    wireDrag(grid);
+  }
+
+  function boot() {
+    injectToolbar();
+    polishCopy();
+    fixBugs();
+    organizeAppearance();
+    setTimeout(() => {
+      organizeAppearance();
+      polishCopy();
+      fixBugs();
+    }, 900);
+    setTimeout(() => {
+      organizeAppearance();
+      ensureHandles(document.getElementById("settingsCardsGrid"));
+    }, 2000);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 200));
+  } else {
+    setTimeout(boot, 200);
+  }
+
+  document.addEventListener("click", (e) => {
+    const nav = e.target.closest && e.target.closest('[data-page="settings"]');
+    if (nav) setTimeout(() => {
+      ensureHandles(document.getElementById("settingsCardsGrid"));
+      injectToolbar();
+    }, 120);
+  });
+
+  window.hisabSettingsReorder = {
+    setMode: setReorderMode,
+    reset: () => {
+      try { localStorage.removeItem(scopeKey(ORDER_KEY)); } catch (_) {}
+      const grid = document.getElementById("settingsCardsGrid");
+      if (grid) applyOrder(grid, DEFAULT_APPEARANCE);
+    }
+  };
+})();
+
+/* ===== Settings order re-apply after clean packs ===== */
+(function settingsOrderGuard() {
+  function reapply() {
+    try {
+      const grid = document.getElementById("settingsCardsGrid");
+      if (!grid) return;
+      const key = (typeof userScope === "function" ? userScope("hisabKitabSettingsCardOrderV1") : "hisabKitabSettingsCardOrderV1");
+      let order = null;
+      try {
+        const raw = localStorage.getItem(key);
+        order = raw ? JSON.parse(raw) : null;
+      } catch (_) {}
+      if (!Array.isArray(order) || !order.length) return;
+      const map = {};
+      grid.querySelectorAll(".settings-card-main").forEach((c) => {
+        const k = c.getAttribute("data-settings-card");
+        if (k) map[k] = c;
+      });
+      order.forEach((k) => { if (map[k]) grid.appendChild(map[k]); });
+    } catch (_) {}
+  }
+  setTimeout(reapply, 1800);
+  setTimeout(reapply, 2800);
 })();
