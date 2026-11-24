@@ -11746,911 +11746,516 @@ try { window.setEntryType = setEntryType; } catch (_) {}
   else setTimeout(boot, 150);
 })();
 
-/* ===== Hisab Kitab HK 2.0 Feature Pack ===== */
-(function hk2FeaturePack() {
-  const SK = (base) => {
+
+/* ===== HK Recycle Bin + Ctrl+Z (all entry types) ===== */
+(function hkRecycleBinPack() {
+  const BIN_KEY = "hisabKitabRecycleBinV1";
+  const MAX_BIN = 80;
+
+  function scopeKey(base) {
     try { if (typeof userScope === "function") return userScope(base); } catch (_) {}
     return base;
-  };
+  }
 
-  /* ---------- storage helpers ---------- */
-  function loadJSON(key, fallback) {
+  function loadBin() {
     try {
-      const raw = localStorage.getItem(SK(key));
-      if (!raw) return fallback;
-      const v = JSON.parse(raw);
-      return v == null ? fallback : v;
-    } catch { return fallback; }
+      const raw = localStorage.getItem(scopeKey(BIN_KEY));
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
   }
-  function saveJSON(key, val) {
-    try { localStorage.setItem(SK(key), JSON.stringify(val)); } catch (_) {}
+  function saveBin(arr) {
+    try { localStorage.setItem(scopeKey(BIN_KEY), JSON.stringify(arr.slice(0, MAX_BIN))); } catch (_) {}
   }
 
-  /* ---------- 1) Custom wallets / accounts ---------- */
-  const WALLETS_KEY = "hisabKitabWalletsV2";
-  function getWallets() {
-    let list = loadJSON(WALLETS_KEY, null);
-    if (!Array.isArray(list) || !list.length) {
-      list = ["Cash", "Bank", "Card", "JazzCash", "Easypaisa"].map((n) => ({ id: n.toLowerCase(), name: n }));
-      saveJSON(WALLETS_KEY, list);
-    }
-    return list;
+  /** @param {"transaction"|"goal"|"debt"|"bill"|"asset"|"subscription"|"rule"|"recurring"|"other"} kind */
+  function pushToBin(kind, item, meta) {
+    if (!item) return;
+    const entry = {
+      id: "rb_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+      kind,
+      item: JSON.parse(JSON.stringify(item)),
+      meta: meta || {},
+      deletedAt: new Date().toISOString()
+    };
+    const bin = loadBin();
+    bin.unshift(entry);
+    saveBin(bin);
+    updateBadge();
+    return entry;
   }
-  function saveWallets(list) { saveJSON(WALLETS_KEY, list); }
 
-  function syncAccountSelects() {
-    const names = getWallets().map((w) => w.name);
-    ["txAccount", "txTransferTo", "filterAccount"].forEach((id) => {
-      const sel = document.getElementById(id);
-      if (!sel || sel.tagName !== "SELECT") return;
-      const cur = sel.value;
-      const first = sel.querySelector('option[value=""]');
-      sel.innerHTML = "";
-      if (first) sel.appendChild(first);
-      else if (id === "filterAccount") {
-        const o = document.createElement("option");
-        o.value = ""; o.textContent = "All accounts";
-        sel.appendChild(o);
+  function restoreEntry(entry) {
+    if (!entry || !entry.item) return false;
+    const it = entry.item;
+    try {
+      if (entry.kind === "transaction") {
+        if (typeof transactions === "undefined") return false;
+        if (transactions.some((t) => String(t.id) === String(it.id))) {
+          it.id = "r_" + Date.now().toString(36);
+        }
+        transactions.unshift(it);
+        if (typeof saveTransactions === "function") saveTransactions();
+        if (typeof renderAll === "function") renderAll();
+        else {
+          if (typeof renderStats === "function") renderStats(false);
+          if (typeof renderTable === "function") renderTable();
+          if (typeof refresh === "function") refresh();
+        }
+        return true;
       }
-      names.forEach((n) => {
-        const o = document.createElement("option");
-        o.value = n; o.textContent = n;
-        sel.appendChild(o);
-      });
-      if (cur && names.includes(cur)) sel.value = cur;
-    });
-  }
-
-  function openWalletsManager() {
-    let bd = document.getElementById("hk2WalletsBackdrop");
-    if (!bd) {
-      bd = document.createElement("div");
-      bd.id = "hk2WalletsBackdrop";
-      bd.className = "modal-backdrop";
-      bd.innerHTML = `
-        <div class="modal-card" role="dialog" style="max-width:420px">
-          <div class="modal-heading">
-            <div><span class="eyebrow">HK 2.0</span><h2>Wallets</h2></div>
-            <button type="button" class="icon-btn" id="hk2WalletsClose"><i data-lucide="x"></i></button>
-          </div>
-          <p class="muted" style="font-size:12px;margin:0 0 12px">Track Cash, Bank, cards and mobile wallets separately.</p>
-          <div id="hk2WalletsList" class="hk2-list"></div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <input id="hk2WalletName" type="text" placeholder="New wallet name" style="flex:1;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);color:var(--text);padding:0 12px">
-            <button type="button" class="primary-btn" id="hk2WalletAdd">Add</button>
-          </div>
-          <button type="button" class="outline-btn" id="hk2WalletsDone" style="width:100%;margin-top:12px;justify-content:center">Done</button>
-        </div>`;
-      document.body.appendChild(bd);
-      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
-      bd.onclick = (e) => { if (e.target === bd) close(); };
-      bd.querySelector("#hk2WalletsClose").onclick = close;
-      bd.querySelector("#hk2WalletsDone").onclick = close;
-      bd.querySelector("#hk2WalletAdd").onclick = () => {
-        const inp = document.getElementById("hk2WalletName");
-        const name = (inp && inp.value || "").trim();
-        if (!name) return;
-        const list = getWallets();
-        if (list.some((w) => w.name.toLowerCase() === name.toLowerCase())) {
-          if (typeof showToast === "function") showToast("Already exists");
-          return;
-        }
-        list.push({ id: "w_" + Date.now(), name });
-        saveWallets(list);
-        if (inp) inp.value = "";
-        renderWalletsList();
-        syncAccountSelects();
-        if (typeof showToast === "function") showToast("Wallet added");
-      };
-    }
-    function renderWalletsList() {
-      const box = document.getElementById("hk2WalletsList");
-      if (!box) return;
-      const bals = (typeof accountBalances === "function") ? accountBalances() : [];
-      const map = {};
-      bals.forEach((b) => { map[b.name] = b.balance; });
-      const m = typeof money === "function" ? money : (v) => v;
-      box.innerHTML = getWallets().map((w) => {
-        const bal = map[w.name] != null ? map[w.name] : 0;
-        return `<div class="hk2-row">
-          <div><strong>${escapeHtml(w.name)}</strong><span class="muted">${m(bal)}</span></div>
-          <button type="button" class="text-btn hk2-del-wallet" data-id="${escapeHtml(w.id)}">Remove</button>
-        </div>`;
-      }).join("") || '<p class="muted">No wallets</p>';
-      box.querySelectorAll(".hk2-del-wallet").forEach((btn) => {
-        btn.onclick = () => {
-          const id = btn.getAttribute("data-id");
-          let list = getWallets().filter((w) => w.id !== id);
-          if (!list.length) list = [{ id: "cash", name: "Cash" }];
-          saveWallets(list);
-          renderWalletsList();
-          syncAccountSelects();
-        };
-      });
-    }
-    renderWalletsList();
-    bd.style.display = "flex";
-    bd.classList.add("open");
-    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
-  }
-
-  /* ---------- 2) Subscriptions ---------- */
-  const SUBS_KEY = "hisabKitabSubsV2";
-  function getSubs() { return loadJSON(SUBS_KEY, []); }
-  function saveSubs(list) { saveJSON(SUBS_KEY, list); }
-
-  function openSubscriptions() {
-    let bd = document.getElementById("hk2SubsBackdrop");
-    if (!bd) {
-      bd = document.createElement("div");
-      bd.id = "hk2SubsBackdrop";
-      bd.className = "modal-backdrop";
-      bd.innerHTML = `
-        <div class="modal-card" role="dialog" style="max-width:460px">
-          <div class="modal-heading">
-            <div><span class="eyebrow">HK 2.0</span><h2>Subscriptions</h2></div>
-            <button type="button" class="icon-btn" id="hk2SubsClose"><i data-lucide="x"></i></button>
-          </div>
-          <div id="hk2SubsList" class="hk2-list"></div>
-          <div class="hk2-form-grid">
-            <input id="hk2SubName" placeholder="Name (Netflix)" >
-            <input id="hk2SubAmount" type="number" min="0" step="0.01" placeholder="Amount">
-            <input id="hk2SubDay" type="number" min="1" max="28" placeholder="Billing day (1–28)">
-            <select id="hk2SubCycle">
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-              <option value="weekly">Weekly</option>
-            </select>
-          </div>
-          <button type="button" class="primary-btn" id="hk2SubAdd" style="width:100%;margin-top:10px;justify-content:center">Add subscription</button>
-          <p class="muted" id="hk2SubsTotal" style="margin-top:12px;font-size:12px"></p>
-        </div>`;
-      document.body.appendChild(bd);
-      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
-      bd.onclick = (e) => { if (e.target === bd) close(); };
-      bd.querySelector("#hk2SubsClose").onclick = close;
-      bd.querySelector("#hk2SubAdd").onclick = () => {
-        const name = (document.getElementById("hk2SubName").value || "").trim();
-        const amount = parseFloat(document.getElementById("hk2SubAmount").value);
-        const day = parseInt(document.getElementById("hk2SubDay").value, 10) || 1;
-        const cycle = document.getElementById("hk2SubCycle").value || "monthly";
-        if (!name || !Number.isFinite(amount) || amount <= 0) {
-          if (typeof showToast === "function") showToast("Name and amount required");
-          return;
-        }
-        const list = getSubs();
-        list.push({ id: "sub_" + Date.now(), name, amount, day, cycle });
+      if (entry.kind === "goal" && typeof loadGoals === "function" && typeof saveGoals === "function") {
+        const list = loadGoals();
+        if (!list.some((g) => String(g.id) === String(it.id))) list.unshift(it);
+        else { it.id = "g_" + Date.now().toString(36); list.unshift(it); }
+        saveGoals(list);
+        if (typeof renderGoals === "function") renderGoals();
+        return true;
+      }
+      if (entry.kind === "debt" && typeof loadDebts === "function" && typeof saveDebts === "function") {
+        const list = loadDebts();
+        if (!list.some((d) => String(d.id) === String(it.id))) list.unshift(it);
+        else { it.id = "d_" + Date.now().toString(36); list.unshift(it); }
+        saveDebts(list);
+        if (typeof renderDebts === "function") renderDebts();
+        return true;
+      }
+      if (entry.kind === "bill" && typeof loadBills === "function" && typeof saveBills === "function") {
+        const list = loadBills();
+        if (!list.some((b) => String(b.id) === String(it.id))) list.unshift(it);
+        else { it.id = "b_" + Date.now().toString(36); list.unshift(it); }
+        saveBills(list);
+        if (typeof renderBills === "function") renderBills();
+        return true;
+      }
+      if (entry.kind === "asset" && typeof loadAssets === "function" && typeof saveAssets === "function") {
+        const list = loadAssets();
+        list.unshift(it);
+        saveAssets(list);
+        if (typeof renderAssets === "function") renderAssets();
+        return true;
+      }
+      if (entry.kind === "subscription" && typeof loadSubs === "function" && typeof saveSubs === "function") {
+        const list = loadSubs();
+        list.unshift(it);
         saveSubs(list);
-        document.getElementById("hk2SubName").value = "";
-        document.getElementById("hk2SubAmount").value = "";
-        renderSubs();
-        if (typeof showToast === "function") showToast("Subscription added");
-      };
+        if (typeof renderSubs === "function") renderSubs();
+        return true;
+      }
+      if (entry.kind === "rule" && typeof loadRules === "function" && typeof saveRules === "function") {
+        const list = loadRules();
+        list.unshift(it);
+        saveRules(list);
+        return true;
+      }
+      if (entry.kind === "recurring" && typeof loadRecurring === "function" && typeof saveRecurring === "function") {
+        const list = loadRecurring();
+        list.unshift(it);
+        saveRecurring(list);
+        return true;
+      }
+    } catch (e) {
+      console.warn("[recycle]", e);
+      return false;
     }
-    function monthlyOf(s) {
-      if (s.cycle === "yearly") return s.amount / 12;
-      if (s.cycle === "weekly") return s.amount * 4.33;
-      return s.amount;
-    }
-    function renderSubs() {
-      const box = document.getElementById("hk2SubsList");
-      const list = getSubs();
-      const m = typeof money === "function" ? money : (v) => v;
-      let total = 0;
-      box.innerHTML = list.map((s) => {
-        total += monthlyOf(s);
-        return `<div class="hk2-row">
-          <div><strong>${escapeHtml(s.name)}</strong>
-            <span class="muted">${m(s.amount)} · ${escapeHtml(s.cycle)} · day ${s.day}</span></div>
-          <button type="button" class="text-btn hk2-del-sub" data-id="${s.id}">Remove</button>
-        </div>`;
-      }).join("") || '<p class="muted">No subscriptions yet</p>';
-      const tot = document.getElementById("hk2SubsTotal");
-      if (tot) tot.textContent = "Est. monthly total: " + m(total);
-      box.querySelectorAll(".hk2-del-sub").forEach((btn) => {
-        btn.onclick = () => {
-          saveSubs(getSubs().filter((s) => s.id !== btn.getAttribute("data-id")));
-          renderSubs();
-        };
-      });
-    }
-    renderSubs();
-    bd.style.display = "flex";
-    bd.classList.add("open");
-    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
+    return false;
   }
 
-  /* ---------- 3) Debt payoff planner ---------- */
-  function openDebtPlanner() {
-    let debts = [];
-    try {
-      const raw = localStorage.getItem(typeof debtsKey === "function" ? debtsKey() : SK("hisabKitabDebtsV1"));
-      debts = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(debts)) debts = [];
-    } catch { debts = []; }
-    const list = debts.map((d) => ({
-      name: d.name || d.title || "Debt",
-      remaining: Number(d.remaining != null ? d.remaining : d.amount) || 0,
-      rate: Number(d.rate || d.interest || 0) || 0
-    })).filter((d) => d.remaining > 0);
+  function undoLast() {
+    const bin = loadBin();
+    if (!bin.length) {
+      if (typeof showToast === "function") showToast("Recycle bin empty");
+      return false;
+    }
+    const entry = bin.shift();
+    saveBin(bin);
+    updateBadge();
+    const ok = restoreEntry(entry);
+    if (typeof showToast === "function") {
+      showToast(ok ? "Restored from recycle bin" : "Could not restore");
+    }
+    return ok;
+  }
 
-    let bd = document.getElementById("hk2DebtPlanBackdrop");
+  function permanentlyDelete(id) {
+    saveBin(loadBin().filter((e) => e.id !== id));
+    updateBadge();
+  }
+
+  function emptyBin() {
+    saveBin([]);
+    updateBadge();
+  }
+
+  function labelFor(entry) {
+    const it = entry.item || {};
+    if (entry.kind === "transaction") {
+      return (it.description || it.category || "Transaction") + " · " + (it.amount != null ? it.amount : "");
+    }
+    return it.name || it.title || it.label || entry.kind;
+  }
+
+  function openRecycleBin() {
+    let bd = document.getElementById("hkRecycleBackdrop");
     if (!bd) {
       bd = document.createElement("div");
-      bd.id = "hk2DebtPlanBackdrop";
+      bd.id = "hkRecycleBackdrop";
       bd.className = "modal-backdrop";
       bd.innerHTML = `
-        <div class="modal-card" role="dialog" style="max-width:440px">
+        <div class="modal-card" role="dialog" aria-modal="true" style="max-width:480px">
           <div class="modal-heading">
-            <div><span class="eyebrow">HK 2.0</span><h2>Debt payoff planner</h2></div>
-            <button type="button" class="icon-btn" id="hk2DebtClose"><i data-lucide="x"></i></button>
+            <div><span class="eyebrow">RECYCLE BIN</span><h2>Deleted items</h2></div>
+            <button type="button" class="icon-btn" id="hkRecycleClose" aria-label="Close"><i data-lucide="x"></i></button>
           </div>
-          <label class="tx-field"><span>Extra monthly payment</span>
-            <input id="hk2DebtExtra" type="number" min="0" step="1" value="500" style="width:100%;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);color:var(--text);padding:0 12px">
-          </label>
-          <div style="display:flex;gap:8px;margin:12px 0">
-            <button type="button" class="outline-btn" id="hk2DebtSnow" style="flex:1;justify-content:center">Snowball</button>
-            <button type="button" class="outline-btn" id="hk2DebtAval" style="flex:1;justify-content:center">Avalanche</button>
+          <p class="muted" style="font-size:12px;margin:0 0 10px;line-height:1.5">
+            Deleted transactions, goals, debts, bills and more land here.
+            <strong>Ctrl+Z</strong> restores the latest item.
+          </p>
+          <div id="hkRecycleList" class="hk-recycle-list"></div>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <button type="button" class="outline-btn" id="hkRecycleEmpty" style="flex:1;justify-content:center">Empty bin</button>
+            <button type="button" class="primary-btn" id="hkRecycleUndo" style="flex:1;justify-content:center">
+              <i data-lucide="undo-2"></i> Undo last
+            </button>
           </div>
-          <div id="hk2DebtResult" class="hk2-list"></div>
         </div>`;
       document.body.appendChild(bd);
       const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
       bd.onclick = (e) => { if (e.target === bd) close(); };
-      bd.querySelector("#hk2DebtClose").onclick = close;
-      bd.querySelector("#hk2DebtSnow").onclick = () => runPlan("snowball");
-      bd.querySelector("#hk2DebtAval").onclick = () => runPlan("avalanche");
+      bd.querySelector("#hkRecycleClose").onclick = close;
+      bd.querySelector("#hkRecycleEmpty").onclick = () => {
+        if (!loadBin().length) return;
+        if (!confirm("Permanently delete everything in the recycle bin?")) return;
+        emptyBin();
+        paint();
+        if (typeof showToast === "function") showToast("Recycle bin emptied");
+      };
+      bd.querySelector("#hkRecycleUndo").onclick = () => {
+        undoLast();
+        paint();
+      };
     }
-
-    function runPlan(mode) {
-      const extra = parseFloat(document.getElementById("hk2DebtExtra").value) || 0;
-      let items = list.map((d) => ({ ...d }));
-      if (!items.length) {
-        document.getElementById("hk2DebtResult").innerHTML = '<p class="muted">Add debts on Debts page first.</p>';
+    function paint() {
+      const box = document.getElementById("hkRecycleList");
+      const bin = loadBin();
+      if (!box) return;
+      if (!bin.length) {
+        box.innerHTML = '<p class="muted" style="padding:16px;text-align:center">Bin is empty</p>';
         return;
       }
-      if (mode === "snowball") items.sort((a, b) => a.remaining - b.remaining);
-      else items.sort((a, b) => b.rate - a.rate);
-      // Simple month simulation
-      let months = 0;
-      let pool = extra;
-      const order = items.map((d) => d.name);
-      const copy = items.map((d) => ({ ...d }));
-      while (copy.some((d) => d.remaining > 0.5) && months < 600) {
-        months++;
-        let pay = pool;
-        for (const d of copy) {
-          if (d.remaining <= 0) continue;
-          const interest = d.remaining * (d.rate / 100 / 12);
-          d.remaining += interest;
-          const minPay = Math.min(d.remaining, Math.max(50, d.remaining * 0.02));
-          const use = Math.min(d.remaining, minPay + (pay > 0 ? pay : 0));
-          d.remaining -= use;
-          if (use > minPay) pay -= (use - minPay);
-          if (pay < 0) pay = 0;
-        }
-      }
-      const m = typeof money === "function" ? money : (v) => v;
-      const totalLeft = list.reduce((s, d) => s + d.remaining, 0);
-      document.getElementById("hk2DebtResult").innerHTML = `
-        <div class="hk2-row"><div><strong>Method</strong></div><span>${mode === "snowball" ? "Snowball (smallest first)" : "Avalanche (highest rate)"}</span></div>
-        <div class="hk2-row"><div><strong>Order</strong></div><span>${order.map(escapeHtml).join(" → ")}</span></div>
-        <div class="hk2-row"><div><strong>Est. months</strong></div><span>${months >= 600 ? "600+" : months}</span></div>
-        <div class="hk2-row"><div><strong>Debt now</strong></div><span>${m(totalLeft)}</span></div>
-        <p class="muted" style="font-size:11px;margin-top:8px">Estimate only — min payment + extra applied monthly.</p>`;
-    }
-
-    document.getElementById("hk2DebtResult").innerHTML = list.length
-      ? `<p class="muted">${list.length} active debt(s). Choose Snowball or Avalanche.</p>`
-      : '<p class="muted">No active debts found.</p>';
-    bd.style.display = "flex";
-    bd.classList.add("open");
-    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
-  }
-
-  /* ---------- 4) Category budget alerts ---------- */
-  function categorySpendThisMonth() {
-    const key = (typeof monthKey === "function") ? monthKey() : new Date().toISOString().slice(0, 7);
-    const map = {};
-    (typeof transactions !== "undefined" ? transactions : []).forEach((t) => {
-      if (!t || t.type !== "expense" || !t.date || !String(t.date).startsWith(key)) return;
-      const cat = t.category || "Other";
-      const a = typeof amountInBase === "function" ? amountInBase(t) : Number(t.amount) || 0;
-      map[cat] = (map[cat] || 0) + a;
-    });
-    return map;
-  }
-
-  function renderCatBudgetAlerts() {
-    let budgets = {};
-    try {
-      if (typeof loadCatBudgets === "function") budgets = loadCatBudgets() || {};
-      else budgets = loadJSON("hisabKitabCatBudgetV1", {});
-    } catch { budgets = {}; }
-    const spend = categorySpendThisMonth();
-    const alerts = [];
-    Object.keys(budgets).forEach((cat) => {
-      const limit = Number(budgets[cat]) || 0;
-      if (limit <= 0) return;
-      const used = spend[cat] || 0;
-      const pct = used / limit;
-      if (pct >= 0.8) {
-        alerts.push({ cat, used, limit, pct, over: used > limit });
-      }
-    });
-    // inject into alerts list if present
-    const list = document.getElementById("alertsList");
-    if (!list) return;
-    list.querySelectorAll("[data-hk2-cat-alert]").forEach((n) => n.remove());
-    const m = typeof money === "function" ? money : (v) => v;
-    alerts.slice(0, 5).forEach((a) => {
-      const div = document.createElement("div");
-      div.className = "alert-item";
-      div.setAttribute("data-hk2-cat-alert", "1");
-      div.innerHTML = `<strong>${a.over ? "Over budget" : "Near limit"}</strong>
-        <span class="muted">${escapeHtml(a.cat)}: ${m(a.used)} / ${m(a.limit)}</span>`;
-      list.prepend(div);
-    });
-    const count = document.getElementById("alertCount");
-    if (count) {
-      const n = list.querySelectorAll(".alert-item, [data-hk2-cat-alert]").length;
-      count.textContent = String(n);
-    }
-  }
-
-  /* ---------- 5) Bill notifications ---------- */
-  function requestNotifPermission() {
-    if (!("Notification" in window)) {
-      if (typeof showToast === "function") showToast("Notifications not supported");
-      return;
-    }
-    Notification.requestPermission().then((p) => {
-      if (typeof showToast === "function") showToast(p === "granted" ? "Notifications on" : "Permission denied");
-      if (p === "granted") checkBillNotifications(true);
-    });
-  }
-
-  function checkBillNotifications(force) {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-    let bills = [];
-    try {
-      const raw = localStorage.getItem(SK("hisabKitabBillsV1"));
-      bills = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(bills)) bills = [];
-    } catch { bills = []; }
-    const today = new Date();
-    const tISO = today.toISOString().slice(0, 10);
-    const soon = new Date(today); soon.setDate(soon.getDate() + 3);
-    const soonISO = soon.toISOString().slice(0, 10);
-    const seenKey = SK("hisabKitabBillNotifSeenV2");
-    let seen = {};
-    try { seen = JSON.parse(localStorage.getItem(seenKey) || "{}"); } catch { seen = {}; }
-    bills.forEach((b) => {
-      const due = b.due || b.dueDate || "";
-      if (!due) return;
-      const name = b.name || b.title || "Bill";
-      const id = String(b.id || name + due);
-      if (due <= tISO && !seen[id + "_over"]) {
-        try { new Notification("Hisab Kitab — Bill due", { body: name + " is due " + due, tag: id }); } catch (_) {}
-        seen[id + "_over"] = 1;
-      } else if (due > tISO && due <= soonISO && !seen[id + "_soon"]) {
-        try { new Notification("Hisab Kitab — Bill soon", { body: name + " due " + due, tag: id + "s" }); } catch (_) {}
-        seen[id + "_soon"] = 1;
-      }
-    });
-    try { localStorage.setItem(seenKey, JSON.stringify(seen)); } catch (_) {}
-    if (force && typeof showToast === "function") showToast("Bill reminders checked");
-  }
-
-  /* ---------- 6) Spending heatmap ---------- */
-  function openHeatmap() {
-    const map = {};
-    (typeof transactions !== "undefined" ? transactions : []).forEach((t) => {
-      if (!t || t.type !== "expense" || !t.date) return;
-      const a = typeof amountInBase === "function" ? amountInBase(t) : Number(t.amount) || 0;
-      map[t.date] = (map[t.date] || 0) + a;
-    });
-    const days = Object.keys(map).sort().slice(-42);
-    let max = 0;
-    days.forEach((d) => { if (map[d] > max) max = map[d]; });
-    const m = typeof money === "function" ? money : (v) => v;
-    let bd = document.getElementById("hk2HeatBackdrop");
-    if (!bd) {
-      bd = document.createElement("div");
-      bd.id = "hk2HeatBackdrop";
-      bd.className = "modal-backdrop";
-      bd.innerHTML = `
-        <div class="modal-card" role="dialog" style="max-width:480px">
-          <div class="modal-heading">
-            <div><span class="eyebrow">HK 2.0</span><h2>Spending heatmap</h2></div>
-            <button type="button" class="icon-btn" id="hk2HeatClose"><i data-lucide="x"></i></button>
+      box.innerHTML = bin.map((e) => {
+        const when = e.deletedAt ? new Date(e.deletedAt).toLocaleString() : "";
+        return `<div class="hk-recycle-row" data-id="${e.id}">
+          <div class="hk-recycle-meta">
+            <strong>${escapeHtml(labelFor(e))}</strong>
+            <span class="muted">${escapeHtml(e.kind)} · ${escapeHtml(when)}</span>
           </div>
-          <div id="hk2HeatGrid" class="hk2-heat-grid"></div>
-          <p class="muted" style="font-size:12px;margin-top:10px">Last ~6 weeks of expenses. Darker = more spent.</p>
-        </div>`;
-      document.body.appendChild(bd);
-      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
-      bd.onclick = (e) => { if (e.target === bd) close(); };
-      bd.querySelector("#hk2HeatClose").onclick = close;
-    }
-    const grid = document.getElementById("hk2HeatGrid");
-    grid.innerHTML = days.map((d) => {
-      const v = map[d] || 0;
-      const intensity = max ? Math.min(1, v / max) : 0;
-      const bg = `color-mix(in srgb, var(--accent) ${Math.round(intensity * 85)}%, var(--panel2))`;
-      return `<div class="hk2-heat-cell" title="${d}: ${m(v)}" style="background:${bg}"><span>${d.slice(8)}</span></div>`;
-    }).join("") || '<p class="muted">No expense data yet</p>';
-    bd.style.display = "flex";
-    bd.classList.add("open");
-    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
-  }
-
-  /* ---------- 7) Savings challenges ---------- */
-  const CH_KEY = "hisabKitabChallengeV2";
-  function getChallenge() {
-    return loadJSON(CH_KEY, { type: "nospend", target: 7, progress: 0, start: null, active: false });
-  }
-  function saveChallenge(c) { saveJSON(CH_KEY, c); }
-
-  function openChallengeModal() {
-    let bd = document.getElementById("hk2ChBackdrop");
-    if (!bd) {
-      bd = document.createElement("div");
-      bd.id = "hk2ChBackdrop";
-      bd.className = "modal-backdrop";
-      bd.innerHTML = `
-        <div class="modal-card" role="dialog" style="max-width:400px">
-          <div class="modal-heading">
-            <div><span class="eyebrow">HK 2.0</span><h2>Savings challenge</h2></div>
-            <button type="button" class="icon-btn" id="hk2ChClose"><i data-lucide="x"></i></button>
-          </div>
-          <div id="hk2ChBody"></div>
-          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-            <button type="button" class="primary-btn" id="hk2ChStart" style="flex:1;justify-content:center">Start 7-day no-spend</button>
-            <button type="button" class="outline-btn" id="hk2ChCheck" style="flex:1;justify-content:center">Check in</button>
+          <div class="hk-recycle-actions">
+            <button type="button" class="text-btn hk-rb-restore" data-id="${e.id}">Restore</button>
+            <button type="button" class="text-btn danger hk-rb-purge" data-id="${e.id}">Delete</button>
           </div>
         </div>`;
-      document.body.appendChild(bd);
-      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
-      bd.onclick = (e) => { if (e.target === bd) close(); };
-      bd.querySelector("#hk2ChClose").onclick = close;
-      bd.querySelector("#hk2ChStart").onclick = () => {
-        saveChallenge({ type: "nospend", target: 7, progress: 0, start: new Date().toISOString().slice(0, 10), active: true });
-        paint();
-        if (typeof showToast === "function") showToast("Challenge started");
-        try { if (typeof renderChallenge === "function") renderChallenge(); } catch (_) {}
-      };
-      bd.querySelector("#hk2ChCheck").onclick = () => {
-        const c = getChallenge();
-        if (!c.active) { if (typeof showToast === "function") showToast("Start a challenge first"); return; }
-        c.progress = Math.min(c.target, (c.progress || 0) + 1);
-        if (c.progress >= c.target) { c.active = false; if (typeof showToast === "function") showToast("Challenge complete!"); }
-        else if (typeof showToast === "function") showToast("Day " + c.progress + " checked");
-        saveChallenge(c);
-        paint();
-        try { if (typeof renderChallenge === "function") renderChallenge(); } catch (_) {}
-      };
-    }
-    function paint() {
-      const c = getChallenge();
-      const body = document.getElementById("hk2ChBody");
-      const pct = c.target ? Math.round((c.progress / c.target) * 100) : 0;
-      body.innerHTML = `
-        <p class="muted" style="font-size:13px;line-height:1.5">${c.active ? "Active: no-spend streak" : "No active challenge. Start one to build the habit."}</p>
-        <div class="hk2-progress"><div style="width:${pct}%"></div></div>
-        <p><strong>${c.progress || 0}</strong> / ${c.target || 7} days</p>`;
-    }
-    paint();
-    bd.style.display = "flex";
-    bd.classList.add("open");
-    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
-  }
-
-  /* ---------- 8) Custom categories ---------- */
-  const CAT_KEY = "hisabKitabCustomCatsV2";
-  function getCustomCats() { return loadJSON(CAT_KEY, { expense: [], income: [] }); }
-  function saveCustomCats(o) { saveJSON(CAT_KEY, o); }
-
-  function openCustomCategories() {
-    let bd = document.getElementById("hk2CatBackdrop");
-    if (!bd) {
-      bd = document.createElement("div");
-      bd.id = "hk2CatBackdrop";
-      bd.className = "modal-backdrop";
-      bd.innerHTML = `
-        <div class="modal-card" role="dialog" style="max-width:400px">
-          <div class="modal-heading">
-            <div><span class="eyebrow">HK 2.0</span><h2>Custom categories</h2></div>
-            <button type="button" class="icon-btn" id="hk2CatClose"><i data-lucide="x"></i></button>
-          </div>
-          <div style="display:flex;gap:8px;margin-bottom:10px">
-            <select id="hk2CatType" style="height:40px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);color:var(--text);padding:0 10px">
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
-            </select>
-            <input id="hk2CatName" placeholder="Category name" style="flex:1;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);color:var(--text);padding:0 12px">
-            <button type="button" class="primary-btn" id="hk2CatAdd">Add</button>
-          </div>
-          <div id="hk2CatList" class="hk2-list"></div>
-        </div>`;
-      document.body.appendChild(bd);
-      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
-      bd.onclick = (e) => { if (e.target === bd) close(); };
-      bd.querySelector("#hk2CatClose").onclick = close;
-      bd.querySelector("#hk2CatAdd").onclick = () => {
-        const type = document.getElementById("hk2CatType").value;
-        const name = (document.getElementById("hk2CatName").value || "").trim();
-        if (!name) return;
-        const o = getCustomCats();
-        if (!o[type]) o[type] = [];
-        if (!o[type].includes(name)) o[type].push(name);
-        saveCustomCats(o);
-        document.getElementById("hk2CatName").value = "";
-        // merge into CATEGORY_OPTIONS if exists
-        try {
-          if (typeof CATEGORY_OPTIONS !== "undefined" && CATEGORY_OPTIONS[type] && !CATEGORY_OPTIONS[type].includes(name)) {
-            CATEGORY_OPTIONS[type].push(name);
-          }
-        } catch (_) {}
-        paint();
-        if (typeof showToast === "function") showToast("Category added");
-      };
-    }
-    function paint() {
-      const o = getCustomCats();
-      const box = document.getElementById("hk2CatList");
-      const rows = [];
-      ["expense", "income"].forEach((type) => {
-        (o[type] || []).forEach((name) => {
-          rows.push(`<div class="hk2-row"><div><strong>${escapeHtml(name)}</strong><span class="muted">${type}</span></div>
-            <button type="button" class="text-btn hk2-del-cat" data-type="${type}" data-name="${escapeHtml(name)}">Remove</button></div>`);
-        });
-      });
-      box.innerHTML = rows.join("") || '<p class="muted">No custom categories</p>';
-      box.querySelectorAll(".hk2-del-cat").forEach((btn) => {
+      }).join("");
+      box.querySelectorAll(".hk-rb-restore").forEach((btn) => {
         btn.onclick = () => {
-          const o2 = getCustomCats();
-          const t = btn.getAttribute("data-type");
-          const n = btn.getAttribute("data-name");
-          o2[t] = (o2[t] || []).filter((x) => x !== n);
-          saveCustomCats(o2);
+          const id = btn.getAttribute("data-id");
+          const bin2 = loadBin();
+          const entry = bin2.find((x) => x.id === id);
+          if (!entry) return;
+          saveBin(bin2.filter((x) => x.id !== id));
+          updateBadge();
+          const ok = restoreEntry(entry);
+          if (typeof showToast === "function") showToast(ok ? "Restored" : "Restore failed");
+          paint();
+        };
+      });
+      box.querySelectorAll(".hk-rb-purge").forEach((btn) => {
+        btn.onclick = () => {
+          permanentlyDelete(btn.getAttribute("data-id"));
           paint();
         };
       });
     }
-    // seed CATEGORY_OPTIONS
-    try {
-      const o = getCustomCats();
-      ["expense", "income"].forEach((type) => {
-        (o[type] || []).forEach((name) => {
-          if (typeof CATEGORY_OPTIONS !== "undefined" && CATEGORY_OPTIONS[type] && !CATEGORY_OPTIONS[type].includes(name)) {
-            CATEGORY_OPTIONS[type].push(name);
-          }
-        });
-      });
-    } catch (_) {}
     paint();
     bd.style.display = "flex";
     bd.classList.add("open");
     try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
   }
 
-  /* ---------- 9) Bank CSV templates ---------- */
-  const CSV_TEMPLATES = {
-    generic: "date,amount,type,category,description,currency",
-    meezan: "Txn Date,Withdrawal,Deposit,Description,Balance",
-    hbl: "Date,Debit,Credit,Narration",
-    sbi: "Txn Date,Debit,Credit,Description",
-    emirates: "Transaction Date,Amount,Debit/Credit,Particulars"
-  };
+  function escapeHtml(s) {
+    return String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
 
-  function openCsvTemplates() {
-    let bd = document.getElementById("hk2CsvTplBackdrop");
-    if (!bd) {
-      bd = document.createElement("div");
-      bd.id = "hk2CsvTplBackdrop";
-      bd.className = "modal-backdrop";
-      bd.innerHTML = `
-        <div class="modal-card" role="dialog" style="max-width:420px">
-          <div class="modal-heading">
-            <div><span class="eyebrow">HK 2.0</span><h2>CSV import help</h2></div>
-            <button type="button" class="icon-btn" id="hk2CsvClose"><i data-lucide="x"></i></button>
-          </div>
-          <p class="muted" style="font-size:12px;line-height:1.5">Use headers close to these, then Power tools → Import CSV.</p>
-          <div id="hk2CsvList" class="hk2-list"></div>
-          <button type="button" class="primary-btn" id="hk2CsvOpenImport" style="width:100%;margin-top:12px;justify-content:center">Open CSV import</button>
-        </div>`;
-      document.body.appendChild(bd);
-      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
-      bd.onclick = (e) => { if (e.target === bd) close(); };
-      bd.querySelector("#hk2CsvClose").onclick = close;
-      bd.querySelector("#hk2CsvOpenImport").onclick = () => {
-        close();
-        if (typeof window.openCsvImport === "function") window.openCsvImport();
-        else if (typeof showToast === "function") showToast("Open Power tools → Import CSV");
-      };
+  function updateBadge() {
+    const n = loadBin().length;
+    const badge = document.getElementById("hkRecycleBadge");
+    if (badge) {
+      badge.textContent = String(n);
+      badge.hidden = n === 0;
+      badge.style.display = n ? "" : "none";
     }
-    document.getElementById("hk2CsvList").innerHTML = Object.keys(CSV_TEMPLATES).map((k) =>
-      `<div class="hk2-row"><div><strong>${escapeHtml(k)}</strong><span class="muted" style="word-break:break-all">${escapeHtml(CSV_TEMPLATES[k])}</span></div></div>`
-    ).join("");
-    bd.style.display = "flex";
-    bd.classList.add("open");
-    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
-  }
-
-  /* ---------- 10) Family share code (export / import snapshot) ---------- */
-  function familyExport() {
-    const payload = {
-      hk: "HKFAMILY1",
-      ver: "2.0",
-      at: new Date().toISOString(),
-      transactions: (typeof transactions !== "undefined" ? transactions : []).slice(0, 2000)
-    };
-    const text = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-    const chunk = text.match(/.{1,48}/g) || [text];
-    let bd = document.getElementById("hk2FamBackdrop");
-    if (!bd) {
-      bd = document.createElement("div");
-      bd.id = "hk2FamBackdrop";
-      bd.className = "modal-backdrop";
-      bd.innerHTML = `
-        <div class="modal-card" role="dialog" style="max-width:440px">
-          <div class="modal-heading">
-            <div><span class="eyebrow">HK 2.0</span><h2>Family share</h2></div>
-            <button type="button" class="icon-btn" id="hk2FamClose"><i data-lucide="x"></i></button>
-          </div>
-          <p class="muted" style="font-size:12px">Copy code to share a snapshot (local only — not cloud sync).</p>
-          <textarea id="hk2FamCode" rows="6" style="width:100%;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);color:var(--text);padding:10px;font-size:11px"></textarea>
-          <div style="display:flex;gap:8px;margin-top:10px">
-            <button type="button" class="outline-btn" id="hk2FamCopy" style="flex:1;justify-content:center">Copy</button>
-            <button type="button" class="primary-btn" id="hk2FamImport" style="flex:1;justify-content:center">Import code</button>
-          </div>
-        </div>`;
-      document.body.appendChild(bd);
-      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
-      bd.onclick = (e) => { if (e.target === bd) close(); };
-      bd.querySelector("#hk2FamClose").onclick = close;
-      bd.querySelector("#hk2FamCopy").onclick = async () => {
-        try {
-          await navigator.clipboard.writeText(document.getElementById("hk2FamCode").value);
-          if (typeof showToast === "function") showToast("Copied");
-        } catch {
-          if (typeof showToast === "function") showToast("Select and copy manually");
-        }
-      };
-      bd.querySelector("#hk2FamImport").onclick = () => {
-        try {
-          const raw = (document.getElementById("hk2FamCode").value || "").replace(/\s+/g, "");
-          const json = decodeURIComponent(escape(atob(raw)));
-          const data = JSON.parse(json);
-          if (!data || data.hk !== "HKFAMILY1" || !Array.isArray(data.transactions)) throw new Error("bad");
-          if (!confirm("Merge " + data.transactions.length + " transactions into this device?")) return;
-          if (typeof transactions === "undefined") return;
-          data.transactions.forEach((t) => transactions.unshift(t));
-          if (typeof saveTransactions === "function") saveTransactions();
-          if (typeof renderAll === "function") renderAll();
-          else if (typeof renderStats === "function") renderStats(false);
-          if (typeof showToast === "function") showToast("Family data merged");
-          close();
-        } catch {
-          if (typeof showToast === "function") showToast("Invalid share code");
-        }
-      };
+    const nav = document.getElementById("hkRecycleNavCount");
+    if (nav) {
+      nav.textContent = n ? String(n) : "";
+      nav.hidden = !n;
     }
-    document.getElementById("hk2FamCode").value = chunk.join("\n");
-    bd.style.display = "flex";
-    bd.classList.add("open");
-    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
   }
 
-  /* ---------- 11) Weekly share summary ---------- */
-  function openWeeklyShare() {
-    const now = new Date();
-    const start = new Date(now); start.setDate(now.getDate() - 7);
-    const startS = start.toISOString().slice(0, 10);
-    let income = 0, expense = 0;
-    (typeof transactions !== "undefined" ? transactions : []).forEach((t) => {
-      if (!t || !t.date || t.date < startS) return;
-      const a = typeof amountInBase === "function" ? amountInBase(t) : Number(t.amount) || 0;
-      if (t.type === "expense") expense += a;
-      else if (t.type === "income" || t.type === "remittance") income += a;
-    });
-    const m = typeof money === "function" ? money : (v) => String(v);
-    const text = `Hisab Kitab — last 7 days\nIncome: ${m(income)}\nSpend: ${m(expense)}\nNet: ${m(income - expense)}`;
-    if (navigator.share) {
-      navigator.share({ title: "Hisab Kitab", text }).catch(() => copyShare(text));
-    } else copyShare(text);
-  }
-  function copyShare(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => {
-        if (typeof showToast === "function") showToast("Summary copied — paste in WhatsApp");
-      }).catch(() => alert(text));
-    } else alert(text);
-  }
-
-  /* ---------- 12) Live-ish rates (editable) ---------- */
-  const RATES_KEY = "hisabKitabRatesV2";
-  function openRatesEditor() {
-    const defaults = (typeof RATES_TO_SAR !== "undefined") ? { ...RATES_TO_SAR } : { SAR: 1, AED: 1.02, PKR: 0.0135, INR: 0.043, GBP: 4.85 };
-    const saved = loadJSON(RATES_KEY, null);
-    const rates = saved && typeof saved === "object" ? { ...defaults, ...saved } : defaults;
-    let bd = document.getElementById("hk2RatesBackdrop");
-    if (!bd) {
-      bd = document.createElement("div");
-      bd.id = "hk2RatesBackdrop";
-      bd.className = "modal-backdrop";
-      bd.innerHTML = `
-        <div class="modal-card" role="dialog" style="max-width:400px">
-          <div class="modal-heading">
-            <div><span class="eyebrow">HK 2.0</span><h2>Exchange rates</h2></div>
-            <button type="button" class="icon-btn" id="hk2RatesClose"><i data-lucide="x"></i></button>
-          </div>
-          <p class="muted" style="font-size:12px">1 unit → SAR (approx). Edit to match your bank.</p>
-          <div id="hk2RatesForm" class="hk2-form-grid"></div>
-          <button type="button" class="primary-btn" id="hk2RatesSave" style="width:100%;margin-top:12px;justify-content:center">Save rates</button>
-        </div>`;
-      document.body.appendChild(bd);
-      const close = () => { bd.classList.remove("open"); bd.style.display = ""; };
-      bd.onclick = (e) => { if (e.target === bd) close(); };
-      bd.querySelector("#hk2RatesClose").onclick = close;
-      bd.querySelector("#hk2RatesSave").onclick = () => {
-        const next = {};
-        bd.querySelectorAll("[data-rate]").forEach((inp) => {
-          next[inp.getAttribute("data-rate")] = parseFloat(inp.value) || 1;
-        });
-        saveJSON(RATES_KEY, next);
+  /* ---- Intercept UI deletes (capture phase) ---- */
+  function interceptClicks() {
+    document.addEventListener("click", (e) => {
+      // Transactions
+      const txDel = e.target.closest && e.target.closest("[data-delete]");
+      if (txDel) {
+        const id = txDel.getAttribute("data-delete");
         try {
-          if (typeof RATES_TO_SAR !== "undefined") Object.keys(next).forEach((k) => { RATES_TO_SAR[k] = next[k]; });
+          if (typeof transactions !== "undefined") {
+            const tx = transactions.find((t) => String(t.id) === String(id));
+            if (tx) {
+              // Let original handler run after we snapshot — use setTimeout 0 after confirm is hard.
+              // Instead: mark pending and pick up via Mutation / wrap after.
+              window.__hkPendingTxDelete = JSON.parse(JSON.stringify(tx));
+            }
+          }
         } catch (_) {}
-        if (typeof showToast === "function") showToast("Rates saved");
-        if (typeof renderStats === "function") renderStats(false);
-        close();
-      };
+      }
+      // Goals
+      const gDel = e.target.closest && e.target.closest("[data-goal-del]");
+      if (gDel) {
+        try {
+          const id = gDel.getAttribute("data-goal-del") || gDel.dataset.goalDel;
+          if (typeof loadGoals === "function") {
+            const g = loadGoals().find((x) => String(x.id) === String(id));
+            if (g) window.__hkPendingGoalDelete = JSON.parse(JSON.stringify(g));
+          }
+        } catch (_) {}
+      }
+      // Debts
+      const dDel = e.target.closest && e.target.closest("[data-debt-del]");
+      if (dDel) {
+        try {
+          const id = dDel.getAttribute("data-debt-del") || dDel.dataset.debtDel;
+          if (typeof loadDebts === "function") {
+            const d = loadDebts().find((x) => String(x.id) === String(id));
+            if (d) window.__hkPendingDebtDelete = JSON.parse(JSON.stringify(d));
+          }
+        } catch (_) {}
+      }
+      // Bills
+      const bDel = e.target.closest && e.target.closest("[data-bill-del]");
+      if (bDel) {
+        try {
+          const id = bDel.getAttribute("data-bill-del");
+          if (typeof loadBills === "function") {
+            const b = loadBills().find((x) => String(x.id) === String(id));
+            if (b) window.__hkPendingBillDelete = JSON.parse(JSON.stringify(b));
+          }
+        } catch (_) {}
+      }
+      // Assets / subs / rules
+      const aDel = e.target.closest && e.target.closest("[data-del-asset]");
+      if (aDel && typeof loadAssets === "function") {
+        try {
+          const a = loadAssets().find((x) => String(x.id) === String(aDel.getAttribute("data-del-asset")));
+          if (a) window.__hkPendingAssetDelete = JSON.parse(JSON.stringify(a));
+        } catch (_) {}
+      }
+      const sDel = e.target.closest && e.target.closest("[data-del-sub]");
+      if (sDel && typeof loadSubs === "function") {
+        try {
+          const s = loadSubs().find((x) => String(x.id) === String(sDel.getAttribute("data-del-sub")));
+          if (s) window.__hkPendingSubDelete = JSON.parse(JSON.stringify(s));
+        } catch (_) {}
+      }
+      const rDel = e.target.closest && e.target.closest("[data-del-rule]");
+      if (rDel && typeof loadRules === "function") {
+        try {
+          const r = loadRules().find((x) => String(x.id) === String(rDel.getAttribute("data-del-rule")));
+          if (r) window.__hkPendingRuleDelete = JSON.parse(JSON.stringify(r));
+        } catch (_) {}
+      }
+      // Recurring
+      const recDel = e.target.closest && e.target.closest("[data-id]");
+      if (recDel && recDel.closest && recDel.closest("#recurringList, #recurringModalBackdrop")) {
+        try {
+          if (typeof loadRecurring === "function") {
+            const r = loadRecurring().find((x) => String(x.id) === String(recDel.getAttribute("data-id")));
+            if (r) window.__hkPendingRecurringDelete = JSON.parse(JSON.stringify(r));
+          }
+        } catch (_) {}
+      }
+    }, true);
+
+    // After deletes complete, move pending snapshots into bin
+    document.addEventListener("click", () => {
+      setTimeout(() => {
+        try {
+          if (window.__hkPendingTxDelete) {
+            const snap = window.__hkPendingTxDelete;
+            window.__hkPendingTxDelete = null;
+            // only if actually gone
+            if (typeof transactions !== "undefined" && !transactions.some((t) => String(t.id) === String(snap.id))) {
+              pushToBin("transaction", snap);
+              softToast("Moved to recycle bin · Ctrl+Z");
+            }
+          }
+          if (window.__hkPendingGoalDelete) {
+            const snap = window.__hkPendingGoalDelete;
+            window.__hkPendingGoalDelete = null;
+            if (typeof loadGoals === "function" && !loadGoals().some((g) => String(g.id) === String(snap.id))) {
+              pushToBin("goal", snap);
+              softToast("Goal in recycle bin · Ctrl+Z");
+            }
+          }
+          if (window.__hkPendingDebtDelete) {
+            const snap = window.__hkPendingDebtDelete;
+            window.__hkPendingDebtDelete = null;
+            if (typeof loadDebts === "function" && !loadDebts().some((d) => String(d.id) === String(snap.id))) {
+              pushToBin("debt", snap);
+              softToast("Debt in recycle bin · Ctrl+Z");
+            }
+          }
+          if (window.__hkPendingBillDelete) {
+            const snap = window.__hkPendingBillDelete;
+            window.__hkPendingBillDelete = null;
+            if (typeof loadBills === "function" && !loadBills().some((b) => String(b.id) === String(snap.id))) {
+              pushToBin("bill", snap);
+              softToast("Bill in recycle bin · Ctrl+Z");
+            }
+          }
+          if (window.__hkPendingAssetDelete) {
+            const snap = window.__hkPendingAssetDelete;
+            window.__hkPendingAssetDelete = null;
+            pushToBin("asset", snap);
+            softToast("Asset in recycle bin · Ctrl+Z");
+          }
+          if (window.__hkPendingSubDelete) {
+            const snap = window.__hkPendingSubDelete;
+            window.__hkPendingSubDelete = null;
+            pushToBin("subscription", snap);
+            softToast("Subscription in recycle bin · Ctrl+Z");
+          }
+          if (window.__hkPendingRuleDelete) {
+            const snap = window.__hkPendingRuleDelete;
+            window.__hkPendingRuleDelete = null;
+            pushToBin("rule", snap);
+            softToast("Rule in recycle bin · Ctrl+Z");
+          }
+          if (window.__hkPendingRecurringDelete) {
+            const snap = window.__hkPendingRecurringDelete;
+            window.__hkPendingRecurringDelete = null;
+            pushToBin("recurring", snap);
+            softToast("Recurring in recycle bin · Ctrl+Z");
+          }
+        } catch (_) {}
+      }, 80);
+    }, false);
+  }
+
+  function softToast(msg) {
+    if (typeof showToast === "function") {
+      try {
+        showToast(msg, {
+          actionLabel: "Undo",
+          duration: 6000,
+          onAction: () => undoLast()
+        });
+        return;
+      } catch (_) {}
+      try { showToast(msg); } catch (_) {}
     }
-    const form = document.getElementById("hk2RatesForm");
-    form.innerHTML = Object.keys(rates).map((k) =>
-      `<label class="tx-field"><span>${k} → SAR</span>
-        <input data-rate="${k}" type="number" step="0.0001" value="${rates[k]}" style="width:100%;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);color:var(--text);padding:0 10px">
-      </label>`
-    ).join("");
-    // apply saved rates live
-    try {
-      if (typeof RATES_TO_SAR !== "undefined") Object.keys(rates).forEach((k) => { RATES_TO_SAR[k] = rates[k]; });
-    } catch (_) {}
-    bd.style.display = "flex";
-    bd.classList.add("open");
-    try { if (window.lucide) lucide.createIcons({ nodes: [bd] }); } catch (_) {}
   }
 
-  /* ---------- helpers ---------- */
-  function escapeHtml(str) {
-    return String(str || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  /* Ctrl+Z / Cmd+Z */
+  function wireKeys() {
+    document.addEventListener("keydown", (e) => {
+      const tag = (e.target && e.target.tagName) || "";
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (e.target && e.target.isContentEditable)) return;
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === "z" || e.key === "Z")) {
+        e.preventDefault();
+        undoLast();
+      }
+    });
   }
 
-  /* ---------- Power tools + settings entry ---------- */
-  function injectHk2Tools() {
+  /* UI entry points */
+  function injectUI() {
+    // Power tools
     const sel = document.getElementById("powerToolsSelect");
-    if (sel && !sel.dataset.hk2) {
-      sel.dataset.hk2 = "1";
-      const extras = [
-        ["hk2-wallets", "Wallets / accounts"],
-        ["hk2-subs", "Subscriptions"],
-        ["hk2-debt", "Debt payoff planner"],
-        ["hk2-heat", "Spending heatmap"],
-        ["hk2-challenge", "Savings challenge"],
-        ["hk2-cats", "Custom categories"],
-        ["hk2-csv", "Bank CSV templates"],
-        ["hk2-family", "Family share code"],
-        ["hk2-share", "Weekly WhatsApp summary"],
-        ["hk2-rates", "Exchange rates"],
-        ["hk2-notif", "Enable bill notifications"]
-      ];
-      extras.forEach(([v, label]) => {
-        if ([...sel.options].some((o) => o.value === v)) return;
+    if (sel && !sel.dataset.recycle) {
+      sel.dataset.recycle = "1";
+      if (![...sel.options].some((o) => o.value === "recycle-bin")) {
         const opt = document.createElement("option");
-        opt.value = v;
-        opt.textContent = label;
+        opt.value = "recycle-bin";
+        opt.textContent = "Recycle bin";
         sel.appendChild(opt);
-      });
+      }
+      if (![...sel.options].some((o) => o.value === "undo-last")) {
+        const opt = document.createElement("option");
+        opt.value = "undo-last";
+        opt.textContent = "Undo last delete (Ctrl+Z)";
+        sel.appendChild(opt);
+      }
       sel.addEventListener("change", () => {
-        const k = sel.value;
-        const map = {
-          "hk2-wallets": openWalletsManager,
-          "hk2-subs": openSubscriptions,
-          "hk2-debt": openDebtPlanner,
-          "hk2-heat": openHeatmap,
-          "hk2-challenge": openChallengeModal,
-          "hk2-cats": openCustomCategories,
-          "hk2-csv": openCsvTemplates,
-          "hk2-family": familyExport,
-          "hk2-share": openWeeklyShare,
-          "hk2-rates": openRatesEditor,
-          "hk2-notif": requestNotifPermission
-        };
-        if (map[k]) {
-          map[k]();
-          sel.value = "";
-        }
+        if (sel.value === "recycle-bin") { openRecycleBin(); sel.value = ""; }
+        if (sel.value === "undo-last") { undoLast(); sel.value = ""; }
       });
     }
 
-    // Quick entry card on settings tools grid
+    // Settings tools card
     const tools = document.querySelector("#settingsPage .settings-tools-grid");
-    if (tools && !document.getElementById("hk2ToolsCard")) {
+    if (tools && !document.getElementById("hkRecycleCard")) {
       const art = document.createElement("article");
       art.className = "panel tool-card settings-card-main";
-      art.id = "hk2ToolsCard";
+      art.id = "hkRecycleCard";
       art.innerHTML = `
-        <div class="settings-card-icon"><i data-lucide="sparkles"></i></div>
+        <div class="settings-card-icon"><i data-lucide="trash-2"></i></div>
         <div class="settings-card-body">
-          <h3>HK 2.0 tools</h3>
-          <p class="muted">Wallets, subs, debt plan, heatmap…</p>
+          <h3>Recycle bin <span class="hk-recycle-badge" id="hkRecycleBadge" hidden>0</span></h3>
+          <p class="muted">Restore deleted transactions, goals, debts, bills…</p>
         </div>
-        <div class="settings-card-foot">
-          <select id="hk2ToolsSelect" class="sb-select" style="width:100%;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);color:var(--text);padding:0 12px">
-            <option value="">Open a tool…</option>
-            <option value="hk2-wallets">Wallets</option>
-            <option value="hk2-subs">Subscriptions</option>
-            <option value="hk2-debt">Debt planner</option>
-            <option value="hk2-heat">Heatmap</option>
-            <option value="hk2-challenge">Challenge</option>
-            <option value="hk2-cats">Categories</option>
-            <option value="hk2-csv">CSV templates</option>
-            <option value="hk2-family">Family share</option>
-            <option value="hk2-share">Weekly summary</option>
-            <option value="hk2-rates">Rates</option>
-            <option value="hk2-notif">Bill notifications</option>
-          </select>
+        <div class="settings-card-foot" style="display:flex;gap:8px">
+          <button type="button" class="outline-btn settings-card-btn" id="hkRecycleOpenBtn" style="flex:1;justify-content:center">
+            <i data-lucide="archive-restore"></i> Open bin
+          </button>
+          <button type="button" class="primary-btn settings-card-btn" id="hkRecycleUndoBtn" style="flex:1;justify-content:center">
+            <i data-lucide="undo-2"></i> Ctrl+Z
+          </button>
         </div>`;
       tools.appendChild(art);
-      const s2 = art.querySelector("#hk2ToolsSelect");
-      s2.addEventListener("change", () => {
-        const k = s2.value;
-        const map = {
-          "hk2-wallets": openWalletsManager,
-          "hk2-subs": openSubscriptions,
-          "hk2-debt": openDebtPlanner,
-          "hk2-heat": openHeatmap,
-          "hk2-challenge": openChallengeModal,
-          "hk2-cats": openCustomCategories,
-          "hk2-csv": openCsvTemplates,
-          "hk2-family": familyExport,
-          "hk2-share": openWeeklyShare,
-          "hk2-rates": openRatesEditor,
-          "hk2-notif": requestNotifPermission
-        };
-        if (map[k]) map[k]();
-        s2.value = "";
-      });
+      art.querySelector("#hkRecycleOpenBtn").onclick = () => openRecycleBin();
+      art.querySelector("#hkRecycleUndoBtn").onclick = () => undoLast();
       try { if (window.lucide) lucide.createIcons({ nodes: [art] }); } catch (_) {}
     }
+
+    // Floating quick access on overview (subtle)
+    if (!document.getElementById("hkRecycleFab") && document.querySelector(".main-content")) {
+      const fab = document.createElement("button");
+      fab.type = "button";
+      fab.id = "hkRecycleFab";
+      fab.className = "hk-recycle-fab";
+      fab.title = "Recycle bin (Ctrl+Z to undo)";
+      fab.innerHTML = '<i data-lucide="trash-2"></i><span id="hkRecycleNavCount" class="hk-recycle-fab-count" hidden></span>';
+      fab.onclick = () => openRecycleBin();
+      document.body.appendChild(fab);
+      try { if (window.lucide) lucide.createIcons({ nodes: [fab] }); } catch (_) {}
+    }
+    updateBadge();
   }
 
   function boot() {
-    syncAccountSelects();
-    injectHk2Tools();
-    renderCatBudgetAlerts();
-    checkBillNotifications(false);
-    // apply saved rates
-    try {
-      const saved = loadJSON(RATES_KEY, null);
-      if (saved && typeof RATES_TO_SAR !== "undefined") {
-        Object.keys(saved).forEach((k) => { RATES_TO_SAR[k] = saved[k]; });
-      }
-    } catch (_) {}
-    setTimeout(injectHk2Tools, 1200);
-    setTimeout(renderCatBudgetAlerts, 1500);
+    interceptClicks();
+    wireKeys();
+    injectUI();
+    setTimeout(injectUI, 1000);
+    setTimeout(injectUI, 2200);
+    // Align with older undoLastHk
+    window.undoLastHk = undoLast;
+    window.hkOpenRecycleBin = openRecycleBin;
+    window.hkUndoLast = undoLast;
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 600));
-  } else setTimeout(boot, 600);
-
-  // expose
-  window.hk2 = {
-    openWalletsManager, openSubscriptions, openDebtPlanner, openHeatmap,
-    openChallengeModal, openCustomCategories, openCsvTemplates, familyExport,
-    openWeeklyShare, openRatesEditor, requestNotifPermission
-  };
+    document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 400));
+  } else setTimeout(boot, 400);
 })();

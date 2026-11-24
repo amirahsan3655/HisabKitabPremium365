@@ -8466,60 +8466,53 @@ html.hk-premium .stat-value{font-variant-numeric:tabular-nums}
 }
 
 
-/* ===== HK 2.0 feature UI ===== */
-.hk2-list{display:flex;flex-direction:column;gap:8px;max-height:min(50vh,320px);overflow:auto;margin:0 0 4px}
-.hk2-row{
+/* ===== Recycle bin UI ===== */
+.hk-recycle-list{
+  display:flex;flex-direction:column;gap:8px;
+  max-height:min(48vh,340px);overflow:auto;
+}
+.hk-recycle-row{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);
+  padding:11px 12px;border-radius:12px;
+  border:1px solid var(--line);background:var(--panel2);
 }
-.hk2-row > div{display:flex;flex-direction:column;gap:2px;min-width:0}
-.hk2-row strong{font:700 13px Outfit,system-ui;color:var(--text)}
-.hk2-row .muted,.hk2-row span.muted{font-size:11px;color:var(--muted)}
-.hk2-form-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;
+.hk-recycle-meta{display:flex;flex-direction:column;gap:3px;min-width:0}
+.hk-recycle-meta strong{
+  font:700 13px Outfit,system-ui;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.hk2-form-grid input,.hk2-form-grid select{
-  height:40px;border-radius:10px;border:1px solid var(--line);
-  background:var(--input-bg);color:var(--text);padding:0 10px;width:100%;font:inherit;
+.hk-recycle-meta .muted{font-size:11px}
+.hk-recycle-actions{display:flex;gap:6px;flex-shrink:0}
+.hk-recycle-actions .text-btn.danger{color:var(--red)}
+.hk-recycle-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 6px;margin-left:6px;
+  border-radius:999px;background:#ef4444;color:#fff;
+  font:700 10px Outfit,system-ui;vertical-align:middle;
 }
-.hk2-heat-grid{
-  display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;
+.hk-recycle-fab{
+  position:fixed;right:18px;bottom:88px;z-index:60;
+  width:46px;height:46px;border-radius:14px;
+  border:1px solid var(--line);background:var(--panel);
+  color:var(--muted);display:grid;place-items:center;
+  box-shadow:0 10px 28px rgba(0,0,0,.22);cursor:pointer;
+  transition:transform .2s, border-color .2s, color .2s;
 }
-.hk2-heat-cell{
-  aspect-ratio:1;border-radius:8px;display:grid;place-items:center;
-  border:1px solid color-mix(in srgb,var(--line) 70%,transparent);
-  font-size:10px;font-weight:700;color:var(--text);
+.hk-recycle-fab:hover{
+  transform:translateY(-2px);color:var(--accent2);
+  border-color:color-mix(in srgb,var(--accent) 45%,var(--line));
 }
-.hk2-progress{
-  height:8px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);
-  overflow:hidden;margin:10px 0 8px;
+.hk-recycle-fab svg{width:18px;height:18px}
+.hk-recycle-fab-count{
+  position:absolute;top:-4px;right:-4px;
+  min-width:18px;height:18px;padding:0 5px;border-radius:999px;
+  background:#ef4444;color:#fff;font:700 10px Outfit,system-ui;
+  display:inline-flex;align-items:center;justify-content:center;
 }
-.hk2-progress > div{
-  height:100%;border-radius:999px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  transition:width .3s ease;
+@media (max-width:720px){
+  .hk-recycle-fab{bottom:96px;right:14px}
 }
-@media (max-width:480px){
-  .hk2-form-grid{grid-template-columns:1fr}
+#hkRecycleBackdrop.open,
+#hkRecycleBackdrop[style*="flex"]{
+  display:flex!important;align-items:center;justify-content:center;z-index:1400;
 }
-
-/* Settings polish (with HK 2.0) */
-#settingsPage .settings-cards-grid,
-#settingsPage .settings-tools-grid{
-  display:grid !important;
-  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
-  gap:14px !important;
-}
-@media (max-width:1100px){
-  #settingsPage .settings-cards-grid,
-  #settingsPage .settings-tools-grid{grid-template-columns:repeat(2, minmax(0, 1fr)) !important}
-}
-@media (max-width:560px){
-  #settingsPage .settings-cards-grid,
-  #settingsPage .settings-tools-grid{grid-template-columns:1fr !important}
-}
-#settingsPage .settings-card-main{
-  min-height:188px !important;display:flex !important;flex-direction:column !important;
-  border-radius:16px;
-}
-#settingsPage .settings-card-foot{margin-top:auto !important}
